@@ -8,7 +8,7 @@ vi.mock("@devmentor/db", () => ({
   createMentorRepository: mocks.createMentorRepository,
 }));
 
-import { createRequestScope } from "./container";
+import { createRequestScope, withScope } from "./container";
 
 const globalForContainer = globalThis as unknown as { devmentorContainer?: unknown };
 
@@ -63,5 +63,27 @@ describe("createRequestScope", () => {
     expect(scope.cradle.mentorService).toBeInstanceOf(MentorService);
     await expect(scope.cradle.mentorService.list()).resolves.toEqual([]);
     expect(repository.findAll).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("withScope", () => {
+  it("runs the callback with the request scope's cradle and returns its result", async () => {
+    const { orm } = createFakeOrm();
+    mocks.createOrm.mockResolvedValue(orm);
+    mocks.createMentorRepository.mockReturnValue({ findAll: vi.fn().mockResolvedValue(["mentor"]), create: vi.fn() });
+
+    const result = await withScope(({ mentorService }) => mentorService.list());
+
+    expect(result).toEqual(["mentor"]);
+  });
+
+  it("propagates errors from the callback", async () => {
+    const { orm } = createFakeOrm();
+    mocks.createOrm.mockResolvedValue(orm);
+    await expect(
+      withScope(async () => {
+        throw new Error("boom");
+      }),
+    ).rejects.toThrowError("boom");
   });
 });

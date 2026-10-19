@@ -3,9 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./validators": "./src/validators/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "jose": "^6.2.12",
+    "pino": "^10.4.0",
+    "zod": "^4.6.7"
   }
 }

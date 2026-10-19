@@ -27,6 +27,35 @@ const eslintConfig = defineConfig([
   boundary("packages/core", ["@devmentor/*", "@mikro-orm/*", "awilix", "pg", "next", "next/*", "react", "react-dom"]),
   boundary("packages/ui", ["@devmentor/*", "@mikro-orm/*", "awilix", "pg"]),
   boundary("packages/db", ["@devmentor/ui", "@devmentor/app", "awilix", "next", "next/*", "react", "react-dom"]),
+  // Engineering standards (.ai/specs/engineering-standards.md): code quality rules that can be linted.
+  {
+    files: ["**/*.{ts,tsx,mts}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+      "no-empty": ["error", { allowEmptyCatch: false }],
+    },
+  },
+  {
+    files: ["packages/*/src/**/*.{ts,tsx}"],
+    ignores: ["packages/db/src/scripts/**", "**/*.test.{ts,tsx}"],
+    rules: { "no-console": "error" },
+  },
+  // The only sanctioned fetch() to /api/* is apiCall (ui/src/backend/api/apiCall.ts).
+  {
+    files: ["packages/app/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: ["packages/ui/src/backend/api/apiCall.ts", "**/*.test.{ts,tsx}"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        { name: "fetch", message: "Use apiCall/apiCallOrThrow from @devmentor/ui instead of raw fetch." },
+      ],
+      "no-restricted-properties": [
+        "error",
+        { object: "window", property: "fetch", message: "Use apiCall/apiCallOrThrow from @devmentor/ui." },
+        { object: "globalThis", property: "fetch", message: "Use apiCall/apiCallOrThrow from @devmentor/ui." },
+      ],
+    },
+  },
   globalIgnores([
     "**/.next/**",
     "**/out/**",

@@ -45,8 +45,8 @@ Pages and routes (all in `packages/app`):
 |---|---|
 | `/` | Starter home page (original behavior preserved) |
 | `/mentors` | Public page, Tailwind (`MentorCard` from `ui`) |
-| `/admin/mentors` | Admin page, shadcn/ui components from `ui` |
-| `/api/mentors` | `GET` list, `POST` create (400 invalid input, 409 duplicate email); resolves `MentorService` from the Awilix container |
+| `/admin/mentors` | Admin page: shadcn/ui components, list through `apiCall` + `DataTable`, create through `CrudForm` |
+| `/api/mentors` | `GET` list, `POST` create (400 invalid input with field errors, 409 duplicate email, 403 without the CSRF header); built with `makeCrudRoute`, resolves `MentorService` from the Awilix container |
 
 Tailwind 4 is configured in `app` (no preflight, so the starter page is unchanged); `@source` covers `packages/ui`.
 shadcn/ui components are vendored in `packages/ui/src/components`.
@@ -61,7 +61,16 @@ The migration scripts read the process environment only; the Next.js app also re
 npm run migration:up -w @devmentor/db
 ```
 
-Sample endpoint using the container, service and repository: `GET`/`POST /api/mentors`.
+Sample endpoint using the container, service and repository: `GET`/`POST /api/mentors`. Responses use one envelope,
+`{ "ok": true, "data": ... }` or `{ "ok": false, "error": { "code", "message", "fieldErrors"? } }`, and state-changing
+requests must send the header `x-devmentor-csrf: 1` (the `apiCall` helper in `ui` always does):
+
+```bash
+curl -X POST localhost:3000/api/mentors -H 'content-type: application/json' -H 'x-devmentor-csrf: 1' \
+  -d '{"name":"Ada Lovelace","email":"ada@example.com"}'
+```
+
+Engineering standards, naming, security minimums and the review checklist: `.ai/specs/engineering-standards.md`.
 
 ## Getting started
 

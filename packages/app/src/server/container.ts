@@ -1,11 +1,11 @@
 import { asClass, asFunction, asValue, createContainer, InjectionMode, type AwilixContainer } from "awilix";
-import { MentorService, type MentorRepository } from "@devmentor/core";
+import { MentorService, type MentorRepositoryPort } from "@devmentor/core";
 import { createMentorRepository, createOrm, type Orm } from "@devmentor/db";
 
 export interface Cradle {
   orm: Orm;
   em: Orm["em"];
-  mentorRepository: MentorRepository;
+  mentorRepository: MentorRepositoryPort;
   mentorService: MentorService;
 }
 
@@ -20,6 +20,7 @@ async function buildRootContainer(): Promise<AwilixContainer<Cradle>> {
   return container;
 }
 
+// Every dependency is registered by hand (no loadModules globbing) so each binding stays greppable.
 export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
   globalForContainer.devmentorContainer ??= buildRootContainer();
   const root = await globalForContainer.devmentorContainer;
@@ -30,4 +31,9 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     mentorService: asClass(MentorService).scoped(),
   });
   return scope;
+}
+
+export async function withScope<T>(run: (cradle: Cradle) => Promise<T>): Promise<T> {
+  const scope = await createRequestScope();
+  return run(scope.cradle);
 }

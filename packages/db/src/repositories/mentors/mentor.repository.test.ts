@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { MentorAlreadyExistsError } from "@devmentor/core";
-import { createMentorRepository } from "./mentor-repository";
+import { ConflictError } from "@devmentor/core";
+import { createMentorRepository } from "./mentor.repository";
 
 function createEm(overrides: Record<string, unknown> = {}) {
   return {
@@ -40,9 +40,12 @@ describe("createMentorRepository", () => {
       flush: vi.fn().mockRejectedValue(Object.assign(new Error("duplicate key"), { code: "23505" })),
     });
     const repository = createMentorRepository(asEm(em));
-    await expect(repository.create({ name: "Ada", email: "ada@example.com" })).rejects.toBeInstanceOf(
-      MentorAlreadyExistsError,
-    );
+    const failure = repository.create({ name: "Ada", email: "ada@example.com" });
+    await expect(failure).rejects.toBeInstanceOf(ConflictError);
+    await expect(failure).rejects.toMatchObject({
+      status: 409,
+      message: "A mentor with email ada@example.com already exists",
+    });
   });
 
   it("rethrows any other database error untouched", async () => {

@@ -4,15 +4,15 @@ import { SiteHeader } from "./site-header";
 
 describe("SiteHeader", () => {
   it("links the brand to the home page and renders the navigation", () => {
-    render(<SiteHeader brand="Mentora" homeHref="/home" links={[{ label: "Find a tutor", href: "/mentors" }]} />);
-    expect(screen.getByRole("link", { name: "Mentora" }).getAttribute("href")).toBe("/home");
+    render(<SiteHeader brand="DevMentor" homeHref="/home" links={[{ label: "Find a tutor", href: "/mentors" }]} />);
+    expect(screen.getByRole("link", { name: "DevMentor" }).getAttribute("href")).toBe("/home");
     const nav = screen.getByRole("navigation", { name: "Main" });
     expect(nav.querySelector("a")?.getAttribute("href")).toBe("/mentors");
     expect(screen.getByText("Find a tutor")).toBeDefined();
   });
 
   it("renders an empty navigation without links", () => {
-    render(<SiteHeader brand="Mentora" homeHref="/home" links={[]} />);
+    render(<SiteHeader brand="DevMentor" homeHref="/home" links={[]} />);
     expect(screen.getByRole("navigation", { name: "Main" }).children).toHaveLength(0);
   });
 });

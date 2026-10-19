@@ -24,3 +24,9 @@ Port the prototype's **home screen only** (header, hero with search and subject 
 ## Acceptance
 
 - `/` renders the Mentora home screen; unit coverage stays 100%; lint, typecheck and build pass; integration test for `/` updated.
+
+## Update 2026-10-19 (owner instruction)
+
+The product is called **DevMentor**, not Mentora. Brand text on the home page (title, header, footer) was changed accordingly.
+The `--color-mentora-*` palette tokens and `mentora-*` utility names are internal and unchanged until the owner's new
+mockups replace this design.

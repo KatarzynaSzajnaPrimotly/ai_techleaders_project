@@ -6,9 +6,36 @@ describe("@devmentor/core public API", () => {
     expect(core.APP_NAME).toBe("DevMentor");
   });
 
-  it("exposes the service and the domain errors", () => {
-    expect(typeof core.MentorService).toBe("function");
-    expect(typeof core.MentorValidationError).toBe("function");
-    expect(typeof core.MentorAlreadyExistsError).toBe("function");
+  it.each([
+    "parseEnv",
+    "requireJwtSecret",
+    "createLogger",
+    "logger",
+    "AppError",
+    "ConflictError",
+    "ForbiddenError",
+    "MethodNotAllowedError",
+    "NotFoundError",
+    "UnauthorizedError",
+    "ValidationError",
+    "parseWithSchema",
+    "readJsonBody",
+    "apiHandler",
+    "created",
+    "ok",
+    "makeCrudRoute",
+    "assertOwns",
+    "requireRole",
+    "requireSession",
+    "signSession",
+    "verifySession",
+    "buildSessionCookie",
+    "clearSessionCookie",
+    "MentorService",
+    "SUBJECTS",
+    "FEATURED_TUTORS",
+    "mentorCreateSchema",
+  ])("exports %s", (name) => {
+    expect(core).toHaveProperty(name);
   });
 });

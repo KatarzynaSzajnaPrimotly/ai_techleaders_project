@@ -10,7 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # DevMentor: Project Assumptions
 
-DevMentor is the product name. These assumptions are binding; do not swap technologies or restructure
+DevMentor is the product name, in the UI, titles, copy and docs. "Mentora" was only the name of the concept prototype and
+must not appear in user-facing text. These assumptions are binding; do not swap technologies or restructure
 without an approved spec in `.ai/specs/`.
 
 ## Tech stack
@@ -37,6 +38,65 @@ npm workspaces; all sub-packages live in `packages/`:
 Dependency direction: `app` -> `ui`, `core`, `db`; `db` -> `core`; `ui` -> nothing project-internal;
 `core` depends on no other package. No circular dependencies.
 
+### Domain concept convention
+
+Domain code is not organized into `modules/`. Each concept (`auth`, `mentors`, `availability`, `bookings`, `payments`,
+`messages`, `favorites`, `reviews`, ...) is a same-named sub-folder repeated across the layers that need it:
+
+- `packages/db/src/entities/<concept>/<name>.entity.ts` and `packages/db/src/repositories/<concept>/<name>.repository.ts`
+- `packages/core/src/services/<concept>/<name>.service.ts` plus its `<name>.types.ts` and
+  `<name>-repository.port.ts` (the interface `db` implements; `core` never imports `db`)
+- `packages/core/src/validators/<concept>/<name>-<action>.schema.ts` (shared Zod schemas, exported also through
+  `@devmentor/core/validators`, which client code must use so server-only dependencies stay out of the browser bundle)
+- `packages/app/src/app/api/<concept>/route.ts` and the matching `page.tsx`
+
+Create a concept folder only when its first file is added; never scaffold empty ones. This is a directory convention,
+not a module runtime: no per-concept setup, ACL or auto-discovery. Event IDs follow `concept.entity.action`
+(`bookings.booking.created`) and go through a typed in-process emitter in `core/src/events`, added only when the first
+feature needs one; there is no queue or worker. External integrations (payments, notifications) are accessed through
+a port in `core` with a mock adapter first. A new service is one explicit line in `app/src/server/container.ts`.
+
+### Reusable API & UI layer
+
+Every route and page reuses two shared layers instead of re-implementing fetch, validation, auth and error handling:
+
+- `packages/core/src/http/`: `errors.ts` (typed `AppError` hierarchy), `apiHandler.ts` (wraps a route: CSRF check,
+  maps `AppError`s to status and envelope, logs unexpected failures with the shared pino `logger`), `makeCrudRoute.ts`
+  (`{ list, create, update, remove, authorize }` config in, `{ GET, POST, PUT, DELETE }` out; unconfigured methods
+  answer 405; for plain CRUD resources), `auth.ts` (`requireSession`, `requireRole`, `assertOwns`, session JWT and
+  cookie helpers), `validate.ts` (`parseWithSchema`, `readJsonBody`). Configuration lives in `config/env.ts`.
+- `packages/ui/src/backend/`: `api/apiCall.ts` (the only place a `fetch()` to `/api/*` may be written; ESLint enforces
+  it), `forms/CrudForm.tsx` (schema-driven, shows server `fieldErrors`, Ctrl/Cmd+Enter submits, Escape cancels),
+  `tables/DataTable.tsx` (loading, empty, error, pagination, row actions), `feedback/{LoadingMessage,ErrorMessage,EmptyState}.tsx`.
+- Reference example to copy: `app/api/mentors/route.ts` (CRUD config) and `app/admin/mentors/` (`apiCall` + `DataTable`
+  + `CrudForm`).
+
+A new reusable component has one home: a shadcn primitive goes to `ui/src/components/ui/` (added with
+`npx shadcn@latest add`); a generic, concept-agnostic panel pattern goes to `ui/src/backend/<category>/`; a component
+tied to one concept's shape goes to `ui/src/components/<concept>/`; one used by a single page stays next to its `page.tsx`.
+
+### Engineering standards (summary)
+
+The binding source is `.ai/specs/engineering-standards.md` (naming table, principles, security minimums, code quality,
+review checklist) and how it maps to this repo is in `.ai/specs/implemented/2026-10-19-engineering-standards-rollout.md`.
+The rules agents most often need:
+
+- Naming: entity `<name>.entity.ts`, service `<name>.service.ts`, port `<name>.port.ts`, schema `<name>.schema.ts`
+  (`camelCase` + `Schema`), tables and columns snake_case plural, DI cradle keys camelCase, one `route.ts` per resource.
+- No `any`, no empty `catch`, no `console` (use the logger; the migration CLI is the one exception), no raw `fetch`,
+  no dead or commented-out code, no magic numbers (name the constant and say why), early returns over deep nesting.
+  ESLint enforces the first four.
+- Security: auth is enforced server-side on every non-public route and checks the specific record (ownership);
+  fail closed; never spread a request body into `em.create()` (parse through the Zod schema first); recompute prices
+  server-side; no secrets, tokens or full JWTs in logs or responses (the logger redacts them); hash passwords with
+  bcrypt cost >= 12; JWT HS256 with a secret >= 32 characters from env, 24h expiry, HttpOnly/Secure/SameSite=Lax cookie,
+  never in `localStorage`; rate limit login and register; generic auth error messages; UUID ids; run `npm audit`.
+- Anything that checks then writes shared state (slot availability, booking status) runs in a DB transaction backed by
+  a unique constraint, and has an integration test for the concurrent case.
+- A bug fix ships a regression test that fails without the fix; a security-relevant fix says so in the PR.
+- Known gap: `POST /api/mentors` and `/admin/*` are still public because authentication has not been built yet. The
+  first feature that needs a session must call `requireSession` before touching a service.
+
 ## Conventions
 
 - Business logic belongs in `core`, persistence in `db`, presentation in `ui`; `app` only wires them together.
@@ -50,19 +110,22 @@ Dependency direction: `app` -> `ui`, `core`, `db`; `db` -> `core`; `ui` -> nothi
   `next dev` keeps the old version in memory and returns 500s. `next build` shares `packages/app/.next` with it.
 - Database config (URL, pool size) comes from environment variables; never commit secrets or `.env*` files.
 - Styling: Tailwind 4 is configured in `app` (`globals.css`, no preflight; `@source` covers `packages/ui`).
-  shadcn/ui components are vendored by hand in `packages/ui/src/components` (use `cn` from `ui`); add new ones
-  in the same style. Frontend pages use Tailwind utilities, admin pages (`/admin/*`) use the shadcn components.
+  shadcn/ui primitives live in `packages/ui/src/components/ui` (use `cn` from `ui`); add new ones in the same style. Frontend pages use Tailwind utilities, admin pages (`/admin/*`) use the shadcn components.
 - Next.js bundles workspace packages once per route: in code touching the shared ORM, reference entities by
   name, never by schema object identity (see `.ai/lessons/2026-10-19-nextjs-duplicate-package-copies.md`).
 - Migration history: `.ai/specs/implemented/2026-10-19-monorepo-migration.md`.
-- Data flow example: `core` defines `MentorRepository` and `MentorService`; `db` implements the repository
+- Data flow example: `core` defines `MentorRepositoryPort` and `MentorService`; `db` implements the port
   (MikroORM `EntitySchema`, no decorators); `app/src/server/container.ts` builds the Awilix container and a
-  per-request scope; route handlers call `createRequestScope()` and use `cradle.<service>`.
+  per-request scope; route handlers and pages call `withScope(({ mentorService }) => ...)` (or `createRequestScope()`).
 - Database: `DEVMENTOR_DATABASE_URL` (default `postgresql://postgres:postgres@127.0.0.1:5432/devmentor`; the
   generic `DATABASE_URL` is deliberately ignored), `DATABASE_POOL_MIN/MAX`. Migrations:
   `npm run migration:create|up|down -w @devmentor/db`; commit generated files in `packages/db/migrations`.
-- Errors: `core` defines domain errors (`MentorValidationError`, `MentorAlreadyExistsError`); `db` translates driver
-  errors into them, and route handlers map them to HTTP codes (400/409) without leaking database messages.
+- Errors: services and repositories throw only the typed `AppError` subclasses from `core/src/http/errors.ts`
+  (`ValidationError`, `ConflictError`, `NotFoundError`, `ForbiddenError`, `UnauthorizedError`); `db` translates driver
+  errors into them (PostgreSQL 23505 -> `ConflictError`). `apiHandler` maps them to HTTP codes and the JSON envelope
+  and never leaks database messages or stack traces; no route writes its own `try/catch`.
+- API contract: every `/api/*` response is `{ ok: true, data }` or `{ ok: false, error: { code, message, fieldErrors? } }`.
+  State-changing requests must carry the `x-devmentor-csrf: 1` header (`apiCall` always sends it).
 - Commands (run from the repo root): `npm run dev|build|lint|typecheck|test|test:coverage|test:integration`. Build with `NODE_ENV=production`
   if the shell sets `NODE_ENV=development`.
 
@@ -128,6 +191,8 @@ Naming rule for every file created under `.ai/` (specs and runs alike): `YYYY-MM
 `YYYY-MM-DD` is the date the file was authored and `slug` is a short kebab-case description
 (e.g. `2026-10-19-mentor-matching.md`). Never rename the date when a spec is later moved between
 `specs/`, `specs/implemented/`, or `specs/archive/` — it records when it was written, not when it moved.
+The one exception is the standing document `.ai/specs/engineering-standards.md`: it keeps its fixed name, stays in
+`specs/` (it is never "implemented"), and is amended in place.
 
 ## Specs (`.ai/specs/`)
 

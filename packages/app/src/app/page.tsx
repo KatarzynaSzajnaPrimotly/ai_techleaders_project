@@ -3,11 +3,11 @@ import { FEATURED_TUTORS, SUBJECTS } from "@devmentor/core";
 import { SearchBar, SiteFooter, SiteHeader, TutorCard } from "@devmentor/ui";
 
 export const metadata: Metadata = {
-  title: "Mentora — Learn anything, from real people",
+  title: "DevMentor — Learn anything, from real people",
   description: "1-on-1 online lessons in languages, programming, music and more.",
 };
 
-const BRAND = "Mentora";
+const BRAND = "DevMentor";
 const TUTORS_PATH = "/mentors";
 
 const STATS = [
@@ -112,7 +112,7 @@ export default function Home() {
         </section>
       </main>
 
-      <SiteFooter note="© 2026 Mentora — concept prototype, not a real product." links={[{ label: "Tutors", href: TUTORS_PATH }]} />
+      <SiteFooter note="© 2026 DevMentor" links={[{ label: "Tutors", href: TUTORS_PATH }]} />
     </div>
   );
 }

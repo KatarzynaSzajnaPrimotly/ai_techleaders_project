@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MentorSchema } from "./index";
+import { MentorSchema } from "../index";
 
 describe("MentorSchema", () => {
   it("maps Mentor to the mentors table", () => {

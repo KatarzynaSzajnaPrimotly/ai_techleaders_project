@@ -6,8 +6,3 @@ export interface Mentor {
 }
 
 export type NewMentor = Pick<Mentor, "name" | "email">;
-
-export interface MentorRepository {
-  findAll(): Promise<Mentor[]>;
-  create(input: NewMentor): Promise<Mentor>;
-}

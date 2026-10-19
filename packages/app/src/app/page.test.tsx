@@ -5,8 +5,8 @@ import { FEATURED_TUTORS, SUBJECTS } from "@devmentor/core";
 import Home, { metadata } from "./page";
 
 describe("home page", () => {
-  it("has the Mentora title", () => {
-    expect(metadata.title).toBe("Mentora — Learn anything, from real people");
+  it("has the DevMentor title", () => {
+    expect(metadata.title).toBe("DevMentor — Learn anything, from real people");
     expect(metadata.description).toContain("online lessons");
   });
 
@@ -56,6 +56,6 @@ describe("home page", () => {
   it("has a header and a footer", () => {
     render(<Home />);
     expect(screen.getByRole("banner")).toBeDefined();
-    expect(screen.getByRole("contentinfo").textContent).toContain("Mentora");
+    expect(screen.getByRole("contentinfo").textContent).toContain("DevMentor");
   });
 });

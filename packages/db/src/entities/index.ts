@@ -1,1 +1,1 @@
-export { MentorSchema } from "./mentor";
+export { MentorSchema } from "./mentors/mentor.entity";

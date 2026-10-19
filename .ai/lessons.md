@@ -17,3 +17,5 @@ See `AGENTS.md` for the full `.ai/` workflow this file is part of.
 - 2026-10-19 — After a Next.js upgrade the running dev preview serves 500s until restarted (`pm2 restart workspace-preview`). [details](lessons/2026-10-19-upgrades-typescript-next-preview.md)
 - 2026-10-19 — Vitest 5 needs @types/node >=22; unmatched test files are silently skipped; cover defensive branches by forcing input. [details](lessons/2026-10-19-vitest-coverage-and-test-gotchas.md)
 - 2026-10-19 — agent-browser needs system libs and `close --all` after env changes; no Docker in the sandbox, so Testcontainers runs only in CI. [details](lessons/2026-10-19-agent-browser-and-testcontainers.md)
+- 2026-10-19 — Another session shared the checkout and my full-file rewrite of an index barrel dropped its exports; use targeted edits. [details](lessons/2026-10-19-concurrent-sessions-shared-checkout.md)
+- 2026-10-19 — Client components must import schemas from `@devmentor/core/validators`, not the core barrel (pino, jose). [details](lessons/2026-10-19-client-bundles-and-core-subpaths.md)
