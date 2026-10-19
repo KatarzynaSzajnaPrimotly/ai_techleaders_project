@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book a lesson — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="booking">
+  <header class="site-header minimal-header">
+    <div class="container">
+      <a class="logo" href="index.html">Mentora<span class="dot"></span></a>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div class="avatar" id="bookingTutorAvatar">🧑‍🏫</div>
+        <strong id="bookingTutorName">Tutor</strong>
+      </div>
+    </div>
+  </header>
+
+  <div class="container booking-grid">
+    <div>
+      <h1 style="font-size:22px; font-weight:800; margin-bottom:16px;">Choose a lesson type</h1>
+      <div id="lessonTypeOptions"></div>
+
+      <h2 style="font-size:18px; font-weight:800; margin:28px 0 12px;">Pick a time</h2>
+      <div id="calendarHost"></div>
+
+      <div class="field" style="margin-top:20px;">
+        <label for="bookingNote">Note to tutor (optional)</label>
+        <textarea id="bookingNote" maxlength="500" placeholder="Tell your tutor about your goals or level…"></textarea>
+        <div class="hint" id="noteCounter">0/500</div>
+      </div>
+    </div>
+
+    <aside class="summary-card" style="position:sticky; top:84px;">
+      <h3 style="font-weight:800; margin-bottom:12px;">Order summary</h3>
+      <div id="summaryBody"></div>
+      <button class="btn btn-primary btn-block" style="margin-top:16px;" id="continueToPaymentBtn" disabled>Continue to payment</button>
+    </aside>
+  </div>
+
+  <div id="devToolbarSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

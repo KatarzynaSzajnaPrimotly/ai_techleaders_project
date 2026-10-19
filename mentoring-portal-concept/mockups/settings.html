@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account settings — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="settings">
+  <div id="headerSlot"></div>
+
+  <div class="container" style="padding:24px 0 60px; max-width:560px;">
+    <div class="page-title-row"><h1>Settings</h1></div>
+    <form id="settingsForm" class="summary-card">
+      <div class="field">
+        <label for="settingsName">Full name</label>
+        <input type="text" id="settingsName" />
+      </div>
+      <div class="field">
+        <label for="settingsTimezone">Timezone</label>
+        <select id="settingsTimezone">
+          <option>UTC</option>
+          <option selected>Europe/Warsaw</option>
+          <option>America/New_York</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="filter-row-check"><input type="checkbox" checked /> Email me about new messages</label>
+        <label class="filter-row-check"><input type="checkbox" checked /> Email me lesson reminders</label>
+        <label class="filter-row-check"><input type="checkbox" /> Send me marketing updates</label>
+      </div>
+      <button class="btn btn-primary" type="submit">Save changes</button>
+    </form>
+
+    <div class="summary-card" style="margin-top:20px; border-color:var(--color-error-bg);">
+      <h3 style="font-weight:800; color:var(--color-error); margin-bottom:8px;">Danger zone</h3>
+      <p class="hint" style="margin-bottom:12px;">Deleting your account is permanent and cannot be undone.</p>
+      <button class="btn btn-danger" id="deleteAccountBtn" type="button">Delete account</button>
+    </div>
+  </div>
+
+  <div id="footerSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

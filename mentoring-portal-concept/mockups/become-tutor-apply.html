@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tutor application — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="become-tutor-apply">
+  <div id="headerSlot"></div>
+
+  <div class="container" style="padding:40px 0 80px;">
+    <div class="wizard-steps">
+      <div class="wizard-step active" data-step="1"><span class="num">1</span> Subjects & experience</div>
+      <div class="wizard-step" data-step="2"><span class="num">2</span> Profile</div>
+      <div class="wizard-step" data-step="3"><span class="num">3</span> Pricing & availability</div>
+    </div>
+
+    <div class="wizard-card">
+      <div class="wizard-panel" data-panel="1">
+        <div class="field" id="field-subjects">
+          <label>Which subjects do you teach?</label>
+          <div id="subjectCheckboxes"></div>
+          <div class="error-text">Select at least one subject.</div>
+        </div>
+        <div class="field" id="field-experience">
+          <label for="experienceSelect">Years of teaching experience</label>
+          <select id="experienceSelect">
+            <option value="">Select…</option>
+            <option value="0-1">Less than 1 year</option>
+            <option value="1-3">1–3 years</option>
+            <option value="3-5">3–5 years</option>
+            <option value="5+">5+ years</option>
+          </select>
+          <div class="error-text">Select your experience level.</div>
+        </div>
+      </div>
+
+      <div class="wizard-panel" data-panel="2" style="display:none;">
+        <div class="field">
+          <label for="headlineInput">Headline</label>
+          <input type="text" id="headlineInput" placeholder="e.g. Certified Spanish teacher, conversational focus" />
+        </div>
+        <div class="field" id="field-bio">
+          <label for="bioTextarea">Bio</label>
+          <textarea id="bioTextarea" placeholder="Tell students about your teaching style and background (min. 100 characters)"></textarea>
+          <div class="error-text">Bio must be at least 100 characters.</div>
+        </div>
+        <div class="field">
+          <label>Profile photo</label>
+          <input type="file" />
+          <div class="hint">Required. JPG or PNG, square aspect ratio recommended.</div>
+        </div>
+        <div class="field">
+          <label>Intro video (optional but recommended)</label>
+          <input type="file" />
+          <div class="hint">Tutors with a video get 2× more profile views on average.</div>
+        </div>
+      </div>
+
+      <div class="wizard-panel" data-panel="3" style="display:none;">
+        <div class="field" id="field-rate">
+          <label for="rateInput">Hourly rate (USD)</label>
+          <input type="number" id="rateInput" min="5" max="100" value="20" />
+          <div class="error-text">Rate must be between $5 and $100.</div>
+        </div>
+        <div class="field" id="field-availability">
+          <label>Weekly availability (click to toggle, select at least 3 slots)</label>
+          <div class="availability-grid" id="availabilityGrid"></div>
+          <div class="error-text">Select at least 3 available time slots per week.</div>
+        </div>
+      </div>
+
+      <div class="wizard-actions">
+        <button class="btn btn-ghost" id="wizardBackBtn">Back</button>
+        <button class="btn btn-primary" id="wizardNextBtn">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="footerSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

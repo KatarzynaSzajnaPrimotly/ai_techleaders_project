@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mentora — Learn anything, from real people</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="home">
+  <div id="headerSlot"></div>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Find the perfect tutor and start learning today</h1>
+      <p class="lede">1‑on‑1 online lessons in languages, programming, music and more. Book a low‑cost trial lesson with no long-term commitment.</p>
+      <div class="hero-search">
+        <form class="search-bar" id="heroSearchForm">
+          <span class="icon">🔍</span>
+          <input type="text" id="heroSearchInput" placeholder="What do you want to learn? e.g. Spanish, React, Guitar" autocomplete="off" />
+          <ul class="search-suggestions" id="heroSearchSuggestions"></ul>
+        </form>
+      </div>
+      <div class="chip-list" id="subjectChips"></div>
+      <div class="stat-row">
+        <div class="stat-badge"><div class="stat-value">900+</div><div class="stat-label">Verified tutors</div></div>
+        <div class="stat-badge"><div class="stat-value">4.8/5</div><div class="stat-label">Average rating</div></div>
+        <div class="stat-badge"><div class="stat-value">40k+</div><div class="stat-label">Lessons delivered</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading"><h2>Featured tutors</h2><a class="btn-link" href="search.html">See all →</a></div>
+      <div class="carousel" id="featuredTutors"></div>
+    </div>
+  </section>
+
+  <section class="section" style="background:#fff;">
+    <div class="container">
+      <div class="section-heading"><h2>How it works</h2></div>
+      <div class="steps">
+        <div class="step-card"><div class="step-number">1</div><h3>Find a tutor</h3><p style="margin-top:8px; font-size:13px; color:var(--color-text-muted);">Search by subject, price, availability and reviews.</p></div>
+        <div class="step-card"><div class="step-number">2</div><h3>Book a trial lesson</h3><p style="margin-top:8px; font-size:13px; color:var(--color-text-muted);">Try a tutor risk‑free before committing to a package.</p></div>
+        <div class="step-card"><div class="step-number">3</div><h3>Learn at your pace</h3><p style="margin-top:8px; font-size:13px; color:var(--color-text-muted);">Message, schedule and track your progress in one place.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footerSlot"></div>
+  <div id="devToolbarSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

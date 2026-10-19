@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="checkout">
+  <header class="site-header minimal-header">
+    <div class="container">
+      <a class="logo" href="index.html">Mentora<span class="dot"></span></a>
+      <span class="countdown-badge" id="countdownBadge">Slot reserved</span>
+    </div>
+  </header>
+
+  <div class="container booking-grid">
+    <div>
+      <h1 style="font-size:22px; font-weight:800; margin-bottom:16px;">Payment details</h1>
+      <div id="checkoutErrorHost"></div>
+      <form id="checkoutForm">
+        <div class="field" id="field-billingName">
+          <label for="billingName">Full name</label>
+          <input type="text" id="billingName" placeholder="As it appears on your card" />
+          <div class="error-text">Name is required.</div>
+        </div>
+        <div class="field" id="field-billingCountry">
+          <label for="billingCountry">Country</label>
+          <select id="billingCountry">
+            <option value="">Select a country</option>
+            <option>Poland</option>
+            <option>United States</option>
+            <option>United Kingdom</option>
+            <option>Germany</option>
+            <option>Other</option>
+          </select>
+          <div class="error-text">Select your country.</div>
+        </div>
+        <div class="field" id="field-cardNumber">
+          <label for="cardNumber">Card number</label>
+          <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" />
+          <div class="error-text">Enter a valid 16-digit card number.</div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="field" id="field-cardExpiry" style="flex:1;">
+            <label for="cardExpiry">Expiry</label>
+            <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" />
+            <div class="error-text">Format: MM/YY</div>
+          </div>
+          <div class="field" id="field-cardCvc" style="flex:1;">
+            <label for="cardCvc">CVC</label>
+            <input type="text" id="cardCvc" placeholder="123" maxlength="3" />
+            <div class="error-text">3 digits</div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="promoCode">Promo code (optional)</label>
+          <input type="text" id="promoCode" placeholder="Try WELCOME10" />
+          <div class="hint" id="promoMsg"></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="payBtn">Pay & confirm booking</button>
+        <p class="hint" style="text-align:center; margin-top:10px;">Tip: a card number starting with 0000 simulates a declined payment.</p>
+      </form>
+    </div>
+    <aside class="summary-card" id="orderSummary"></aside>
+  </div>
+
+  <div id="devToolbarSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

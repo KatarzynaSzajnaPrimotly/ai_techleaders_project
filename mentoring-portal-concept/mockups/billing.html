@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Billing & invoices — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="billing">
+  <div id="headerSlot"></div>
+
+  <div class="container" style="padding:24px 0 60px; max-width:720px;">
+    <div class="page-title-row"><h1>Billing & invoices</h1></div>
+
+    <div class="section-heading"><h2 style="font-size:16px;">Payment methods</h2></div>
+    <div id="paymentMethods" style="margin-bottom:12px;"></div>
+    <button class="btn btn-ghost btn-sm" onclick="MentorApp.toast('Add payment method (demo).', 'info')">+ Add payment method</button>
+
+    <div class="section-heading" style="margin-top:28px;"><h2 style="font-size:16px;">Active package</h2></div>
+    <label class="filter-row-check"><input type="checkbox" id="cancelRenewalToggle" checked /> Auto-renew my package when lessons run out</label>
+
+    <div class="section-heading" style="margin-top:28px;"><h2 style="font-size:16px;">Invoices</h2></div>
+    <table class="table">
+      <thead><tr><th>Description</th><th>Date</th><th>Amount</th><th></th></tr></thead>
+      <tbody id="invoicesTableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="footerSlot"></div>
+  <div id="devToolbarSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

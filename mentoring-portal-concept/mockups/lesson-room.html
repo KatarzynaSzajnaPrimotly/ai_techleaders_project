@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lesson room — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="lesson-room">
+  <div class="room-wrap">
+    <div id="connectingOverlay" class="state-panel" style="margin:48px auto; max-width:360px; background:#1b2430; color:#fff; border-color:#2c3645;">
+      <div class="state-icon">🔌</div>
+      <h3 style="color:#fff;">Connecting to your lesson…</h3>
+      <p style="color:#9aa5b3;">Checking your camera and microphone.</p>
+    </div>
+    <div style="display:flex; flex:1; visibility:hidden;" id="roomStage">
+      <div class="room-stage" style="flex:1;">
+        <div class="video-tile">📷 Your camera<span class="name-tag">You</span></div>
+        <div class="video-tile">👩‍🏫 Waiting for tutor to join…<span class="name-tag">Ana Ruiz</span></div>
+      </div>
+      <div class="room-side">
+        <div class="tabs-nav" id="sidePanelTabs" style="padding:0 16px;">
+          <button class="active" data-panel="notes">Notes</button>
+          <button data-panel="chat">Chat</button>
+        </div>
+        <div class="side-panel-content active" id="sidePanel-notes" style="padding:16px; font-size:13px; color:var(--color-text-muted);">
+          Shared lesson notes will appear here (whiteboard / notes placeholder for this concept prototype).
+        </div>
+        <div class="side-panel-content" id="sidePanel-chat" style="padding:16px; font-size:13px; color:var(--color-text-muted);">
+          In-call chat placeholder — not implemented in this prototype.
+        </div>
+      </div>
+    </div>
+    <div class="room-controls">
+      <button id="toggleMic">🎤</button>
+      <button id="toggleCam">📷</button>
+      <button class="danger" id="leaveCallBtn">⏻</button>
+    </div>
+  </div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

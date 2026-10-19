@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leave a review — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="review">
+  <div id="headerSlot"></div>
+
+  <div class="review-form-card" id="reviewFormCard">
+    <div class="avatar" id="reviewTutorAvatar" style="margin:0 auto 10px; width:56px; height:56px; font-size:22px;">🧑‍🏫</div>
+    <h2 style="font-size:18px; font-weight:800;">How was your lesson with <span id="reviewTutorName">your tutor</span>?</h2>
+    <form id="reviewForm">
+      <div class="star-input" id="starInput"></div>
+      <div class="error-text" id="ratingError" style="display:none; color:var(--color-error); font-size:12px; margin-bottom:10px;">Please select a star rating.</div>
+      <div class="chip-list" id="reviewTags" style="justify-content:center; margin-bottom:16px;"></div>
+      <div class="field" style="text-align:left;">
+        <label for="reviewComment">Comment (optional)</label>
+        <textarea id="reviewComment" maxlength="1000" placeholder="Share details about your lesson…"></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit" id="submitReviewBtn">Submit review</button>
+      <p style="margin-top:12px;"><a href="#" id="skipReviewLink" class="btn-link" style="font-size:13px;">Skip for now</a></p>
+    </form>
+  </div>
+
+  <div id="footerSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

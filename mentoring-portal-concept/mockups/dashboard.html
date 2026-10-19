@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My dashboard — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="dashboard">
+  <div id="headerSlot"></div>
+
+  <div class="container dashboard-layout">
+    <div class="page-title-row"><h1>My lessons</h1></div>
+    <div class="tabs-nav" id="dashboardTabs">
+      <button class="active" data-tab="upcoming">Upcoming</button>
+      <button data-tab="past">Past</button>
+      <button data-tab="favorites">Favorites</button>
+    </div>
+    <div id="dashboardContent" style="margin-top:16px;"></div>
+  </div>
+
+  <div id="footerSlot"></div>
+  <div id="devToolbarSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

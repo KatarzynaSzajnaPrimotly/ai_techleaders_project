@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin overview — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="admin">
+  <div id="headerSlot"></div>
+
+  <div class="container" id="adminRoot" style="padding:24px 0 60px;">
+    <div class="page-title-row"><h1>Admin overview</h1></div>
+    <div class="kpi-row" id="adminKpis"></div>
+
+    <div class="queue-section">
+      <div class="section-heading"><h2 style="font-size:16px;">Tutor applications</h2></div>
+      <div id="applicationsQueue"></div>
+    </div>
+    <div class="queue-section">
+      <div class="section-heading"><h2 style="font-size:16px;">Reported content</h2></div>
+      <div id="reportsQueue"></div>
+    </div>
+    <div class="queue-section">
+      <div class="section-heading"><h2 style="font-size:16px;">Disputes</h2></div>
+      <div id="disputesQueue"></div>
+    </div>
+  </div>
+
+  <div id="footerSlot"></div>
+  <div id="devToolbarSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

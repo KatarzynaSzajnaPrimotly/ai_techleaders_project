@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bookings — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="tutor-bookings">
+  <div id="headerSlot"></div>
+
+  <div class="container" style="padding:24px 0 60px;">
+    <div class="page-title-row"><h1>Bookings</h1></div>
+    <div class="tabs-nav" id="tutorBookingTabs">
+      <button class="active" data-tab="pending">Pending requests</button>
+      <button data-tab="upcoming">Upcoming</button>
+      <button data-tab="past">Past</button>
+      <button data-tab="cancelled">Cancelled</button>
+    </div>
+    <div id="tutorBookingContent" style="margin-top:16px;"></div>
+  </div>
+
+  <div id="footerSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

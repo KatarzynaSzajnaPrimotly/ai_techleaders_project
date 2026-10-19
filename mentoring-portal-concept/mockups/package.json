@@ -1,0 +1,13 @@
+{
+  "name": "mentoring-portal-mockups",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Clickable HTML/CSS/TypeScript mockups for the mentoring portal concept (no backend, no build tools required to view — dist/ is pre-compiled).",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Become a tutor — Mentora</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="become-tutor">
+  <div id="headerSlot"></div>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Teach what you know. Earn on your schedule.</h1>
+      <p class="lede">Set your own price and hours, reach students worldwide, and get paid for every completed lesson.</p>
+      <button class="btn btn-primary" id="applyNowBtn" style="margin-top:20px;">Apply now</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading"><h2>Estimate your earnings</h2></div>
+      <div class="summary-card" style="max-width:480px;">
+        <div class="field">
+          <label for="estHours">Hours you'd teach per week: <strong id="estHoursOut"></strong></label>
+          <input type="range" id="estHours" min="1" max="40" value="10" oninput="document.getElementById('estHoursOut').textContent=this.value" />
+        </div>
+        <div class="field">
+          <label for="estRate">Your hourly rate ($): <strong id="estRateOut"></strong></label>
+          <input type="range" id="estRate" min="5" max="60" value="20" oninput="document.getElementById('estRateOut').textContent=this.value" />
+        </div>
+        <div class="summary-row total"><span>Estimated monthly earnings</span><span id="estOutput">$0/month</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:#fff;">
+    <div class="container">
+      <div class="section-heading"><h2>Getting started</h2></div>
+      <div class="steps">
+        <div class="step-card"><div class="step-number">1</div><h3>Apply</h3><p style="margin-top:8px; font-size:13px; color:var(--color-text-muted);">Tell us about your experience and set your pricing.</p></div>
+        <div class="step-card"><div class="step-number">2</div><h3>Get approved</h3><p style="margin-top:8px; font-size:13px; color:var(--color-text-muted);">Our team reviews applications within 2–3 business days.</p></div>
+        <div class="step-card"><div class="step-number">3</div><h3>Start teaching</h3><p style="margin-top:8px; font-size:13px; color:var(--color-text-muted);">Your profile goes live and students can book lessons.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:720px;">
+      <div class="section-heading"><h2>Frequently asked questions</h2></div>
+      <div class="accordion-item">
+        <button>Do I need teaching experience? <span>+</span></button>
+        <div class="content">No formal certification is required for most subjects, but relevant experience improves your approval odds and search ranking.</div>
+      </div>
+      <div class="accordion-item">
+        <button>How and when do I get paid? <span>+</span></button>
+        <div class="content">Earnings become available after each completed lesson, with payouts processed on request once you reach the minimum threshold.</div>
+      </div>
+      <div class="accordion-item">
+        <button>Can I set my own schedule? <span>+</span></button>
+        <div class="content">Yes — you fully control your weekly availability and can block time off at any time from your Tutor Calendar.</div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footerSlot"></div>
+
+  <script src="dist/data.js"></script>
+  <script src="dist/state.js"></script>
+  <script src="dist/components.js"></script>
+  <script src="dist/pages/pages-common.js"></script>
+  <script src="dist/pages/pages-search.js"></script>
+  <script src="dist/pages/pages-booking.js"></script>
+  <script src="dist/pages/pages-dashboard.js"></script>
+  <script src="dist/pages/pages-tutor.js"></script>
+  <script src="dist/pages/pages-admin.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>
