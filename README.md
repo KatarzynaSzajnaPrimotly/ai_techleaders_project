@@ -1,5 +1,7 @@
 # DevMentor
 
+[![CI](https://github.com/KatarzynaSzajnaPrimotly/ai_techleaders_sandbox/actions/workflows/ci.yml/badge.svg)](https://github.com/KatarzynaSzajnaPrimotly/ai_techleaders_sandbox/actions/workflows/ci.yml)
+
 DevMentor is a mentoring portal built with Next.js, TypeScript and React, backed by PostgreSQL.
 
 ## Tech stack
