@@ -1,3 +1,44 @@
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+@source "../../../ui/src";
+
+/* Preflight is intentionally not imported: the starter home page below relies on its own resets.
+   Design tokens (--background, --primary, --border, --radius, ...) are shared with shadcn/ui. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--headline);
+  --color-card: var(--card);
+  --color-card-foreground: var(--headline);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--headline);
+  --color-muted: var(--secondary);
+  --color-muted-foreground: var(--soft);
+  --color-accent: var(--secondary);
+  --color-accent-foreground: var(--headline);
+  --color-destructive: #ef4444;
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+/* Palette of the Mentora home page (the light, public-facing design from the concept prototype).
+   Utilities: bg-mentora, text-mentora-muted, border-mentora-line, ... */
+@theme {
+  --color-mentora: #1f6f5c;
+  --color-mentora-light: #e6f3ef;
+  --color-mentora-accent: #e98a3c;
+  --color-mentora-ink: #1b2430;
+  --color-mentora-muted: #5b6673;
+  --color-mentora-line: #e1e5ea;
+  --color-mentora-bg: #f7f8fa;
+  --color-mentora-warning: #a66a12;
+}
+
 /* Page-wide basics first. The starter screen's own classes follow; once
    page.tsx is replaced nothing uses them, and the page stays plain and dark. */
 :root {
@@ -8,6 +49,8 @@
   --primary-foreground: #1a1919;
   --border: rgba(255, 255, 255, 0.1);
   --radius: 8px;
+  --card: #1c1b1b;
+  --secondary: #262524;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   color-scheme: dark;
 }
@@ -88,7 +131,7 @@ body {
   opacity: 0.65;
 }
 
-main {
+.starter main {
   align-self: center;
   justify-self: center;
   display: grid;
@@ -127,7 +170,7 @@ main {
   background: #34d399;
 }
 
-h1 {
+.starter h1 {
   margin: 0 0 1.25rem;
   font-size: clamp(1.9rem, 1.35rem + 1.6vw, 2.6rem);
   font-weight: 600;
@@ -151,7 +194,7 @@ h1 {
   line-height: 1.6;
 }
 
-code {
+.starter code {
   padding: 0.1em 0.35em;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.08);

@@ -8,3 +8,12 @@ See `AGENTS.md` for the full `.ai/` workflow this file is part of.
 <!-- Add new entries below this line, newest first. Format:
 - YYYY-MM-DD — One-line summary. [details](lessons/YYYY-MM-DD-slug.md)
 -->
+
+- 2026-10-19 — No Tailwind preflight: links, one-sided dashed borders, headings and lists need explicit resets. [details](lessons/2026-10-19-tailwind-without-preflight.md)
+- 2026-10-19 — `next build` fails if the shell has `NODE_ENV=development`; build with `NODE_ENV=production`. [details](lessons/2026-10-19-next-build-node-env.md)
+- 2026-10-19 — Next.js bundles workspace packages once per route; never rely on schema object identity with a shared ORM. [details](lessons/2026-10-19-nextjs-duplicate-package-copies.md)
+- 2026-10-19 — Sandbox: no `lsof`/`ss`, `pkill -f` kills the shell; use `$!` PIDs. [details](lessons/2026-10-19-tooling-in-sandbox.md)
+- 2026-10-19 — A Promise-returning method must reject, not throw synchronously; unit tests with `assert.rejects` catch it. [details](lessons/2026-10-19-async-methods-reject.md)
+- 2026-10-19 — After a Next.js upgrade the running dev preview serves 500s until restarted (`pm2 restart workspace-preview`). [details](lessons/2026-10-19-upgrades-typescript-next-preview.md)
+- 2026-10-19 — Vitest 5 needs @types/node >=22; unmatched test files are silently skipped; cover defensive branches by forcing input. [details](lessons/2026-10-19-vitest-coverage-and-test-gotchas.md)
+- 2026-10-19 — agent-browser needs system libs and `close --all` after env changes; no Docker in the sandbox, so Testcontainers runs only in CI. [details](lessons/2026-10-19-agent-browser-and-testcontainers.md)

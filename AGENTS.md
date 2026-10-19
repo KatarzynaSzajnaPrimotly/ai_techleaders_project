@@ -8,6 +8,102 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+# DevMentor: Project Assumptions
+
+DevMentor is the product name. These assumptions are binding; do not swap technologies or restructure
+without an approved spec in `.ai/specs/`.
+
+## Tech stack
+
+- **Framework:** latest Next.js (App Router) + React + TypeScript (strict mode). See the Next.js note above.
+- **Database:** PostgreSQL.
+- **ORM:** MikroORM (`@mikro-orm/postgresql`) with its migrations tooling and connection pooling.
+  Schema changes always go through generated, committed migrations; never edit the schema by hand.
+- **Dependency injection:** Awilix. Services and repositories are registered in the container and
+  resolved from it; do not instantiate them with `new` in route handlers or components.
+- **Styling:** Tailwind CSS for frontend (public-facing) pages; shadcn/ui for backend (admin/back-office) pages.
+
+## Monorepo layout
+
+npm workspaces; all sub-packages live in `packages/`:
+
+| Package | Purpose |
+|---|---|
+| `packages/app` | Main application: Next.js routes, pages, composition root (Awilix container setup) |
+| `packages/core` | Reusable, framework-agnostic domain logic, services, shared types and utilities |
+| `packages/db` | Data layer: MikroORM entities, config, pool settings, migrations, repositories, seeds |
+| `packages/ui` | Reusable UI components (Tailwind-based frontend components and shadcn/ui components) |
+
+Dependency direction: `app` -> `ui`, `core`, `db`; `db` -> `core`; `ui` -> nothing project-internal;
+`core` depends on no other package. No circular dependencies.
+
+## Conventions
+
+- Business logic belongs in `core`, persistence in `db`, presentation in `ui`; `app` only wires them together.
+- Reusable components go in `packages/ui`, not inside `app`.
+- Package boundaries are enforced by ESLint (`eslint.config.mjs`, `no-restricted-imports`): `npm run lint` fails if
+  `core`/`ui` import a project package or framework, or `db` imports `ui`/`app`. Do not disable these rules.
+- Versions: Next.js 16.4, React 19.3, TypeScript pinned to `~6.0` (`typescript-eslint` does not support 7 yet; check
+  its peer range before bumping). `tsconfig.base.json` sets `types: ["node"]` because TypeScript 6 no longer
+  auto-includes `@types/*`.
+- After upgrading dependencies, restart the dev preview (`pm2 restart workspace-preview` in the sandbox); a stale
+  `next dev` keeps the old version in memory and returns 500s. `next build` shares `packages/app/.next` with it.
+- Database config (URL, pool size) comes from environment variables; never commit secrets or `.env*` files.
+- Styling: Tailwind 4 is configured in `app` (`globals.css`, no preflight; `@source` covers `packages/ui`).
+  shadcn/ui components are vendored by hand in `packages/ui/src/components` (use `cn` from `ui`); add new ones
+  in the same style. Frontend pages use Tailwind utilities, admin pages (`/admin/*`) use the shadcn components.
+- Next.js bundles workspace packages once per route: in code touching the shared ORM, reference entities by
+  name, never by schema object identity (see `.ai/lessons/2026-10-19-nextjs-duplicate-package-copies.md`).
+- Migration history: `.ai/specs/implemented/2026-10-19-monorepo-migration.md`.
+- Data flow example: `core` defines `MentorRepository` and `MentorService`; `db` implements the repository
+  (MikroORM `EntitySchema`, no decorators); `app/src/server/container.ts` builds the Awilix container and a
+  per-request scope; route handlers call `createRequestScope()` and use `cradle.<service>`.
+- Database: `DEVMENTOR_DATABASE_URL` (default `postgresql://postgres:postgres@127.0.0.1:5432/devmentor`; the
+  generic `DATABASE_URL` is deliberately ignored), `DATABASE_POOL_MIN/MAX`. Migrations:
+  `npm run migration:create|up|down -w @devmentor/db`; commit generated files in `packages/db/migrations`.
+- Errors: `core` defines domain errors (`MentorValidationError`, `MentorAlreadyExistsError`); `db` translates driver
+  errors into them, and route handlers map them to HTTP codes (400/409) without leaking database messages.
+- Commands (run from the repo root): `npm run dev|build|lint|typecheck|test|test:coverage|test:integration`. Build with `NODE_ENV=production`
+  if the shell sets `NODE_ENV=development`.
+
+# Testing and CI (mandatory)
+
+## Unit tests: every new feature must be 100% covered
+
+- **Rule:** every new feature, change and bug fix ships with unit tests that keep coverage of `packages/*/src` at
+  **100%** for statements, branches, functions and lines. A feature without its unit tests is not finished.
+- **Enforcement:** `npm run test:coverage` fails below 100% (thresholds in `vitest.config.mts`) and so does the CI
+  `unit` job. A new source file without tests counts as 0% and fails the build.
+- **Never** lower the thresholds, add coverage exclusions, or use `/* v8 ignore */` comments to get green. If a branch
+  is truly unreachable, remove the dead code; if it is defensive and reachable only artificially, cover it with a test
+  that forces it (see the `Math.exp` case in `packages/ui/src/backdrop.test.tsx`).
+- **Framework:** Vitest 5 with `@vitest/coverage-v8`, Testing Library and jsdom. Tests sit next to the code as
+  `*.test.ts` / `*.test.tsx` under `packages/*/src`. `vitest.config.mts` has two projects: `unit-node` (`core`, `db`,
+  `app/src/server`, `app/src/app/api`) and `unit-dom` (`ui` and `app/src/app/**/*.test.tsx`). A test outside those
+  patterns is silently not run, so put new files where a pattern matches or extend the patterns.
+- **Style:** test behaviour and error paths, not implementation details. Mock only boundaries (MikroORM, the Awilix
+  container, `@devmentor/db` from `app`), never the unit under test. Keep domain code testable without a database.
+- Run the suite you touched while working (`npx vitest run <path>`), and `npm run test:coverage` before finishing.
+
+## Integration tests
+
+- Live in `tests/integration/*.int.test.ts` and run with `npm run test:integration`. A global setup starts an
+  ephemeral PostgreSQL with **Testcontainers**, applies the migrations, builds the app and starts `next start`
+  on a free port. Pages are checked in a real browser through the **agent-browser** CLI (`tests/integration/helpers`).
+- Add or extend an integration test for every user-visible flow and every change that touches the database, routes
+  or migrations. Use unique data per run instead of truncating tables.
+- No Docker (for example in the sandbox)? Point `INTEGRATION_DATABASE_URL` at a throwaway database and the container
+  step is skipped. Chrome needs system libraries (`npx agent-browser install --with-deps`; without root, extract the
+  `.deb` files and set `LD_LIBRARY_PATH`). Set `AGENT_BROWSER_ARGS=--no-sandbox` in containers and CI, and run
+  `agent-browser close --all` after changing the browser environment, because the daemon keeps the old one.
+  `INTEGRATION_SKIP_BUILD=1` reuses an existing build.
+
+## CI (GitHub Actions)
+
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`, as four independent jobs: **lint and
+typecheck**, **build**, **unit tests (100% coverage)** and **integration tests**. All must be green to merge.
+When you change scripts, Node version or test layout, update the workflow too and validate it with `actionlint`.
+
 # AI-Assisted Development Workflow (SDD + Run Logs + Lessons)
 
 This project uses a lightweight Spec-Driven Development (SDD) workflow backed by a `.ai/` folder.
@@ -65,7 +161,8 @@ Note: `.ai/cezar/` is unrelated tooling/runtime state (not part of this workflow
    the plan in a spec (see Specs above). Put the effort into the plan so implementation goes in one
    pass. If the implementation goes off track, stop and re-plan; don't keep pushing.
 2. **Verify every change.** Never report work as done without proof it works. At minimum run
-   `npm run lint` and `npm run build`. For UI changes, run `npm run dev` and check the affected pages
+   `npm run lint`, `npm run typecheck`, `npm run test:coverage` (100%) and `npm run build`; for features and
+   database or route changes also `npm run test:integration`. For UI changes, run `npm run dev` and check the affected pages
    in a browser. If something could not be verified, say so explicitly.
 3. **Learn from corrections.** When a human corrects you or a fix reveals a mistake, record a lesson
    (see Lessons learned above). If the lesson is a rule that applies to all future work, also add

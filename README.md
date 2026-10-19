@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevMentor
 
-## Getting Started
+DevMentor is a mentoring portal built with Next.js, TypeScript and React, backed by PostgreSQL.
 
-First, run the development server:
+## Tech stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js (App Router), React, TypeScript
+- PostgreSQL with [MikroORM](https://mikro-orm.io) (migrations, connection pooling)
+- [Awilix](https://github.com/jeffijoe/awilix) for dependency injection
+- Tailwind CSS for frontend pages, [shadcn/ui](https://ui.shadcn.com) for backend (admin) pages
+
+## Architecture
+
+DevMentor is a monorepo; sub-packages live in `packages/`.
+
+```
+packages/
+  app/    Main application: Next.js routes and pages, Awilix composition root
+  core/   Reusable domain logic, services, shared types and utilities
+  db/     MikroORM entities, config, pooling, migrations, repositories, seeds
+  ui/     Reusable UI components (Tailwind and shadcn/ui)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Dependency direction (no cycles):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app -> ui, core, db
+db  -> core
+ui  -> (no project packages)
+core -> (no project packages)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Notes:
 
-## Learn More
+- **Layering:** business logic in `core`, persistence in `db`, presentation in `ui`; `app` wires them together.
+- **Dependency injection:** services and repositories are registered in an Awilix container in `app` and
+  resolved from it, so they can be swapped in tests.
+- **Database:** schema changes are made via MikroORM migrations only. Connection URL and pool size come
+  from environment variables (see `.env.example`; real `.env*` files are not committed).
+- **Styling:** Tailwind for public pages, shadcn/ui for admin pages. Shared components live in `ui`.
 
-To learn more about Next.js, take a look at the following resources:
+Pages and routes (all in `packages/app`):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Route | Purpose |
+|---|---|
+| `/` | Starter home page (original behavior preserved) |
+| `/mentors` | Public page, Tailwind (`MentorCard` from `ui`) |
+| `/admin/mentors` | Admin page, shadcn/ui components from `ui` |
+| `/api/mentors` | `GET` list, `POST` create (400 invalid input, 409 duplicate email); resolves `MentorService` from the Awilix container |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tailwind 4 is configured in `app` (no preflight, so the starter page is unchanged); `@source` covers `packages/ui`.
+shadcn/ui components are vendored in `packages/ui/src/components`.
 
-## Deploy on Vercel
+## Database
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Set `DEVMENTOR_DATABASE_URL` (default `postgresql://postgres:postgres@127.0.0.1:5432/devmentor`) and optionally
+`DATABASE_POOL_MIN` / `DATABASE_POOL_MAX` (see `.env.example` for the full list), create the database, then apply migrations.
+The migration scripts read the process environment only; the Next.js app also reads `packages/app/.env.local`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run migration:up -w @devmentor/db
+```
+
+Sample endpoint using the container, service and repository: `GET`/`POST /api/mentors`.
+
+## Getting started
+
+```bash
+npm install
+npm run dev     # http://localhost:3000
+npm run lint
+npm run typecheck
+npm test                 # unit tests (Vitest)
+npm run test:coverage    # unit tests with the 100% coverage gate
+npm run test:integration # Testcontainers PostgreSQL + agent-browser (needs Docker)
+npm run build   # use NODE_ENV=production if your shell sets NODE_ENV=development
+```
+
+## Testing and CI
+
+- **Unit tests:** Vitest, colocated as `*.test.ts(x)` in `packages/*/src`. Coverage must stay at **100%**
+  (statements, branches, functions, lines); `npm run test:coverage` and CI fail otherwise.
+- **Integration tests:** `tests/integration`, run an ephemeral PostgreSQL via Testcontainers (Docker required),
+  apply migrations, start the built app and drive it in a real browser with
+  [agent-browser](https://github.com/vercel-labs/agent-browser). Install its browser once with
+  `npx agent-browser install --with-deps`. Without Docker, set `INTEGRATION_DATABASE_URL` to a throwaway database.
+- **CI:** `.github/workflows/ci.yml` runs lint and typecheck, build, unit tests with coverage, and integration
+  tests on every pull request. Make these four checks required in the repository's branch protection settings.
+
+## AI-assisted development
+
+This project uses Spec-Driven Development. Specs, run logs and lessons learned live in `.ai/`;
+see `AGENTS.md` for the conventions that humans and coding agents follow.

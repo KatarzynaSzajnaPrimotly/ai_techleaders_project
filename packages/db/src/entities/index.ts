@@ -1,0 +1,1 @@
+export { MentorSchema } from "./mentor";
