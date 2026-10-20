@@ -12,7 +12,7 @@ Today a clean checkout needs: Node matching `.nvmrc`, `npm install`, a reachable
 
 Two layers, because dependencies are not installed when setup starts:
 
-1. `scripts/setup.mjs` (root, plain Node, zero dependencies): checks the Node version, installs dependencies when needed, then delegates to the TypeScript entry via `npx tsx`.
+1. `scripts/setup.mjs` plus `scripts/setup-bootstrap.mjs` (root, plain Node, zero dependencies; the logic is exported and unit-tested): checks the Node version, installs dependencies when needed, then delegates to the TypeScript entry via `npm run setup -w @devmentor/db`.
 2. `packages/db/src/scripts/setup.ts` (thin CLI, console allowed like `migrate.ts`) calling testable step functions in `packages/db/src/setup/`.
 
 Each step is a small function `(deps) => Promise<"done" | "skipped">` with an "already done?" probe. The runner prints `[done]` / `[skipped]` per step, stops at the first failure with the exact fix, and exits non-zero.
@@ -63,7 +63,7 @@ No user-facing screens. Terminal output only: one line per step, `[done]` or `[s
 ## 📝 Testing Strategy
 
 - Unit tests next to the code (`packages/db/src/setup/*.test.ts`, covered by the `unit-node` project): each step for done, skipped and failure paths, with the MikroORM connection and the filesystem faked at the boundary; the runner (ordering, stop on first failure, exit codes, output). 100% coverage, no `v8 ignore`.
-- `scripts/setup.mjs` is plain Node outside `packages/*/src`: keep its logic minimal (version check, install probe, spawn) and cover it through a testable exported function with a unit test; extend `vitest.config.mts` patterns only if needed to include it, never lowering thresholds.
+- `scripts/setup.mjs` is plain Node outside `packages/*/src`: its logic lives in `scripts/setup-bootstrap.mjs` (version check, install probe, runner), covered by `scripts/setup-bootstrap.test.mjs`; the `unit-node` patterns in `vitest.config.mts` include `scripts/**/*.test.mjs`, thresholds untouched.
 - Integration test `tests/integration/setup.int.test.ts`: run the setup steps twice against the throwaway database (`INTEGRATION_DATABASE_URL` or Testcontainers) and assert the second run reports every step skipped and exits 0.
 
 ## 📝 Risks
