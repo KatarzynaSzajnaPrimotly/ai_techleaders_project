@@ -6,7 +6,7 @@
 - Coverage: 63 claims — 55 sourced (interview 14, data 5, document 34, product 0, benchmark 2), 0 synthetic, 8 assumed; 2 entries on the collection plan
 - Synthetic hypotheses outside Coverage: 0
 - Definition of Ready signed by: founder A confirmed Now, the unit, what the pilot measures, the price, mentor payment, refund and window rules, the terms owner and the success rule on 2026-10-20; ready for: implementation planning of the pilot's scope only (not the Later items); starting it is a separate decision: basic terms and a privacy notice must exist before the first payment (D10) and mentors must be recruited (A02)
-- Sources: research directory `.ai/specs/research/lekcja-04-wsad-discovery-devmentor/.ai/specs/research/` (cited by file name below); repository `README.md`, `AGENTS.md`, `mentoring-portal-concept/docs/04-screen-specifications.md`
+- Sources: research directory `.ai/specs/research/` (cited by file name below; decision records in `decisions/`, capture templates in `templates/`); repository `README.md`, `AGENTS.md`, `mentoring-portal-concept/docs/04-screen-specifications.md`
 
 ## Decision summary
 
