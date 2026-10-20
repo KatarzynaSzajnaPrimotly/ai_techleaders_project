@@ -90,7 +90,7 @@ Three other competitors (ADPList, Topmate, Preply) have checks in the research f
 
 - Current state: the founders' journey runs problem, search, ask on Slack or Discord, judge on GitHub, schedule, pay, session, nothing kept. `[DOCUMENT]` 2026-09-02-miro-board-journey-current-state.md
 - Interviews confirm the asking and judging steps; the cost was time, not money. `[INTERVIEW]` 2026-09-01-interview-backend-dev-fintech.md, 2026-09-02-interview-freelancer-react.md
-- Future state for Now: not agreed. The founders' future-state journey includes Meet/Zoom and reviews, which contradict N01 and N02, so it cannot be used as is. `[DOCUMENT]` 2026-09-04-miro-board-journey-future-state.md
+- Future state for Now: the flow is decided in the last bullet of this section (D09, D11); mentee identification, mentor sign-in and the wait for a mentee's reply are open (Q14, Q15, Q16). The founders' future-state journey includes Meet/Zoom and reviews, which contradict N01 and N02, so it cannot be used as is. `[DOCUMENT]` 2026-09-04-miro-board-journey-future-state.md
 - Conditions interviewees set for a flow: see the price before writing anything and refund the same day if the mentor does not come; no account or email verification before booking. `[INTERVIEW]` 2026-09-02-interview-freelancer-react.md, 2026-09-01-interview-backend-dev-fintech.md
 - Conditions mentors set: see the question before accepting; no bank details before the first booking; keep the money if the mentee does not come. `[INTERVIEW]` 2026-09-03-interview-senior-python-meetups.md, 2026-09-03-interview-staff-engineer-declined-before.md
 - Flow decided for Now: the mentee receives an offer with the price and a payment link, pays, and sends a question; the mentor answers within the window; if the mentor misses it the mentee is refunded; if the mentee does not reply to a request for more information the mentor answers from what was provided. `[DOCUMENT]` decisions/D09-pilot-no-shows-refunds-and-payment.md, decisions/D11-pilot-response-window.md
@@ -164,21 +164,24 @@ None: no synthetic walkthrough was run.
 | Q02 | Who sets the price, and in what range? | no longer | founder A | closed: platform, fixed for the pilot (D08, then D13: PLN 200) |
 | Q03 | What count, period and definition of a case counts for the stop signal, and who runs the pilot? | no longer | founder A | closed: D07, count and period later changed by D12 |
 | Q04 | What happens on a no-show or a missed reply window? | no longer | founder A | closed: D09 |
-| Q05 | Does a vault answer cite the mentor and the note? (workshop, founder B) | no: vault is Later | founder B | open |
+| Q05 | Does a vault answer cite the mentor and the note? (workshop, founder B) | no: vault is Later | founder B | open: settled by founder B's decision, no material needed |
 | Q06 | Who owns terms of service and data processing? | no longer | founder A | closed: founder A, basic terms and a privacy notice before accepting payments (D10) |
 | Q07 | Does the pilot also measure whether a mentor answers in time? | no longer | founder A | closed: yes (D06) |
 | Q08 | How long is the reply window? | no longer | founder A | closed: four business hours within published availability (D11) |
 | Q09 | What happens if fewer than 10 offers are made? | no longer | founder A | closed: extend by 2 weeks, then inconclusive (D12) |
 | Q10 | Does success count paid requests or unique mentees, and is three payers from fewer than 10 offers inconclusive? | no longer | founder A | closed: 3 different mentees, at least 10 mentees offered, otherwise inconclusive after six weeks (D15) |
 | Q11 | How and when is the mentor paid, and how is the price split? | no longer | founder A | closed: PLN 150 to the mentor, PLN 50 to the platform before processing fees, bank details after the first booking (D14); the payout moment is Q13 |
-| Q12 | Which time zone defines business hours, and does the four-hour clock stop outside published availability? | no: detail for the spec; a refund trigger depends on it | founder A | open |
-| Q13 | When after the answer is the mentor paid, and does "completed request" mean the answer was sent (D09)? | no: detail for the spec; mentors should be told before they accept | founder A | open |
+| Q12 | Which time zone defines business hours, and does the four-hour clock stop outside published availability? | no: detail for the spec; a refund trigger depends on it | founder A | open: settled by founder A's decision in the spec |
+| Q13 | When after the answer is the mentor paid, and does "completed request" mean the answer was sent (D09)? | no: detail for the spec; mentors should be told before they accept | founder A | open: settled by founder A's decision in the spec |
+| Q14 | How is a mentee identified before paying (an email, an account, none)? It decides how offers and unique mentees are counted (D07, D15). Options: the pilot coordinator records offers by hand during the pilot, or the product records them; the 25-hour build limit is a build-time argument, not evidence about mentees | no: decide before implementing #11 and #18 | founder A | open: settled by founder A's decision |
+| Q15 | How do mentors sign in? The repository has no authentication yet (`AGENTS.md`, known gap) and the brief does not say | no: decide before implementing #13 | founder A, with founder B as tech lead | open: settled by a decision |
+| Q16 | How long does a mentor wait for a mentee's reply to a request for more information, and does the four-hour window clock pause meanwhile (D09, D11)? | no: decide before implementing #15 | founder A | open: settled by founder A's decision |
 
 ## Definition of Ready addendum (own)
 
 Problems and Target group have support from interviews and data, with limits: contacts of the founders, one Discord, stated payment intent; these are signals to check, not market conclusions. A01 is what the pilot tests; it was not accepted as true.
 
-Ready for: implementation planning of the pilot's scope (R03 to R07, D05 to D15). No blocking question is open. Q05 (vault, Later), Q12 and Q13 (spec details) do not block.
+Ready for: implementation planning of the pilot's scope (R03 to R07, D05 to D15). No blocking question is open. Q05 (vault, Later), Q12, Q13 (spec details) and Q14–Q16 (design choices to settle before the issues named in each) do not block the tree.
 
 Not covered: the Later items, and a decision to start. Before the first payment basic terms and a privacy notice must exist (D10) and mentors must be recruited (A02).
 
