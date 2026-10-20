@@ -29,9 +29,9 @@ mentees with at least 10 mentees offered (D03, D05–D15).
   independent subagent.
 
 ## Open for a human
-- Push of the flattened research path and the log/lessons commit to PR #21, and an update of the issue bodies, which still
-  name the old nested path (pending permission).
-- `chore/skills-update` is not pushed. Retarget PR #21 to `main` after #1 merges.
+- Done after the first version of this log: the flattened research path and the log/lessons commit (`7e45fe0`) were pushed
+  to PR #21, and the one line naming the old nested path was corrected in the bodies of issues #5–#20 and read back.
+- `chore/skills-update` (`48332f4`) is not pushed. Retarget PR #21 to `main` after #1 merges.
 - Questions kept open in the brief: Q05 (vault), Q12 (time zone and clock), Q13 (payout timing); and three design questions
   in the issues (mentee identification, mentor sign-in, wait for a mentee's reply).
 - Not done from the tidy-up list: archive the Mentora concept, remove the zip in the repository root.
