@@ -14,6 +14,7 @@ export default defineConfig({
             "packages/db/src/**/*.test.ts",
             "packages/app/src/server/**/*.test.ts",
             "packages/app/src/app/api/**/*.test.ts",
+            "scripts/**/*.test.mjs",
           ],
           exclude: sharedExclude,
         },

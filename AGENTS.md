@@ -126,7 +126,7 @@ The rules agents most often need:
   and never leaks database messages or stack traces; no route writes its own `try/catch`.
 - API contract: every `/api/*` response is `{ ok: true, data }` or `{ ok: false, error: { code, message, fieldErrors? } }`.
   State-changing requests must carry the `x-devmentor-csrf: 1` header (`apiCall` always sends it).
-- Commands (run from the repo root): `npm run dev|build|lint|typecheck|test|test:coverage|test:integration`. Build with `NODE_ENV=production`
+- Commands (run from the repo root): `npm run setup|dev|build|lint|typecheck|test|test:coverage|test:integration`. Build with `NODE_ENV=production`
   if the shell sets `NODE_ENV=development`.
 
 # Testing and CI (mandatory)

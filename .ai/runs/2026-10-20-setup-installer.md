@@ -18,20 +18,22 @@ Installing Node/Postgres/Docker, starting the dev server, running lint/tests/bui
 
 ## Progress
 
+PR: #4
+
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles.
 
 ### Phase 1: Testable setup core (`packages/db`)
 
-- [ ] 1.1 Step functions (node version, dependencies, env file, database, migrations) and runner, with unit tests
-- [ ] 1.2 Extract migrator `up` into a reusable function shared with `migrate.ts`
+- [x] 1.1 Step functions (node version, dependencies, env file, database, migrations) and runner, with unit tests
+- [x] 1.2 Extract migrator `up` into a reusable function shared with `migrate.ts`
 
 ### Phase 2: CLI and root script
 
-- [ ] 2.1 `packages/db/src/scripts/setup.ts` entry and `scripts/setup.mjs` bootstrap
-- [ ] 2.2 Root `"setup"` script in `package.json`
+- [x] 2.1 `packages/db/src/scripts/setup.ts` entry and `scripts/setup.mjs` bootstrap
+- [x] 2.2 Root `"setup"` script in `package.json`
 
 ### Phase 3: Docs and integration test
 
-- [ ] 3.1 README and AGENTS.md Commands line
-- [ ] 3.2 Integration test running setup twice against the throwaway database
-- [ ] 3.3 Full validation gate
+- [x] 3.1 README and AGENTS.md Commands line
+- [x] 3.2 Integration test running setup twice against the throwaway database
+- [x] 3.3 Full validation gate
