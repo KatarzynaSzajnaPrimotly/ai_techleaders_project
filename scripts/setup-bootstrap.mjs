@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 /**
  * The part of `npm run setup` that must work before anything is installed: plain Node, no dependencies.
@@ -11,6 +12,9 @@ export function majorVersion(version) {
 }
 
 export function checkNodeVersion(required, current) {
+  if (Number.isNaN(majorVersion(required))) {
+    return { ok: true, detail: `.nvmrc ("${String(required).trim()}") has no numeric version, check skipped` };
+  }
   if (majorVersion(current) !== majorVersion(required)) {
     return {
       ok: false,
@@ -55,4 +59,9 @@ export function bootstrap({ root, nodeVersion, log, run, fileSystem = fs }) {
   }
 
   return run("npm", ["run", "setup", "-w", "@devmentor/db"]);
+}
+
+/** Returns `run(command, args)`: runs a command in `root` with inherited stdio and returns its exit status (1 when it has none). */
+export function createRunner(root, spawn = spawnSync, platform = process.platform) {
+  return (command, args) => spawn(command, args, { cwd: root, stdio: "inherit", shell: platform === "win32" }).status ?? 1;
 }

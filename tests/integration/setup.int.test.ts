@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { afterAll, describe, expect, inject, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, inject, it } from "vitest";
 import { connectWithMikroOrm } from "../../packages/db/src/setup/database.step";
 
 const root = path.resolve(import.meta.dirname, "../..");
@@ -23,10 +23,19 @@ function setup() {
   return { status: result.status, output: `${result.stdout}${result.stderr}` };
 }
 
+function removeSnapshots(pattern: RegExp) {
+  for (const file of fs.readdirSync(migrationsDir)) {
+    if (pattern.test(file)) fs.rmSync(path.join(migrationsDir, file), { force: true });
+  }
+}
+
+// A killed earlier run can leave its throwaway snapshot behind; never let it reach a commit.
+beforeAll(() => removeSnapshots(/^\.snapshot-devmentor_setup_.*\.json$/));
+
 afterAll(async () => {
   if (!hadEnvLocal) fs.rmSync(envLocal, { force: true });
   // The migrator writes a schema snapshot named after the database; this one is a throwaway.
-  fs.rmSync(path.join(migrationsDir, `.snapshot-${databaseName}.json`), { force: true });
+  removeSnapshots(new RegExp(`^\\.snapshot-${databaseName}\\.json$`));
   adminUrl.pathname = "/postgres";
   const connection = await connectWithMikroOrm(adminUrl.toString());
   try {

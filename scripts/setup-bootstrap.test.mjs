@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { bootstrap, checkNodeVersion, dependenciesInstalled, majorVersion } from "./setup-bootstrap.mjs";
+import { bootstrap, checkNodeVersion, createRunner, dependenciesInstalled, majorVersion } from "./setup-bootstrap.mjs";
 
 let root;
 const past = new Date("2026-01-01T00:00:00Z");
@@ -34,6 +34,12 @@ describe("majorVersion", () => {
 describe("checkNodeVersion", () => {
   it("accepts the required major version", () => {
     expect(checkNodeVersion("24\n", "v24.21.0")).toEqual({ ok: true, detail: "Node v24.21.0 matches .nvmrc" });
+  });
+
+  it("skips the check when .nvmrc has no numeric version", () => {
+    const result = checkNodeVersion("lts/*\n", "v24.21.0");
+    expect(result.ok).toBe(true);
+    expect(result.detail).toContain("check skipped");
   });
 
   it("rejects another major version with the fix", () => {
@@ -102,5 +108,23 @@ describe("bootstrap", () => {
     const o = options();
     o.run.mockReturnValue(1);
     expect(bootstrap(o)).toBe(1);
+  });
+});
+
+describe("createRunner", () => {
+  it("runs the command in the root with inherited stdio and returns its status", () => {
+    const spawn = vi.fn().mockReturnValue({ status: 0 });
+    expect(createRunner("/repo", spawn, "linux")("npm", ["install"])).toBe(0);
+    expect(spawn).toHaveBeenCalledWith("npm", ["install"], { cwd: "/repo", stdio: "inherit", shell: false });
+  });
+
+  it("uses a shell on Windows", () => {
+    const spawn = vi.fn().mockReturnValue({ status: 0 });
+    createRunner("/repo", spawn, "win32")("npm", []);
+    expect(spawn).toHaveBeenCalledWith("npm", [], expect.objectContaining({ shell: true }));
+  });
+
+  it("reports 1 when the process has no exit status", () => {
+    expect(createRunner("/repo", vi.fn().mockReturnValue({ status: null }))("npm", [])).toBe(1);
   });
 });
