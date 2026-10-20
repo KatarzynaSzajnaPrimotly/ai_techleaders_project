@@ -19,7 +19,7 @@ Each step is a small function `(deps) => Promise<"done" | "skipped">` with an "a
 
 | # | Step | Skipped when | Otherwise |
 |---|------|--------------|-----------|
-| 1 | Node version | never skipped; fails on mismatch | Fail with `nvm use` hint when the major version differs from `.nvmrc` |
+| 1 | Node version | the running major version matches `.nvmrc` (reported `[skipped]`: nothing to do), or `.nvmrc` has no numeric version | Fail with `nvm use` hint when the major version differs from `.nvmrc` |
 | 2 | Dependencies | `node_modules/.package-lock.json` exists and is not older than `package-lock.json` | `npm install` |
 | 3 | Env file | `packages/app/.env.local` exists | Copy `.env.example` to it (never overwrite) |
 | 4 | Database | target database exists | `CREATE DATABASE` through the maintenance database; clear error if Postgres is unreachable or rights are missing |
@@ -31,7 +31,7 @@ Alternatives considered: a shell script (not portable to Windows), a Makefile (e
 
 - Reuses `getDatabaseConfig()` (`packages/db/src/config.ts`) for URL and defaults, and the existing MikroORM migrator (`packages/db/src/scripts/migrate.ts`) for step 5; the migrator's `up` is already idempotent. The migration logic is extracted into a shared function in `packages/db/src/setup/` or imported, so `migrate.ts` behavior is unchanged.
 - Package boundaries hold: everything lives in `db` and the repo root; `core` and `ui` are untouched, and no new project-internal dependency is introduced.
-- Database creation uses `pg` against the maintenance database (`postgres`) on the same server. `pg` is already installed transitively by `@mikro-orm/postgresql`; it is declared explicitly in `packages/db/package.json`.
+- Database creation goes through MikroORM's connection (an entity-less `MikroORM.init`) against the maintenance database (`postgres`) on the same server; no direct `pg` dependency is added.
 - Env and variable names are read, never renamed. Migration scripts read the process environment only, so setup also uses the process environment (the generated `.env.local` serves the Next.js app, as documented today).
 
 ## 📝 Data Model
@@ -62,7 +62,7 @@ No user-facing screens. Terminal output only: one line per step, `[done]` or `[s
 
 ## 📝 Testing Strategy
 
-- Unit tests next to the code (`packages/db/src/setup/*.test.ts`, covered by the `unit-node` project): each step for done, skipped and failure paths, with `child_process`, `fs` and `pg` mocked at the boundary; the runner (ordering, stop on first failure, exit codes, output). 100% coverage, no `v8 ignore`.
+- Unit tests next to the code (`packages/db/src/setup/*.test.ts`, covered by the `unit-node` project): each step for done, skipped and failure paths, with the MikroORM connection and the filesystem faked at the boundary; the runner (ordering, stop on first failure, exit codes, output). 100% coverage, no `v8 ignore`.
 - `scripts/setup.mjs` is plain Node outside `packages/*/src`: keep its logic minimal (version check, install probe, spawn) and cover it through a testable exported function with a unit test; extend `vitest.config.mts` patterns only if needed to include it, never lowering thresholds.
 - Integration test `tests/integration/setup.int.test.ts`: run the setup steps twice against the throwaway database (`INTEGRATION_DATABASE_URL` or Testcontainers) and assert the second run reports every step skipped and exits 0.
 
@@ -75,7 +75,7 @@ No user-facing screens. Terminal output only: one line per step, `[done]` or `[s
 
 ### Phase 1: Testable setup core (`packages/db`)
 
-1. Add `packages/db/src/setup/` with the step functions (node version, dependencies, env file, database, migrations) and the runner; declare `pg` in `packages/db/package.json`.
+1. Add `packages/db/src/setup/` with the step functions (node version, dependencies, env file, database, migrations) and the runner; the database step creates the database through MikroORM's connection.
 2. Extract the migrator `up` into a reusable function used by both `migrate.ts` and the migrations step; `migrate.test.ts` keeps passing.
 3. Unit tests for every step and the runner at 100% coverage.
 
