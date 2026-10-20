@@ -1,0 +1,6 @@
+# D03 — Now: paid text answers first, reached through the mentor's own link
+- Date, owner: 2026-10-20, founder A (Oliwia), confirmed in the om-discover session (quick pass)
+- Context and the options weighed: the board's full vision (marketplace, vault subscription, MCP, async 24h tier) against a first product that sells only prepaid text answers. Option B was to keep one "answer from the vault" AI feature in the 25-hour build. The agent recommended the narrower option because the four mentee interviews describe a need for a fast text answer from someone who has done the exact thing, and none of them asked for the vault; the two mentors who value their notes were not asked to pay for a vault.
+- Decision and why: the first build sells a prepaid text session or text answer (25 or 50 minutes, D01), booked through the mentor's own link. No vault, MCP, subscription or ratings in the first build. Origin: agent recommendation, accepted by founder A. The belief that mentees will pay is not confirmed by this decision (A01).
+- Consequences, and what would make us revisit it: the recurring-revenue half of the vision stays untested; the open vault question for founder B is parked (Q05). Revisit when the stop signal in D04 is read.
+- Status: active
