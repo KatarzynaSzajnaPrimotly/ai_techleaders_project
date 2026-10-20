@@ -7,6 +7,7 @@ import type { TestProject } from "vitest/node";
 declare module "vitest" {
   export interface ProvidedContext {
     baseUrl: string;
+    databaseUrl: string;
   }
 }
 
@@ -92,6 +93,7 @@ export default async function setup(project: TestProject) {
     const baseUrl = `http://127.0.0.1:${port}`;
     await waitUntilReady(baseUrl, server, () => output);
     project.provide("baseUrl", baseUrl);
+    project.provide("databaseUrl", databaseUrl);
   } catch (error) {
     await stop();
     throw error;

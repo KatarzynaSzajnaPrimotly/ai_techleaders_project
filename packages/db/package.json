@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "migration:create": "tsx src/scripts/migrate.ts create",
     "migration:up": "tsx src/scripts/migrate.ts up",
-    "migration:down": "tsx src/scripts/migrate.ts down"
+    "migration:down": "tsx src/scripts/migrate.ts down",
+    "setup": "tsx src/scripts/setup.ts"
   },
   "dependencies": {
     "@devmentor/core": "*",

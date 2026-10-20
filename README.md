@@ -74,9 +74,30 @@ Engineering standards, naming, security minimums and the review checklist: `.ai/
 
 ## Getting started
 
+Needs Node matching `.nvmrc` and a reachable PostgreSQL. One command does the rest:
+
+```bash
+npm run setup
+npm run dev     # http://localhost:3000
+```
+
+`npm run setup` checks the Node version, installs dependencies, creates `packages/app/.env.local` from `.env.example`,
+creates the database (`DEVMENTOR_DATABASE_URL`, needs `CREATE DATABASE` rights) and applies migrations. Each step prints
+`[done]` or `[skipped]`; rerunning is safe, it never overwrites an existing env file or touches existing data.
+
+### Manual setup (alternative)
+
+Create the database (see [Database](#database)), then:
+
 ```bash
 npm install
+npm run migration:up -w @devmentor/db
 npm run dev     # http://localhost:3000
+```
+
+Other commands:
+
+```bash
 npm run lint
 npm run typecheck
 npm test                 # unit tests (Vitest)
