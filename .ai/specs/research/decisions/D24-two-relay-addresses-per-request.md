@@ -1,0 +1,6 @@
+# D24 — Two relay addresses per request: one for an answer, one for a request for more information
+- Date, owner: 2026-10-21, founder A (Oliwia), confirmed in the om-discover refresh
+- Context and the options weighed: only the answer stops the refund clock (D09, D22), so the relay has to tell a request for more information from the answer. Options: a tag in the subject with an untagged message counted as the answer, the same with an untagged message counted as a request, a click in the product, or two addresses per request. Origin: agent recommendation, accepted by founder A, because no parsing is needed and no default interpretation silently harms one side.
+- Decision and why: each paid request has two platform addresses. A message from the mentor to the answer address counts as the answer, stops the refund clock and records the time. A message to the information-request address stops the window clock while the mentor waits for the mentee (D22) and does not count as the answer.
+- Consequences, and what would make us revisit it: the mentor has to pick the right address, and a message sent to the wrong one has the same effect as a wrong tag, but is visible in the thread; what happens then is open (Q24).
+- Status: active

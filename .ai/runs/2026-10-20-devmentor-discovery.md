@@ -21,6 +21,13 @@ brief, turn it into a GitHub backlog, then tidy the repository.
 - 2026-10-21: accounts and roles. Decisions D16–D19 (guest mentee with e-mail, invited mentor accounts, coordinator sees metadata
   only, roles mentor and coordinator), rules R08–R11 and records in `.ai/specs/research/decisions/`; epic E06 and stories
   #22–#26 filed, and ten existing issues (#5, #6, #8, #10–#15, #18, #19) updated; `backlog.md` extended.
+- 2026-10-21: design decisions D20–D22 (answers in an e-mail thread, offers recorded by hand, window clock stops while waiting
+  for the mentee) with rules R12–R14; new open questions Q20 (how the platform learns that the mentor answered; blocking for
+  #14, #16 and #18) and Q21; issues #8, #14, #15, #16, #18 and #25 updated.
+- 2026-10-21: D23 (e-mail relay through a platform address, resolves Q20); new story E02-S04 (#27); issues #6, #14, #15, #16 and
+  #18 updated; Q22 and Q23 open (Q23 blocks #27 and #16).
+- 2026-10-21: D24–D26 (two relay addresses per request, the mentor keeps seeing the mentee's e-mail, text deleted after delivery),
+  rules R16–R17; Q22 and Q23 closed, Q24 open (non-blocking); issues #14, #15, #16 and #27 updated.
 
 ## Key decisions (all by the product owner, founder A, 2026-10-20)
 Now is a four-to-six-week pilot of prepaid written answers through the mentor's own link: PLN 200, PLN 150 to the mentor,
