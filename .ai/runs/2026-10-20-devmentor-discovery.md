@@ -46,3 +46,10 @@ mentees with at least 10 mentees offered (D03, D05–D15).
 - Questions kept open in the brief: Q05 (vault), Q12 (time zone and clock), Q13 (payout timing), Q14 (mentee identification),
   Q15 (mentor sign-in) and Q16 (wait for a mentee's reply); Q14–Q16 are also in the issues.
 - Not done from the tidy-up list: archive the Mentora concept, remove the zip in the repository root.
+
+## 2026-10-21 re-baseline to the reference backlog
+- Asked: compare the backlog with the reference `full-backlog.md` and rebuild the scope on it.
+- Done: archived the pilot brief, backlog map and decisions D03-D26 in `.ai/specs/archive/2026-10-20-pilot/`; new brief with the reference decisions (D01-D05, D07-D11, D13, D16, D18-D22, D24) and decisions made here (D27-D32); five agents adapted the reference issues to this repository's real code into drafts; GitHub: pilot issues #5-#27 renamed to the P series and closed as not planned, the 1.0 tree filed as #29-#56 (epics #29-#35, 21 stories #36-#56); `backlog.md` map and `backlog-snapshot.md`.
+- Verified: ids, titles, dependencies and iterations of the new index against the reference index (identical except E06, the parked epic, and the E04-S01 title changed by D27); labels read back on sample issues; open issues 29 and closed 22 after the change.
+- Not verified: Stripe API details, MikroORM partial unique indexes, Next 16 behaviours (recalled from docs, not run); the drafts were not re-read line by line after the last decision updates; no code was built.
+- Open: Q20 before 2026-11-28; Q24-Q29 as listed in the brief; the money flow of D28 to be checked with a lawyer or Stripe before the first payout; the first iteration is far above the 25 build hours and is not estimated.
