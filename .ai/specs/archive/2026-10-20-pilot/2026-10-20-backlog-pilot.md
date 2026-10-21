@@ -1,3 +1,5 @@
+> **Archived 2026-10-21 — superseded.** The pilot backlog map. Its issues #5–#27 are being retired as the P-series (P01–P06); the current map is `.ai/specs/backlog.md` once the new tree is filed.
+
 # Backlog
 
 One section per `Backlog source:`. The tracker is the live authority; this file is the source-to-issue map, the dependencies and the reserved ids.
