@@ -18,6 +18,10 @@ brief, turn it into a GitHub backlog, then tidy the repository.
 - Git: commit `a4d1f1c` on `docs/devmentor-discovery`, PR #21 stacked on #1 (base `ci/status-badge`); a separate local branch
   `chore/skills-update` (`48332f4`) holds the updated `.agents/skills/` and `skills-lock.json`.
 
+- 2026-10-21: accounts and roles. Decisions D16–D19 (guest mentee with e-mail, invited mentor accounts, coordinator sees metadata
+  only, roles mentor and coordinator), rules R08–R11 and records in `.ai/specs/research/decisions/`; epic E06 and stories
+  #22–#26 filed, and ten existing issues (#5, #6, #8, #10–#15, #18, #19) updated; `backlog.md` extended.
+
 ## Key decisions (all by the product owner, founder A, 2026-10-20)
 Now is a four-to-six-week pilot of prepaid written answers through the mentor's own link: PLN 200, PLN 150 to the mentor,
 answer within four business hours of published availability or a full refund, success = 3 paid requests from 3 different
