@@ -1,0 +1,6 @@
+# D28 — First-iteration mentors are paid by hand by the operator
+- Date, owner: 2026-10-21, founder A (Oliwia), confirmed in the om-discover refresh
+- Context and the options weighed: the reference backlog left open (its Q19) how first-iteration mentors are paid before Stripe Connect exists (1.1). Options: the operator pays by bank transfer by hand and logs it, or Connect moves into the first iteration (E02-S05, E03-S06), which lengthens the build and changes D13. Origin: agent recommendation, accepted by founder A, because D19 and R18 already make operator functions without a story manual.
+- Decision and why: until Connect ships in 1.1 the operator pays mentors by bank transfer by hand and logs each payout in the shared operator note (R18).
+- Consequences, and what would make us revisit it: manual work for the operator; holding mentees' money and paying mentors out by hand may need a different flow (Stripe Connect or a payment institution); verify this with a lawyer or Stripe before the first payout; this is not legal advice. Connect onboarding (E02-S05) and the automatic Connect split and payout (E03-S06) stay in 1.1; the amount owed in the meantime is the price less the 20% fee (D30).
+- Status: active

@@ -1,0 +1,6 @@
+# D20 — The answer and any request for more information travel in an e-mail thread
+- Date, owner: 2026-10-21, founder A (Oliwia), confirmed in the om-discover refresh
+- Context and the options weighed: a guest mentee (D16) could receive the answer and reply through a private link to a page in the product, or through an e-mail thread. The agent recommended the private link because D06 (minutes from payment to first answer) and D09 (refund when the window is missed) need the platform to know when the answer was sent, and because the question text would stay in the product (D10, D18). Founder A chose the e-mail thread, the simplest to build.
+- Decision and why: the mentor's answer and any request for more information, and the mentee's replies, travel in an e-mail thread between the mentor and the mentee.
+- Consequences, and what would make us revisit it: the platform does not see the answer unless a mechanism is added, so how it learns that the mentor answered, and when, is open (Q20); refunds (D09) and the measure in D06 depend on it. The mentee and the mentor may see each other's e-mail address unless the thread is relayed (Q20). The privacy notice (D10) has to cover question text and answers in e-mail. The coordinator sees metadata only (D18).
+- Status: active

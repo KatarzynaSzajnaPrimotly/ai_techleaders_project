@@ -1,0 +1,6 @@
+# D16 — The mentee pays as a guest with an e-mail address
+- Date, owner: 2026-10-21, founder A (Oliwia), confirmed in the om-discover refresh
+- Context and the options weighed: two ways for a mentee to appear in the pilot: a guest who pays with an e-mail address, or an account created or signed into before paying. The fintech developer would not create an account or verify a mail and gave up if booking took more than five minutes; the Python mentor wants to see who is asking; the freelancer said they would return to the same mentor. Origin: agent recommendation, accepted by founder A.
+- Decision and why: the mentee has no account in the pilot. They pay as a guest and give an e-mail address; a unique mentee (D07, D15) is identified by that e-mail. The mentor sees the e-mail and what the mentee writes in the question.
+- Consequences, and what would make us revisit it: there is no history and returning to the same mentor is harder. One person using two e-mail addresses counts twice. The answer and any request for more information reach a guest through a channel that is not decided (Q17). The privacy notice (D10) has to cover e-mail addresses and question text. A mentor who wants to know more about who asks may decline (A02).
+- Status: active
