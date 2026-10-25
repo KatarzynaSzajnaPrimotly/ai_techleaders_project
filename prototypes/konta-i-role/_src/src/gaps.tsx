@@ -154,9 +154,9 @@ export function RoleShell({ children, wide = false }: { children: ReactNode; wid
   const role = useStore((current: State) => currentRole(current));
   return (
     <div className="min-h-[28rem]">
-      <header className="flex items-center justify-between gap-3 border-b border-border px-6 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-border px-4 py-3 sm:px-6">
         <span className="font-semibold tracking-tight">DevMentor</span>
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
           {account ? (
             <>
               <span>{account.name}</span>

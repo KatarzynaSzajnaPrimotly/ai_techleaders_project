@@ -39,7 +39,37 @@ Odstępstwa od mapy, do potwierdzenia:
 Sprawdzone w przeglądarce (file://): 122 kontrole bez błędów (dziennik i 28 zrzutów w `_src/evidence/stage2/`). Po drodze znalazłem i poprawiłem: panel scenariuszy wysuwał się poza okno; lista kont pokazywała zapisaną rolę zamiast faktycznej.
 
 Teksty-zamienniki do potwierdzenia (placeholdery, nie decyzje): komunikaty dla `error=state`, braku zweryfikowanego e-maila, błędu serwera przy logowaniu i potwierdzeniu, 429 na `/api/mentors`; „Try again in 60 minutes” dla rejestracji i potwierdzenia (spec podaje okno godziny, nie Retry-After).
-## Etap 3. Uczciwość i sprawdzenie: nie rozpoczęty
+## Etap 3. Uczciwość i sprawdzenie: ZAKOŃCZONY, czeka na odbiór (2026-10-25)
+
+Zbudowane: notatka przy każdym ekranie (historie, co jest symulacją, czego nie rozstrzyga; klasa `notes`, więc tryb prezentacji ją ukrywa), `README.md` prototypu z sekcją „Ograniczenia symulacji”, testy nawigacji (`_src/src/navigation.test.ts`, 18 testów, macierz dostępu 1b, `returnTo`, wszystkie konta demo, P07, P08, P09, wygaśnięcie sesji; sprawdzone mutacją: zepsucie `HOME` i bramki w `resolve` wywala 6 testów), skrypt sprawdzenia w przeglądarce (`_src/checks/`).
+
+Sprawdzone w przeglądarce (file://): 511 kontroli, 0 błędów (`_src/evidence/stage3/dziennik.log`, zrzuty domyślnych stanów i panelu obok):
+- wszystkie 54 stany w czterech układach: 1440 i 320 px, ciemny i jasny motyw (216 kontroli): właściwy ekran i tekst, brak przewijania w bok, brak elementów poza ramką, kontrast tekstu AA, cele dotyku co najmniej 24 px, brak błędów JS;
+- każdy przycisk, link i przełącznik na każdym ekranie, w obu szerokościach (46) oraz każdy przycisk paska przeglądu (40): coś się dzieje, nic nie jest martwe;
+- każda opcja każdej kontrolki scenariusza, w obu szerokościach (92), oraz dostępność wszystkich kontrolek panelu wskaźnikiem (15 w każdej szerokości);
+- prawdziwe Tab w obu szerokościach i obu motywach: kolejność zgodna z kolejnością kontrolek, widoczny fokus, fokus nie wypada z okna; pasek przeglądu osiągalny z klawiatury; Enter wysyła logowanie, Ctrl+Enter wysyła formularz mentora, Enter otwiera i zamyka panel.
+
+Znalezione i poprawione po drodze:
+- 320 px: pasek silnika przeglądu (`proto-toolbar`), nagłówek `RoleShell` i przyciski na s09 wychodziły poza ekran; panel Scenarios zjeżdżał poza dolną krawędź okna i jego dolne kontrolki były nieosiągalne (teraz przypięty do okna).
+- Jasny motyw: tekst błędu miał kontrast 3,3:1 (luka D-10, obejście w prototypie).
+
+Czego nie sprawdzono:
+- tylko Chrome (agent-browser), tylko `file://`; Safari, Firefox, ekran dotykowy, czytnik ekranu;
+- kontrast i rozmiar celów liczone skryptem (tekst; bez obrazów i obramowań, bez stanów hover i focus), nie audytem dostępności;
+- zrzuty tylko dla stanów domyślnych i panelu, nie dla wszystkich 216 układów (wyniki w dzienniku);
+- Escape w formularzu mentora nic nie robi, jak na prawdziwej stronie (CrudForm bez `onCancel`); to zgodne z kodem, ale to pytanie do specyfikacji;
+- testy nawigacji i skrypt przeglądarki nie wchodzą do CI ani do progu 100%, bo prototyp leży poza `packages/`.
+
+Luki w design systemie (do dopisania do sekcji 5 mapy; D-01 do D-09 są tam już opisane):
+- D-10 (nowa): `--color-destructive` to stałe `#ef4444` w `@theme inline` (3,3:1 na jasnym tle, tekst błędu poniżej AA); motyw nie może go nadpisać zmienną. Potrzebny token tekstu błędu z kontrastem AA na obu tłach.
+- D-11 (nowa): brak `Input`, `Label`, `Alert` z `role` i prawidłową kolejnością fokusu to D-04; do tego brak komponentu przewijanego regionu: tabela w `Table` przy 320 px przewija się w bok we własnym kontenerze i jest przystankiem Tab (zachowanie poprawne, ale bez wskazówki dla użytkownika, że jest więcej kolumn).
+- D-12 (nowa): `RoleShell` nie ma zachowania na wąskim ekranie (prototyp zawija nagłówek); zaprojektować w S01b.
+
+Pytania do specyfikacji, które wyszły przy budowie (poza już rozstrzygniętymi G01 do G26):
+1. Czy Escape w formularzu dodawania mentora ma coś robić (np. czyścić pola), czy zostaje jak dziś?
+2. Czy komunikat limitu ma podawać czas jako minuty zaokrąglone w górę z `Retry-After` także dla rejestracji i potwierdzenia, gdzie spec podaje tylko okno godziny (prototyp: „60 minutes”)?
+3. Czy jasny motyw w ogóle jest w zakresie 1.0 (D-07), czy wystarczy ciemny?
+4. Który z kontrolowanych stanów wygaśnięcia (P06: wygasła, zmieniona, w trakcie pracy) ma mieć osobny komunikat? Teraz wszystkie dają jeden (G07).
 
 ## Decyzje i odpowiedzi
 

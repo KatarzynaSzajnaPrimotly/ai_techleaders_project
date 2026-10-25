@@ -41,7 +41,7 @@ export function GithubConsent() {
           </label>
         ))}
       </fieldset>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button onClick={authorize} className="flex-1">
           Authorize DevMentor
         </Button>

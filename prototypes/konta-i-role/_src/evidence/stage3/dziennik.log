@@ -1,0 +1,512 @@
+PASS | 1440px dark s01.1
+PASS | 1440px dark s01.2
+PASS | 1440px dark s01.3
+PASS | 1440px dark s01.4
+PASS | 1440px dark s01.5
+PASS | 1440px dark s01.6
+PASS | 1440px dark s01.7
+PASS | 1440px dark s01.8
+PASS | 1440px dark s01.9
+PASS | 1440px dark s01.10
+PASS | 1440px dark s01.11
+PASS | 1440px dark s01.12
+PASS | 1440px dark s02.1
+PASS | 1440px dark s02.2
+PASS | 1440px dark s02.3
+PASS | 1440px dark s02.4
+PASS | 1440px dark s02.5
+PASS | 1440px dark s02.6
+PASS | 1440px dark s02.7
+PASS | 1440px dark s03.1
+PASS | 1440px dark s03.2
+PASS | 1440px dark s04.1
+PASS | 1440px dark s04.2
+PASS | 1440px dark s04.3
+PASS | 1440px dark s04.4
+PASS | 1440px dark s04.5
+PASS | 1440px dark s04.6
+PASS | 1440px dark s04.7
+PASS | 1440px dark s04.8
+PASS | 1440px dark s04.9
+PASS | 1440px dark s05.1
+PASS | 1440px dark s05.2
+PASS | 1440px dark s05.3
+PASS | 1440px dark s05.4
+PASS | 1440px dark s05.5
+PASS | 1440px dark s06.1
+PASS | 1440px dark s06.2
+PASS | 1440px dark s06.3
+PASS | 1440px dark s06.4
+PASS | 1440px dark s06.5
+PASS | 1440px dark s07.1
+PASS | 1440px dark s07.2
+PASS | 1440px dark s07.3
+PASS | 1440px dark s07.4
+PASS | 1440px dark s07.5
+PASS | 1440px dark s07.6
+PASS | 1440px dark s07.7
+PASS | 1440px dark s07.8
+PASS | 1440px dark s09.1
+PASS | 1440px dark s09.2
+PASS | 1440px dark s10.1
+PASS | 1440px dark s10.2
+PASS | 1440px dark s10.3
+PASS | 1440px dark review-bar panel: 15 controls reachable
+PASS | 1440px dark s01 Tab reaches 5 controls in order
+PASS | 1440px dark s01 every focused control shows a focus ring
+PASS | 1440px dark s01 focus never lands out of view
+PASS | 1440px dark s02 Tab reaches 4 controls in order
+PASS | 1440px dark s02 every focused control shows a focus ring
+PASS | 1440px dark s02 focus never lands out of view
+PASS | 1440px dark s03 Tab reaches 2 controls in order
+PASS | 1440px dark s03 every focused control shows a focus ring
+PASS | 1440px dark s03 focus never lands out of view
+PASS | 1440px dark s04 Tab reaches 2 controls in order
+PASS | 1440px dark s04 every focused control shows a focus ring
+PASS | 1440px dark s04 focus never lands out of view
+PASS | 1440px dark s05 Tab reaches 1 controls in order
+PASS | 1440px dark s05 every focused control shows a focus ring
+PASS | 1440px dark s05 focus never lands out of view
+PASS | 1440px dark s06 Tab reaches 1 controls in order
+PASS | 1440px dark s06 every focused control shows a focus ring
+PASS | 1440px dark s06 focus never lands out of view
+PASS | 1440px dark s07 Tab reaches 4 controls in order
+PASS | 1440px dark s07 every focused control shows a focus ring
+PASS | 1440px dark s07 focus never lands out of view
+PASS | 1440px dark s09 Tab reaches 3 controls in order
+PASS | 1440px dark s09 every focused control shows a focus ring
+PASS | 1440px dark s09 focus never lands out of view
+PASS | 1440px dark s10 Tab reaches 1 controls in order
+PASS | 1440px dark s10 every focused control shows a focus ring
+PASS | 1440px dark s10 focus never lands out of view
+PASS | 1440px dark review bar: Tab reaches 18 controls, all with a focus ring | got s01 Sign in | s02 Register | s03 Check e-mail | s04 Password | s05 Mentee | s06 Mentor | s07 Operator | s09 GitHub | s10 Mailbox | Scenarios | Reset demo | Clickable | Comment | Show hotspots | Presentation | Threads | Hide pins | Theme: dark
+PASS | 1440px dark P01 GitHub resultsuccesscancel = ok
+PASS | 1440px dark P01 GitHub resultsuccesscancel = cancelled
+PASS | 1440px dark P01 GitHub resultsuccesscancel = state
+PASS | 1440px dark P01 GitHub resultsuccesscancel = noEmail
+PASS | 1440px dark P01 GitHub resultsuccesscancel = unavailable
+PASS | 1440px dark P01 GitHub resultsuccesscancel = conflict
+PASS | 1440px dark P03 Registration by e-mailfrom = auto
+PASS | 1440px dark P03 Registration by e-mailfrom = existing
+PASS | 1440px dark P03 Registration by e-mailfrom = sendFail
+PASS | 1440px dark P03 Registration by e-mailfrom = cooldown
+PASS | 1440px dark P04 Link from the mailvalidexp = valid
+PASS | 1440px dark P04 Link from the mailvalidexp = expired
+PASS | 1440px dark P04 Link from the mailvalidexp = tampered
+PASS | 1440px dark P04 Link from the mailvalidexp = used
+PASS | 1440px dark P04 Link from the mailvalidexp = missing
+PASS | 1440px dark P05 E-mail sign-infrom the cre = auto
+PASS | 1440px dark P05 E-mail sign-infrom the cre = wrongPassword
+PASS | 1440px dark P05 E-mail sign-infrom the cre = unknownEmail
+PASS | 1440px dark P05 E-mail sign-infrom the cre = githubOnly
+PASS | 1440px dark P05 E-mail sign-infrom the cre = rateLimit
+PASS | 1440px dark P06 Sessionvalidexpired (cooki = valid
+PASS | 1440px dark P06 Sessionvalidexpired (cooki = expired
+PASS | 1440px dark P06 Sessionvalidexpired (cooki = tampered
+PASS | 1440px dark P06 Sessionvalidexpired (cooki = midWork
+PASS | 1440px dark P07 Saved role of listed opera = mentee
+PASS | 1440px dark P07 Saved role of listed opera = mentor
+PASS | 1440px dark P09 Cookie rolematches the acc = matches
+PASS | 1440px dark P09 Cookie rolematches the acc = stale
+PASS | 1440px dark P10 Network and mentor listfas = fast
+PASS | 1440px dark P10 Network and mentor listfas = slow
+PASS | 1440px dark P10 Network and mentor listfas = serverError
+PASS | 1440px dark P10 Network and mentor listfas = empty
+PASS | 1440px dark next Next form requestsucceeds = ok
+PASS | 1440px dark next Next form requestsucceeds = rateLimit
+PASS | 1440px dark next Next form requestsucceeds = serverError
+PASS | 1440px dark s01.2 Stage variante-mail form = off
+PASS | 1440px dark s01.2 Stage variante-mail form = on
+PASS | 1440px dark Account Signed in asanonymousA = 
+PASS | 1440px dark Account Signed in asanonymousA = A1
+PASS | 1440px dark Account Signed in asanonymousA = A2
+PASS | 1440px dark Account Signed in asanonymousA = A3
+PASS | 1440px dark Account Signed in asanonymousA = A4
+PASS | 1440px dark Account Signed in asanonymousA = A5
+PASS | 1440px dark Account Signed in asanonymousA = A6
+PASS | 1440px dark Account Signed in asanonymousA = A7
+PASS | 1440px dark 45 scenario options exercised
+PASS | 1440px dark s01 'Sign in with GitHub' navigates to s09
+PASS | 1440px dark s01 'Sign in' changes the page
+PASS | 1440px dark s01 'Register' navigates to s02
+PASS | 1440px dark s02 'Register' changes the page
+PASS | 1440px dark s02 'Sign in' navigates to s01
+PASS | 1440px dark s03 'Register again.' navigates to s02
+PASS | 1440px dark s03 'Open the simulated mailbox' navigates to s10
+PASS | 1440px dark s04 'Create account' changes the page
+PASS | 1440px dark s05 'Sign out' navigates to s01
+PASS | 1440px dark s06 'Sign out' navigates to s01
+PASS | 1440px dark s07 'Sign out' navigates to s01
+PASS | 1440px dark s07 'Add mentor' changes the page
+PASS | 1440px dark s09 'lena-w' already selected
+PASS | 1440px dark s09 'marta-k' updates the DOM
+PASS | 1440px dark s09 'piotr-z' updates the DOM
+PASS | 1440px dark s09 'founder-a' updates the DOM
+PASS | 1440px dark s09 'founder-b-mentor' updates the DOM
+PASS | 1440px dark s09 'tomasz-b' updates the DOM
+PASS | 1440px dark s09 'marta-k-alt' updates the DOM
+PASS | 1440px dark s09 'no-mail-user' updates the DOM
+PASS | 1440px dark s09 'Authorize DevMentor' navigates to s05
+PASS | 1440px dark s09 'Cancel' navigates to s01
+PASS | 1440px dark s10 'Confirm your account' navigates to s04
+PASS | 1440px dark review bar 's01 Sign in' updates the DOM
+PASS | 1440px dark review bar 's02 Register' navigates to s02
+PASS | 1440px dark review bar 's03 Check e-mail' navigates to s03
+PASS | 1440px dark review bar 's04 Password' navigates to s04
+PASS | 1440px dark review bar 's05 Mentee' updates the DOM
+PASS | 1440px dark review bar 's06 Mentor' updates the DOM
+PASS | 1440px dark review bar 's07 Operator' updates the DOM
+PASS | 1440px dark review bar 's09 GitHub' navigates to s09
+PASS | 1440px dark review bar 's10 Mailbox' navigates to s10
+PASS | 1440px dark review bar 'Scenarios' changes the page
+PASS | 1440px dark review bar 'Open' changes the page
+PASS | 1440px dark review bar 'Clear rate limits' changes the page
+PASS | 1440px dark review bar 'Reset demo' updates the DOM
+PASS | 1440px dark review bar 'Clickable' updates the DOM
+PASS | 1440px dark review bar 'Comment' switches mode
+PASS | 1440px dark review bar 'Show hotspots' switches mode
+PASS | 1440px dark review bar 'Presentation' navigates to s01,s02,s03,s04,s05,s06,s07,s09,s10
+PASS | 1440px dark review bar 'Threads' switches mode
+PASS | 1440px dark review bar 'Hide pins' switches mode
+PASS | 1440px dark review bar 'Theme: dark' switches theme
+PASS | keyboard: Enter submits the sign-in form (wrong password -> generic error)
+PASS | keyboard: Ctrl+Enter submits the add-mentor form
+PASS | keyboard: Escape leaves the add-mentor form as the real page does (no onCancel) | field holds 'Will be cancelled'
+PASS | keyboard: Enter opens the Scenarios panel
+PASS | keyboard: Enter closes the Scenarios panel again
+PASS | 1440px light s01.1
+PASS | 1440px light s01.2
+PASS | 1440px light s01.3
+PASS | 1440px light s01.4
+PASS | 1440px light s01.5
+PASS | 1440px light s01.6
+PASS | 1440px light s01.7
+PASS | 1440px light s01.8
+PASS | 1440px light s01.9
+PASS | 1440px light s01.10
+PASS | 1440px light s01.11
+PASS | 1440px light s01.12
+PASS | 1440px light s02.1
+PASS | 1440px light s02.2
+PASS | 1440px light s02.3
+PASS | 1440px light s02.4
+PASS | 1440px light s02.5
+PASS | 1440px light s02.6
+PASS | 1440px light s02.7
+PASS | 1440px light s03.1
+PASS | 1440px light s03.2
+PASS | 1440px light s04.1
+PASS | 1440px light s04.2
+PASS | 1440px light s04.3
+PASS | 1440px light s04.4
+PASS | 1440px light s04.5
+PASS | 1440px light s04.6
+PASS | 1440px light s04.7
+PASS | 1440px light s04.8
+PASS | 1440px light s04.9
+PASS | 1440px light s05.1
+PASS | 1440px light s05.2
+PASS | 1440px light s05.3
+PASS | 1440px light s05.4
+PASS | 1440px light s05.5
+PASS | 1440px light s06.1
+PASS | 1440px light s06.2
+PASS | 1440px light s06.3
+PASS | 1440px light s06.4
+PASS | 1440px light s06.5
+PASS | 1440px light s07.1
+PASS | 1440px light s07.2
+PASS | 1440px light s07.3
+PASS | 1440px light s07.4
+PASS | 1440px light s07.5
+PASS | 1440px light s07.6
+PASS | 1440px light s07.7
+PASS | 1440px light s07.8
+PASS | 1440px light s09.1
+PASS | 1440px light s09.2
+PASS | 1440px light s10.1
+PASS | 1440px light s10.2
+PASS | 1440px light s10.3
+PASS | 1440px light review-bar panel: 15 controls reachable
+PASS | 1440px light s01 Tab reaches 5 controls in order
+PASS | 1440px light s01 every focused control shows a focus ring
+PASS | 1440px light s01 focus never lands out of view
+PASS | 1440px light s02 Tab reaches 4 controls in order
+PASS | 1440px light s02 every focused control shows a focus ring
+PASS | 1440px light s02 focus never lands out of view
+PASS | 1440px light s03 Tab reaches 2 controls in order
+PASS | 1440px light s03 every focused control shows a focus ring
+PASS | 1440px light s03 focus never lands out of view
+PASS | 1440px light s04 Tab reaches 2 controls in order
+PASS | 1440px light s04 every focused control shows a focus ring
+PASS | 1440px light s04 focus never lands out of view
+PASS | 1440px light s05 Tab reaches 1 controls in order
+PASS | 1440px light s05 every focused control shows a focus ring
+PASS | 1440px light s05 focus never lands out of view
+PASS | 1440px light s06 Tab reaches 1 controls in order
+PASS | 1440px light s06 every focused control shows a focus ring
+PASS | 1440px light s06 focus never lands out of view
+PASS | 1440px light s07 Tab reaches 4 controls in order
+PASS | 1440px light s07 every focused control shows a focus ring
+PASS | 1440px light s07 focus never lands out of view
+PASS | 1440px light s09 Tab reaches 3 controls in order
+PASS | 1440px light s09 every focused control shows a focus ring
+PASS | 1440px light s09 focus never lands out of view
+PASS | 1440px light s10 Tab reaches 1 controls in order
+PASS | 1440px light s10 every focused control shows a focus ring
+PASS | 1440px light s10 focus never lands out of view
+PASS | 1440px light review bar: Tab reaches 18 controls, all with a focus ring | got s01 Sign in | s02 Register | s03 Check e-mail | s04 Password | s05 Mentee | s06 Mentor | s07 Operator | s09 GitHub | s10 Mailbox | Scenarios | Reset demo | Clickable | Comment | Show hotspots | Presentation | Threads | Hide pins | Theme: light
+PASS | 320px dark s01.1
+PASS | 320px dark s01.2
+PASS | 320px dark s01.3
+PASS | 320px dark s01.4
+PASS | 320px dark s01.5
+PASS | 320px dark s01.6
+PASS | 320px dark s01.7
+PASS | 320px dark s01.8
+PASS | 320px dark s01.9
+PASS | 320px dark s01.10
+PASS | 320px dark s01.11
+PASS | 320px dark s01.12
+PASS | 320px dark s02.1
+PASS | 320px dark s02.2
+PASS | 320px dark s02.3
+PASS | 320px dark s02.4
+PASS | 320px dark s02.5
+PASS | 320px dark s02.6
+PASS | 320px dark s02.7
+PASS | 320px dark s03.1
+PASS | 320px dark s03.2
+PASS | 320px dark s04.1
+PASS | 320px dark s04.2
+PASS | 320px dark s04.3
+PASS | 320px dark s04.4
+PASS | 320px dark s04.5
+PASS | 320px dark s04.6
+PASS | 320px dark s04.7
+PASS | 320px dark s04.8
+PASS | 320px dark s04.9
+PASS | 320px dark s05.1
+PASS | 320px dark s05.2
+PASS | 320px dark s05.3
+PASS | 320px dark s05.4
+PASS | 320px dark s05.5
+PASS | 320px dark s06.1
+PASS | 320px dark s06.2
+PASS | 320px dark s06.3
+PASS | 320px dark s06.4
+PASS | 320px dark s06.5
+PASS | 320px dark s07.1
+PASS | 320px dark s07.2
+PASS | 320px dark s07.3
+PASS | 320px dark s07.4
+PASS | 320px dark s07.5
+PASS | 320px dark s07.6
+PASS | 320px dark s07.7
+PASS | 320px dark s07.8
+PASS | 320px dark s09.1
+PASS | 320px dark s09.2
+PASS | 320px dark s10.1
+PASS | 320px dark s10.2
+PASS | 320px dark s10.3
+PASS | 320px dark review-bar panel: 15 controls reachable
+PASS | 320px dark s01 Tab reaches 5 controls in order
+PASS | 320px dark s01 every focused control shows a focus ring
+PASS | 320px dark s01 focus never lands out of view
+PASS | 320px dark s02 Tab reaches 4 controls in order
+PASS | 320px dark s02 every focused control shows a focus ring
+PASS | 320px dark s02 focus never lands out of view
+PASS | 320px dark s03 Tab reaches 2 controls in order
+PASS | 320px dark s03 every focused control shows a focus ring
+PASS | 320px dark s03 focus never lands out of view
+PASS | 320px dark s04 Tab reaches 2 controls in order
+PASS | 320px dark s04 every focused control shows a focus ring
+PASS | 320px dark s04 focus never lands out of view
+PASS | 320px dark s05 Tab reaches 1 controls in order
+PASS | 320px dark s05 every focused control shows a focus ring
+PASS | 320px dark s05 focus never lands out of view
+PASS | 320px dark s06 Tab reaches 1 controls in order
+PASS | 320px dark s06 every focused control shows a focus ring
+PASS | 320px dark s06 focus never lands out of view
+PASS | 320px dark s07 Tab reaches 5 controls in order
+PASS | 320px dark s07 every focused control shows a focus ring
+PASS | 320px dark s07 focus never lands out of view
+PASS | 320px dark s09 Tab reaches 3 controls in order
+PASS | 320px dark s09 every focused control shows a focus ring
+PASS | 320px dark s09 focus never lands out of view
+PASS | 320px dark s10 Tab reaches 1 controls in order
+PASS | 320px dark s10 every focused control shows a focus ring
+PASS | 320px dark s10 focus never lands out of view
+PASS | 320px dark review bar: Tab reaches 18 controls, all with a focus ring | got s01 Sign in | s02 Register | s03 Check e-mail | s04 Password | s05 Mentee | s06 Mentor | s07 Operator | s09 GitHub | s10 Mailbox | Scenarios | Reset demo | Clickable | Comment | Show hotspots | Presentation | Threads | Hide pins | Theme: dark
+PASS | 320px dark P01 GitHub resultsuccesscancel = ok
+PASS | 320px dark P01 GitHub resultsuccesscancel = cancelled
+PASS | 320px dark P01 GitHub resultsuccesscancel = state
+PASS | 320px dark P01 GitHub resultsuccesscancel = noEmail
+PASS | 320px dark P01 GitHub resultsuccesscancel = unavailable
+PASS | 320px dark P01 GitHub resultsuccesscancel = conflict
+PASS | 320px dark P03 Registration by e-mailfrom = auto
+PASS | 320px dark P03 Registration by e-mailfrom = existing
+PASS | 320px dark P03 Registration by e-mailfrom = sendFail
+PASS | 320px dark P03 Registration by e-mailfrom = cooldown
+PASS | 320px dark P04 Link from the mailvalidexp = valid
+PASS | 320px dark P04 Link from the mailvalidexp = expired
+PASS | 320px dark P04 Link from the mailvalidexp = tampered
+PASS | 320px dark P04 Link from the mailvalidexp = used
+PASS | 320px dark P04 Link from the mailvalidexp = missing
+PASS | 320px dark P05 E-mail sign-infrom the cre = auto
+PASS | 320px dark P05 E-mail sign-infrom the cre = wrongPassword
+PASS | 320px dark P05 E-mail sign-infrom the cre = unknownEmail
+PASS | 320px dark P05 E-mail sign-infrom the cre = githubOnly
+PASS | 320px dark P05 E-mail sign-infrom the cre = rateLimit
+PASS | 320px dark P06 Sessionvalidexpired (cooki = valid
+PASS | 320px dark P06 Sessionvalidexpired (cooki = expired
+PASS | 320px dark P06 Sessionvalidexpired (cooki = tampered
+PASS | 320px dark P06 Sessionvalidexpired (cooki = midWork
+PASS | 320px dark P07 Saved role of listed opera = mentee
+PASS | 320px dark P07 Saved role of listed opera = mentor
+PASS | 320px dark P09 Cookie rolematches the acc = matches
+PASS | 320px dark P09 Cookie rolematches the acc = stale
+PASS | 320px dark P10 Network and mentor listfas = fast
+PASS | 320px dark P10 Network and mentor listfas = slow
+PASS | 320px dark P10 Network and mentor listfas = serverError
+PASS | 320px dark P10 Network and mentor listfas = empty
+PASS | 320px dark next Next form requestsucceeds = ok
+PASS | 320px dark next Next form requestsucceeds = rateLimit
+PASS | 320px dark next Next form requestsucceeds = serverError
+PASS | 320px dark s01.2 Stage variante-mail form = off
+PASS | 320px dark s01.2 Stage variante-mail form = on
+PASS | 320px dark Account Signed in asanonymousA = 
+PASS | 320px dark Account Signed in asanonymousA = A1
+PASS | 320px dark Account Signed in asanonymousA = A2
+PASS | 320px dark Account Signed in asanonymousA = A3
+PASS | 320px dark Account Signed in asanonymousA = A4
+PASS | 320px dark Account Signed in asanonymousA = A5
+PASS | 320px dark Account Signed in asanonymousA = A6
+PASS | 320px dark Account Signed in asanonymousA = A7
+PASS | 320px dark 45 scenario options exercised
+PASS | 320px dark s01 'Sign in with GitHub' navigates to s09
+PASS | 320px dark s01 'Sign in' changes the page
+PASS | 320px dark s01 'Register' navigates to s02
+PASS | 320px dark s02 'Register' changes the page
+PASS | 320px dark s02 'Sign in' navigates to s01
+PASS | 320px dark s03 'Register again.' navigates to s02
+PASS | 320px dark s03 'Open the simulated mailbox' navigates to s10
+PASS | 320px dark s04 'Create account' changes the page
+PASS | 320px dark s05 'Sign out' navigates to s01
+PASS | 320px dark s06 'Sign out' navigates to s01
+PASS | 320px dark s07 'Sign out' navigates to s01
+PASS | 320px dark s07 'Add mentor' changes the page
+PASS | 320px dark s09 'lena-w' already selected
+PASS | 320px dark s09 'marta-k' updates the DOM
+PASS | 320px dark s09 'piotr-z' updates the DOM
+PASS | 320px dark s09 'founder-a' updates the DOM
+PASS | 320px dark s09 'founder-b-mentor' updates the DOM
+PASS | 320px dark s09 'tomasz-b' updates the DOM
+PASS | 320px dark s09 'marta-k-alt' updates the DOM
+PASS | 320px dark s09 'no-mail-user' updates the DOM
+PASS | 320px dark s09 'Authorize DevMentor' navigates to s05
+PASS | 320px dark s09 'Cancel' navigates to s01
+PASS | 320px dark s10 'Confirm your account' navigates to s04
+PASS | 320px dark review bar 's01 Sign in' updates the DOM
+PASS | 320px dark review bar 's02 Register' navigates to s02
+PASS | 320px dark review bar 's03 Check e-mail' navigates to s03
+PASS | 320px dark review bar 's04 Password' navigates to s04
+PASS | 320px dark review bar 's05 Mentee' updates the DOM
+PASS | 320px dark review bar 's06 Mentor' updates the DOM
+PASS | 320px dark review bar 's07 Operator' updates the DOM
+PASS | 320px dark review bar 's09 GitHub' navigates to s09
+PASS | 320px dark review bar 's10 Mailbox' navigates to s10
+PASS | 320px dark review bar 'Scenarios' changes the page
+PASS | 320px dark review bar 'Open' changes the page
+PASS | 320px dark review bar 'Clear rate limits' changes the page
+PASS | 320px dark review bar 'Reset demo' updates the DOM
+PASS | 320px dark review bar 'Clickable' updates the DOM
+PASS | 320px dark review bar 'Comment' switches mode
+PASS | 320px dark review bar 'Show hotspots' switches mode
+PASS | 320px dark review bar 'Presentation' navigates to s01,s02,s03,s04,s05,s06,s07,s09,s10
+PASS | 320px dark review bar 'Threads' switches mode
+PASS | 320px dark review bar 'Hide pins' switches mode
+PASS | 320px dark review bar 'Theme: dark' switches theme
+PASS | 320px light s01.1
+PASS | 320px light s01.2
+PASS | 320px light s01.3
+PASS | 320px light s01.4
+PASS | 320px light s01.5
+PASS | 320px light s01.6
+PASS | 320px light s01.7
+PASS | 320px light s01.8
+PASS | 320px light s01.9
+PASS | 320px light s01.10
+PASS | 320px light s01.11
+PASS | 320px light s01.12
+PASS | 320px light s02.1
+PASS | 320px light s02.2
+PASS | 320px light s02.3
+PASS | 320px light s02.4
+PASS | 320px light s02.5
+PASS | 320px light s02.6
+PASS | 320px light s02.7
+PASS | 320px light s03.1
+PASS | 320px light s03.2
+PASS | 320px light s04.1
+PASS | 320px light s04.2
+PASS | 320px light s04.3
+PASS | 320px light s04.4
+PASS | 320px light s04.5
+PASS | 320px light s04.6
+PASS | 320px light s04.7
+PASS | 320px light s04.8
+PASS | 320px light s04.9
+PASS | 320px light s05.1
+PASS | 320px light s05.2
+PASS | 320px light s05.3
+PASS | 320px light s05.4
+PASS | 320px light s05.5
+PASS | 320px light s06.1
+PASS | 320px light s06.2
+PASS | 320px light s06.3
+PASS | 320px light s06.4
+PASS | 320px light s06.5
+PASS | 320px light s07.1
+PASS | 320px light s07.2
+PASS | 320px light s07.3
+PASS | 320px light s07.4
+PASS | 320px light s07.5
+PASS | 320px light s07.6
+PASS | 320px light s07.7
+PASS | 320px light s07.8
+PASS | 320px light s09.1
+PASS | 320px light s09.2
+PASS | 320px light s10.1
+PASS | 320px light s10.2
+PASS | 320px light s10.3
+PASS | 320px light review-bar panel: 15 controls reachable
+PASS | 320px light s01 Tab reaches 5 controls in order
+PASS | 320px light s01 every focused control shows a focus ring
+PASS | 320px light s01 focus never lands out of view
+PASS | 320px light s02 Tab reaches 4 controls in order
+PASS | 320px light s02 every focused control shows a focus ring
+PASS | 320px light s02 focus never lands out of view
+PASS | 320px light s03 Tab reaches 2 controls in order
+PASS | 320px light s03 every focused control shows a focus ring
+PASS | 320px light s03 focus never lands out of view
+PASS | 320px light s04 Tab reaches 2 controls in order
+PASS | 320px light s04 every focused control shows a focus ring
+PASS | 320px light s04 focus never lands out of view
+PASS | 320px light s05 Tab reaches 1 controls in order
+PASS | 320px light s05 every focused control shows a focus ring
+PASS | 320px light s05 focus never lands out of view
+PASS | 320px light s06 Tab reaches 1 controls in order
+PASS | 320px light s06 every focused control shows a focus ring
+PASS | 320px light s06 focus never lands out of view
+PASS | 320px light s07 Tab reaches 5 controls in order
+PASS | 320px light s07 every focused control shows a focus ring
+PASS | 320px light s07 focus never lands out of view
+PASS | 320px light s09 Tab reaches 3 controls in order
+PASS | 320px light s09 every focused control shows a focus ring
+PASS | 320px light s09 focus never lands out of view
+PASS | 320px light s10 Tab reaches 1 controls in order
+PASS | 320px light s10 every focused control shows a focus ring
+PASS | 320px light s10 focus never lands out of view
+PASS | 320px light review bar: Tab reaches 18 controls, all with a focus ring | got s01 Sign in | s02 Register | s03 Check e-mail | s04 Password | s05 Mentee | s06 Mentor | s07 Operator | s09 GitHub | s10 Mailbox | Scenarios | Reset demo | Clickable | Comment | Show hotspots | Presentation | Threads | Hide pins | Theme: light
+TOTAL | 511 passed, 0 failed

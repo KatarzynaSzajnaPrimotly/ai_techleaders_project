@@ -61,13 +61,18 @@ export function App() {
     <div className="doc">
       <Toolbar current={current} />
       <div key={epoch}>
-        {SCREENS.map(({ id, title, path, component: Screen }) => (
+        {SCREENS.map(({ id, title, path, component: Screen, note }) => (
           <section key={id} className="screen" id={id} aria-label={`${id} ${title}`}>
             <div className="screen-meta">
               <span className="t-overline">{id}</span>
               <span className="t-card-title">{title}</span>
               <span className="t-hint">{path}</span>
             </div>
+            <ul className="notes screen-note t-hint" aria-label={`Notes for ${id}`}>
+              <li><b>Stories:</b> {note.stories}</li>
+              <li><b>Simulated:</b> {note.simulated}</li>
+              <li><b>Not settled:</b> {note.open}</li>
+            </ul>
             <div className="frame">
               <div className="frame-url">{path}</div>
               <Screen />
