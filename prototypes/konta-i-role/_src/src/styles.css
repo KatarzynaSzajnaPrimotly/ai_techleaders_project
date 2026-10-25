@@ -1,0 +1,136 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+@import "../../../../packages/ui/src/tokens.css";
+@import "./engine/mostek.css";
+@import "./engine/prototype.css";
+@source "../../../../packages/ui/src";
+@source ".";
+
+/* The app has no Tailwind preflight, so the few resets the screens need live here. */
+@layer base {
+  *,
+  *::before,
+  *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--headline);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, p, ul, ol, figure { margin: 0; }
+  h1, h2, h3 { font-size: inherit; font-weight: inherit; }
+  ul, ol { padding: 0; list-style: none; }
+  a { color: inherit; text-decoration: none; }
+  button, input { font: inherit; color: inherit; }
+  button { border: 0; background: none; padding: 0; cursor: pointer; }
+  table { border-collapse: collapse; }
+}
+
+/* LUKA DS D-07: tokens.css has only a dark theme. The light theme below is composed from the
+   mentora-* palette that already exists in tokens.css; it adds no new colour. */
+html[data-theme="light"] {
+  --background: var(--color-mentora-bg);
+  --headline: var(--color-mentora-ink);
+  --soft: var(--color-mentora-muted);
+  --primary: var(--color-mentora);
+  --primary-foreground: var(--color-mentora-light);
+  --border: var(--color-mentora-line);
+  --card: color-mix(in oklab, var(--color-mentora-bg) 60%, var(--color-mentora-line));
+  --secondary: var(--color-mentora-line);
+  color-scheme: light;
+}
+
+/* Review document chrome: the layout the review engine expects (.doc, .screen, .frame, ...). */
+.doc { max-width: 72rem; margin: 0 auto; padding: 0 1.5rem 4rem; }
+.doc-head { padding: 1rem 0 0; }
+.doc-toolbar {
+  position: sticky; top: 0; z-index: var(--z-index-sticky);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem;
+  margin: 0 -1.5rem; padding: 0.5rem 1.5rem;
+  background: var(--background); border-bottom: 1px solid var(--border);
+}
+.screen-nav { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.screen-nav a {
+  padding: 0.25rem 0.5rem; border: 1px solid transparent; border-radius: var(--radius-md);
+  font-size: 0.75rem; color: var(--soft);
+}
+.screen-nav a:hover { color: var(--headline); border-color: var(--border); }
+.screen-nav a[aria-current="page"] { color: var(--headline); background: var(--secondary); border-color: var(--border); }
+.screen { margin-top: 1.5rem; }
+.screen-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1rem; margin-bottom: 0.5rem; }
+.frame {
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--background); color: var(--headline); overflow: hidden; min-height: 28rem;
+}
+.frame-url {
+  display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid var(--border); background: var(--card);
+  font-family: var(--mono); font-size: 0.75rem; color: var(--soft);
+}
+.notes { margin-top: 0.75rem; display: grid; gap: 0.25rem; font-size: 0.8125rem; color: var(--soft); }
+.note { padding-left: 0.75rem; border-left: 2px solid var(--border); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  padding: 0.375rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: transparent; color: var(--headline); font-size: 0.8125rem; font-weight: 500;
+}
+.btn:hover { background: var(--secondary); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); border-color: transparent; }
+.btn-primary:hover { background: var(--primary); filter: brightness(1.08); }
+.btn-ghost { border-color: transparent; }
+.btn:focus-visible, .screen-nav a:focus-visible, .segmented button:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--ring); outline-offset: 2px;
+}
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.segmented button { padding: 0.25rem 0.625rem; font-size: 0.75rem; color: var(--soft); }
+.segmented button[aria-pressed="true"] { background: var(--secondary); color: var(--headline); }
+.input {
+  width: 100%; padding: 0.375rem 0.75rem; border: 1px solid var(--input); border-radius: var(--radius-md);
+  background: var(--background); color: var(--headline);
+}
+.toast {
+  padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--card); color: var(--headline); font-size: 0.8125rem; box-shadow: var(--shadow-md);
+}
+.row { display: flex; align-items: center; gap: 0.5rem; }
+.t-card-title { font-weight: 600; }
+.t-hint { font-size: 0.75rem; color: var(--soft); }
+.t-overline { font-size: 0.6875rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--soft); }
+.who { font-weight: 600; }
+.badge {
+  display: inline-flex; align-items: center; padding: 0 0.5rem; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 0.6875rem; font-weight: 600;
+}
+.badge-warning { border-color: var(--status-warning-border); background: var(--status-warning-bg); color: var(--status-warning-text); }
+
+.review-help { position: relative; font-size: 0.75rem; }
+.review-help summary { cursor: pointer; padding: 0.25rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.review-help-body {
+  position: absolute; right: 0; top: calc(100% + 0.25rem); z-index: var(--z-index-dropdown);
+  width: 26rem; max-width: 90vw; padding: 0.75rem; border: 1px solid var(--border);
+  border-radius: var(--radius-lg); background: var(--card); box-shadow: var(--shadow-md);
+}
+.review-help-body table { width: 100%; font-size: 0.75rem; }
+.review-help-body th, .review-help-body td { text-align: left; padding: 0.125rem 0.25rem; }
+
+.review-help-body { max-height: 80vh; overflow-y: auto; width: 34rem; display: grid; gap: 0.75rem; }
+.review-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.75rem; }
+.review-field { display: grid; gap: 0.125rem; font-size: 0.75rem; color: var(--soft); }
+.review-field select, .review-open select {
+  padding: 0.25rem 0.375rem; border: 1px solid var(--input); border-radius: var(--radius-md);
+  background: var(--background); color: var(--headline); font-size: 0.75rem;
+}
+.review-open { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.5rem; font-size: 0.75rem; }
+.review-open legend { padding: 0 0.25rem; color: var(--soft); }
+@media (max-width: 40rem) { .review-help-body { width: 90vw; } .review-grid { grid-template-columns: 1fr; } }
+
+/* The scenario popover hangs from the whole toolbar, so it stays on screen however the toolbar wraps. */
+.review-help { position: static; }
+.review-help-body { left: 1.5rem; right: auto; top: 100%; max-width: calc(100vw - 3rem); }
+.doc-toolbar:has(.review-help[open]) { z-index: calc(var(--z-index-top) + 100); }

@@ -1,0 +1,118 @@
+{
+  "format": "discovery-prototype-v1",
+  "skill": "om-mockup-prototype",
+  "slug": "mentor-onboarding",
+  "revision": 1,
+  "revisionPath": ".ai/prototypes/discovery/mentor-onboarding/revision-001",
+  "previousRevision": null,
+  "brief": ".ai/specs/product-brief.md",
+  "flow": "Mentor onboarding",
+  "panelReport": null,
+  "verification": "passed",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "3afb50627ae8dc5da26aee6f3d720e39066d839c58fb95910f65d30d1ae6bc0b"
+    },
+    {
+      "path": "evidence/01-invitation.png",
+      "sha256": "55c468e5a64fadec7b4470df190465e696eb51a9900abbc197e931cdebfcc2c9"
+    },
+    {
+      "path": "evidence/02-no-invitation.png",
+      "sha256": "ea34d1ffc12aeabe39a5ccfa320e52a93b487eb641541b80e6b58d9a77b26015"
+    },
+    {
+      "path": "evidence/03-expired-invitation.png",
+      "sha256": "8eb4b81370899c3dc6dda3aeecff7f01ca05a1910df0c6ccff4baa97cae21725"
+    },
+    {
+      "path": "evidence/04-unknown-fragment.png",
+      "sha256": "0d348c39edaa37558ea53289c379feee619aa6d110a0a1354ffde56f3a89018f"
+    },
+    {
+      "path": "evidence/05-signed-out-denied.png",
+      "sha256": "538384fe0311e0d65323f3f70113fbec7a948393952a05457fbcf6daae1dddf7"
+    },
+    {
+      "path": "evidence/06-sign-in.png",
+      "sha256": "72e3d8c9fd356391a1df9a36d52b9cbcefdaecf5c69d3635d42707d37d2ec45f"
+    },
+    {
+      "path": "evidence/07-github-failed.png",
+      "sha256": "a833e26e8d90d62662387868a4b7e8b4d2ba29f473df70606dc6b733af5d0c7a"
+    },
+    {
+      "path": "evidence/08-email-errors.png",
+      "sha256": "08cb69b7824ea254c093f921541c60db16ba10b74cd6436a22263798e1bfd9f8"
+    },
+    {
+      "path": "evidence/09-mentor-page-empty.png",
+      "sha256": "66cae938a7027c00f0a0e9ac2a55e801ee0ebbecb95a0173c8dc194d43683dcf"
+    },
+    {
+      "path": "evidence/10-mentor-page-errors.png",
+      "sha256": "49d01761479cd50bbbcbac73aa2aa10b0723955bcd809ffc9f4f63504157ed79"
+    },
+    {
+      "path": "evidence/11-mentor-page-saved.png",
+      "sha256": "c40e737d86b5cae7a216c3a5796323ef955f28a5fdf5b9b11069a98baf3685b8"
+    },
+    {
+      "path": "evidence/12-public-preview-before-slots.png",
+      "sha256": "7f5ee3a3302809e83c4dffcc18af6cb6537ec19cd489f68b3431ff8b3592df6f"
+    },
+    {
+      "path": "evidence/13-summary-not-bookable.png",
+      "sha256": "56601a62715acd342b476a1898cc7ba94eb4cd480dca4663c0f25e58571647ce"
+    },
+    {
+      "path": "evidence/14-slots-empty.png",
+      "sha256": "31d80828e726ddd56b4f0f8df900778368c69e36ab69ed9a0f697a2cb7768c1d"
+    },
+    {
+      "path": "evidence/15-slot-too-soon.png",
+      "sha256": "aaac737e9fd539d23b3500c4310b112971da3b21a4edb74bc9d1754bdfdb4197"
+    },
+    {
+      "path": "evidence/16-slots-published.png",
+      "sha256": "3acb4503cc3bd6613dea33b9dbd157c19958436991ced3e790b853ec6552ae90"
+    },
+    {
+      "path": "evidence/17-prices-out-of-bounds.png",
+      "sha256": "69dd2c6eb270284ded7a80baa4e9fd63e95ad74e515684e85eb1c70d53a725c8"
+    },
+    {
+      "path": "evidence/18-prices-saved.png",
+      "sha256": "c017a75add2e87a4b8dbd1423f60682e4f25235a1389e3d12f4a5ce924a594cc"
+    },
+    {
+      "path": "evidence/19-summary-bookable.png",
+      "sha256": "ffed131c48e87a625b0cc93bf1c3493e5609bfc485fe9e08782f085fab22c797"
+    },
+    {
+      "path": "evidence/20-public-preview-complete.png",
+      "sha256": "2e94ed93eeff5c60b3633f88a8bb4ea919b20bf1ceba4feb40fa75ee70ec7d6a"
+    },
+    {
+      "path": "evidence/21-slot-booked.png",
+      "sha256": "1042a0152ebb664998c0aa4c7ca80f6f9e3168c4f4ee1bca27b9212af3fb5b84"
+    },
+    {
+      "path": "evidence/22-keyboard-focus.png",
+      "sha256": "7d773d244c075f059fbc1d51affae677294daafb2d736b552a72af584726fcf1"
+    },
+    {
+      "path": "evidence/23-narrow-summary.png",
+      "sha256": "cb65c18d283ad9452e4cffec4fe6e9ebb1f7232b31029f5b4f60522cce1e87da"
+    },
+    {
+      "path": "evidence/24-narrow-mentor-page.png",
+      "sha256": "4d1a440fa38edfae64255476a492972a5640ae25da7d0b749fb0b73a05939cc2"
+    },
+    {
+      "path": "index.html",
+      "sha256": "7d74a791ccd02b8be134a82f5a3529ed970e52991c3c8049acf17acb0cd16186"
+    }
+  ]
+}

@@ -9,6 +9,8 @@ See `AGENTS.md` for the full `.ai/` workflow this file is part of.
 - YYYY-MM-DD — One-line summary. [details](lessons/YYYY-MM-DD-slug.md)
 -->
 
+- 2026-10-24 — Clickable prototypes: all screens live in the DOM, so ids must be unique per form (`useId`); build as classic script so it opens from `file://`; guard navigation before the review engine's click capture. [details](lessons/2026-10-24-prototype-all-screens-in-dom-and-file-protocol.md)
+
 - 2026-10-20 — Read `git diff --cached --name-only` before every commit: an unrelated archive was in the index; stacked PRs need the right base. [details](lessons/2026-10-20-check-the-index-before-committing.md)
 - 2026-10-20 — Sandbox: `git push` needs `-c credential.helper='!gh auth git-credential'`; no `jq`; `gh` 2.65 is below the descriptor's minimum, so use REST. [details](lessons/2026-10-20-git-push-and-gh-in-sandbox.md)
 - 2026-10-19 — No Tailwind preflight: links, one-sided dashed borders, headings and lists need explicit resets. [details](lessons/2026-10-19-tailwind-without-preflight.md)

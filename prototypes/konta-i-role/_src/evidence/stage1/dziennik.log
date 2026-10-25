@@ -1,0 +1,38 @@
+PASS | start screen | s01
+PASS | GitHub link -> s09 | s09
+PASS | authorize -> s05 + welcome | s05|Welcome, lena-w
+PASS | sign out -> s01 | s01
+PASS | login A4 (mentor) -> s06 | s06|Welcome, Ewa Lis
+PASS | login A6 (operator) -> s07 | s07|Mentors|3
+PASS | s07 add mentor -> 4 rows | 4
+PASS | Register -> s02 | s02
+PASS | s02 e-mail field has its label | E-mail
+PASS | register -> s03 | s03|Check your e-mail
+shot 07-s03
+PASS | mailbox -> s10 | s10
+PASS | s10 has the confirm mail | true
+shot 08-s10
+PASS | mail link -> s04 + heading | s04|Set a password
+shot 09-s04
+PASS | confirm -> s05 + welcome | s05|Welcome, Nowy Użytkownik
+shot 10-s05-new
+PASS | anonymous -> s07 redirects to s01 | s01
+PASS | anonymous -> s05 redirects to s01 | s01
+PASS | login A2 (mentee) -> s05 | s05
+PASS | mentee -> s06 lands on s05 | s05
+PASS | mentee -> s07 lands on s05 | s05
+PASS | signed in -> s01 lands on s05 | s05
+PASS | s09 stays reachable (simulation) | s09
+PASS | theme toggled to light | light
+PASS | light --background resolves (mentora token emitted) | true
+shot 11-s05-light
+PASS | reset -> s01, signed out | s01
+PASS | after reset s05 redirects to s01 | s01
+PASS | comment mode on | true
+PASS | panel opened with composer | true
+PASS | comment saved (pin on s01) | 1
+PASS | comment count in screen-nav | 1
+shot 12-comment
+PASS | presentation off shows all screens | false
+PASS | presentation on | true
+PASS | Back returns to s01 | s01

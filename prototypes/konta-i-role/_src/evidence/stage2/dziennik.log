@@ -1,0 +1,153 @@
+PASS | s01 default | s01
+PASS | s01.2 e-mail form replaced by a note | true|false
+shot s01-2-variant
+PASS | s01.4 validation: both fields | Enter a valid e-mail address.|Enter your password.
+shot s01-4-validation
+PASS | s01.3 loading: button locked with label | true|Signing in…
+shot s01-3-loading
+PASS | s01.5 generic error + G17 wording | true
+PASS | s01.5 forgot-password line (G16) | true
+PASS | s01.5 typed e-mail is kept | ewa.lis@devmentor.test
+shot s01-5-invalid
+PASS | P05 unknown e-mail -> same generic error | true
+PASS | P05 account with GitHub only -> same generic error | true
+PASS | P05 wrong password -> same generic error | true
+PASS | s01.10 429 message with minutes | true
+PASS | s01.10 button locked, fields kept | true|ewa.lis@devmentor.test
+shot s01-10-limit
+PASS | limit released when the scenario changes | false
+PASS | next request 429 on login | true
+PASS | clear rate limits unlocks the button | false
+PASS | next request server error on login | true
+PASS | next request returned to ok | succeeds
+PASS | P01 cancelled -> s01 message | s01|true
+shot s01-6-cancelled
+PASS | P01 missing or wrong state -> s01 message | s01|true
+shot s01-7-state
+PASS | P01 no verified e-mail -> s01 message | s01|true
+shot s01-8-noemail
+PASS | P01 unavailable -> s01 message | s01|true
+shot s01-9-unavailable
+PASS | P01 e-mail has another GitHub id -> s01 message | s01|true
+PASS | s09.2 Cancel -> s01.6 | s01|true
+PASS | P02 marta-k-alt (other github id) -> unavailable, no session | s01|true
+PASS | P02 no-mail-user -> no verified e-mail | s01|true
+PASS | P02 tomasz-b links to A2 -> s05 | s05|Welcome, Tomasz Brzozowski
+PASS | after sign-out s01.12 has no message (G15) | false
+PASS | P02 operator founder-a -> s07 | s07
+PASS | P07 saved role mentor -> s06 (38-K8) | s06|true
+PASS | s06.5 no mention of operator access (G19) | false
+shot s06-5-founder-mentor
+PASS | A7 separate mentor account -> s06 | s06
+PASS | new GitHub user -> s05 named by login (G08) | s05|Welcome, lena-w
+PASS | s07.6 anonymous -> s01, no message | s01|false
+PASS | returnTo: after sign-in lands on s07 | s07
+PASS | account switch lands on s07 | s07
+PASS | P06 midWork on s07 -> s01.11 message | s01|true
+PASS | account switch lands on s05 | s05
+PASS | P06 midWork on s05 -> s01.11 message | s01|true
+shot s01-11-expired
+PASS | account switch lands on s06 | s06
+PASS | P06 midWork on s06 -> s01.11 message | s01|true
+PASS | returnTo after expiry -> back on s06 | s06
+PASS | P06 expired (cookie older than 24 h) -> s01.11 | s01|true
+PASS | P06 tampered -> s01.11 | s01|true
+PASS | P06 while signed out: hint, stays valid | true
+PASS | P09 stale cookie -> /home as mentee, no warning (G18) | s05|Welcome, Piotr Zieliński|true|false
+shot s05-5-stale-cookie
+PASS | stale cookie: /mentor lands on /home | s05
+PASS | cookie fixed -> s06 | s06
+PASS | P08 anonymous opens /home -> s01 | s01
+PASS | P08 anonymous opens /sign-in -> s01 | s01
+PASS | P08 anonymous opens /register -> s02 | s02
+PASS | P08 mentee opens /mentor -> s05 | s05
+PASS | P08 mentee opens /admin/mentors -> s05 | s05
+PASS | P08 mentee opens /sign-in -> s05 | s05
+PASS | P08 mentor opens /home -> s06 | s06
+PASS | P08 mentor opens /admin/mentors -> s06 | s06
+PASS | P08 mentor opens /register -> s06 | s06
+PASS | P08 operator opens /home -> s07 | s07
+PASS | P08 operator opens /mentor -> s07 | s07
+PASS | P08 operator opens /sign-in -> s07 | s07
+PASS | P08 operator opens /admin/mentors -> s07 | s07
+PASS | P08 mentee opens /home -> s05 | s05
+PASS | P08 mentor opens /mentor -> s06 | s06
+PASS | s10.3 empty mailbox | true
+shot s10-3-empty
+PASS | s02.3 empty fields | Enter a valid e-mail address.|Enter a display name.
+PASS | s02.3 URL in display name refused | Remove the link from the display name.
+PASS | s02.3 81 characters refused | Use at most 80 characters.
+shot s02-3-validation
+PASS | s02.6 mail send fails, stays on s02 with message | s02|true
+PASS | s02.6 input kept | fail.user@devmentor.test|Fail User
+shot s02-6-send-failed
+PASS | failed send left the mailbox empty | true
+PASS | s02.5 existing address -> same s03 | s03|Check your e-mail
+PASS | s10.2 existing mail, GitHub hint when account has github id | true|false
+PASS | s10.2 hint names GitHub | true
+shot s10-2-existing
+PASS | s03.2 fourth registration looks the same | s03|Check your e-mail
+PASS | s03.2 no fourth mail left | 3
+PASS | s02.7 sixth registration in the hour -> 429 message | s02|true
+PASS | s02.7 button locked, input kept | true|six@devmentor.test
+shot s02-7-limit
+PASS | five registrations in the hour are all accepted | s03
+PASS | s02.7 the sixth is limited (clean run) | s02|true
+PASS | P04 expired (older than 24 h) -> s04.4 | s04|true
+PASS | P04 tampered -> s04.4 | s04|true
+shot s04-4-invalid
+PASS | P04 no token -> s04.4 | s04|true
+PASS | P04 used -> s04.5 | s04|true
+shot s04-5-used
+PASS | s04.5 Sign in -> s01 | s01
+PASS | P04 valid -> s04.1 form with the address | s04|true
+PASS | s04.3 empty password | Use at least 12 characters.
+PASS | s04.3 short password | Use at least 12 characters.
+PASS | s04.3 37 two-byte characters = 74 bytes refused | Use at most 72 bytes.
+shot s04-3-validation
+PASS | s04.6 429 message | true
+PASS | s04.6 password kept, button locked | correct-horse-battery|true
+shot s04-6-limit
+PASS | s04 server error message | true
+PASS | s04.7 success -> s05 with the typed name | s05|Welcome, Link User
+PASS | s10 for a signed-in user still reachable (simulation) | s10
+PASS | s04.9 signed-in user opens the link -> home | s05
+shot s07-2-empty
+shot s07-3-loading
+shot s07-4-error
+shot s07-5-conflict
+PASS | no s08 screen exists (G06) | 0
+PASS | screen ids unchanged | s01,s02,s03,s04,s05,s06,s07,s09,s10
+PASS | scenario controls are outside every product screen | 0
+PASS | reset restores scenario defaults | success|valid|fast|anonymous
+PASS | account A6 switch -> s07 (explicit, from anonymous) | s07
+PASS | P06 midWork on s07 -> s01.11 (explicit) | s01|true
+PASS | A5 label shows effective role; lands on s07 | s07
+PASS | P07 label follows the saved role | true
+PASS | operator -> s07 | s07
+PASS | s07.2 empty list | true|0
+shot s07-2-empty
+PASS | s07.3 loading state shown | true
+shot s07-3-loading
+PASS | s07.3 loading ends with the list | 3
+PASS | s07.4 list error with Retry | true|true
+shot s07-4-error
+PASS | s07.4 Retry while the server still fails -> error again | true
+PASS | s07.4 recovered when the network is fine | 3
+PASS | s07.5 validation errors | Name is required|Email is invalid
+PASS | s07.5 duplicate e-mail conflict | true
+PASS | s07.5 input kept after the error | Ewa Again|ewa.lis@devmentor.test
+shot s07-5-conflict
+PASS | s07 add: 429 message | true
+PASS | s07 add: duplicate again (next request is back to ok) | true
+PASS | s07.1 new mentor listed | 4
+PASS | no s08 screen exists (G06) | 0
+PASS | screen ids unchanged | s01,s02,s03,s04,s05,s06,s07,s09,s10
+PASS | scenario controls are outside every product screen | 0
+PASS | reset restores scenario defaults | success|valid|fast|anonymous
+PASS | s02.2 loading: button locked with label | true|Sending…
+shot s02-2-loading
+PASS | s02.2 loading ends on s03 | s03
+PASS | s04.2 loading: button locked with label | true|Creating…
+shot s04-2-loading
+PASS | s04.2 loading ends on s05 | s05|Welcome, Slow User

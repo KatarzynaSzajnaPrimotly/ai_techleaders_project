@@ -50,3 +50,7 @@ next-env.d.ts
 /.ai/qa/artifacts_*/
 /.ai/qa/test-env.json
 /.ai/qa/test-env.env
+
+# clickable prototype build output (sources in _src/ are committed; the build is not)
+/prototypes/*/index.html
+/prototypes/*/assets/
