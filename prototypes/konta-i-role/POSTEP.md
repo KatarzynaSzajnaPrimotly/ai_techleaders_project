@@ -60,10 +60,7 @@ Czego nie sprawdzono:
 - Escape w formularzu mentora nic nie robi, jak na prawdziwej stronie (CrudForm bez `onCancel`); to zgodne z kodem, ale to pytanie do specyfikacji;
 - testy nawigacji i skrypt przeglądarki nie wchodzą do CI ani do progu 100%, bo prototyp leży poza `packages/`.
 
-Luki w design systemie (do dopisania do sekcji 5 mapy; D-01 do D-09 są tam już opisane):
-- D-10 (nowa): `--color-destructive` to stałe `#ef4444` w `@theme inline` (3,3:1 na jasnym tle, tekst błędu poniżej AA); motyw nie może go nadpisać zmienną. Potrzebny token tekstu błędu z kontrastem AA na obu tłach.
-- D-11 (nowa): brak `Input`, `Label`, `Alert` z `role` i prawidłową kolejnością fokusu to D-04; do tego brak komponentu przewijanego regionu: tabela w `Table` przy 320 px przewija się w bok we własnym kontenerze i jest przystankiem Tab (zachowanie poprawne, ale bez wskazówki dla użytkownika, że jest więcej kolumn).
-- D-12 (nowa): `RoleShell` nie ma zachowania na wąskim ekranie (prototyp zawija nagłówek); zaprojektować w S01b.
+Luki D-10–D-12 wykryte podczas kontroli etapu 3 przeniesiono do sekcji 5 mapy `lekcja-07/mapa-ekranow.md`; mapa zawiera teraz D-01–D-12.
 
 Pytania do specyfikacji, które wyszły przy budowie (poza już rozstrzygniętymi G01 do G26):
 1. Czy Escape w formularzu dodawania mentora ma coś robić (np. czyścić pola), czy zostaje jak dziś?

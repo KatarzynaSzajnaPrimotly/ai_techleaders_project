@@ -3,8 +3,8 @@
 - Date: 2026-10-21
 - Mode: own; Owner: founder A (Oliwia); Pass: re-baselined on 2026-10-21 to the scope of the reference backlog `full-backlog.md`; the earlier pilot brief is archived in `.ai/specs/archive/2026-10-20-pilot/`
 - Evidence basis: 7 interviews (4 developers who get stuck, 3 senior engineers who answer for free), all reached through the founders' contacts or invitation list, so not a random sample; a 14-day export of one developers' Discord (109 threads); a 54-answer survey on the same Discord (stated intent, not payment); two competitor pages checked on 2026-09-04; decisions from the 2026-08-26 workshop. The scope and decisions of 1.0 are adopted from the reference backlog without its brief, so their rationale is not supplied. Read every result as a signal to check, not a conclusion about the market. Most consequential untested belief: that developers will pay for a bookable session at a mentor's price (A01).
-- Coverage: 83 claims — 77 sourced (interview 10, data 3, document 62, product 0, benchmark 2), 0 synthetic, 6 assumed; 0 entries on the collection plan
-- Synthetic hypotheses outside Coverage: 0
+- Coverage: 83 claims — 77 sourced (interview 10, data 3, document 62, product 0, benchmark 2), 0 synthetic, 6 assumed; 1 entry on the collection plan
+- Synthetic questions outside Coverage: 2
 - Definition of Ready signed by: founder A adopted the reference decisions on 2026-10-21; Q18 and Q19 were decided on 2026-10-21 (D27, D28); ready for: filing the backlog; Q20 must be answered before 2026-11-28
 - Sources: research directory `.ai/specs/research/` (cited by file name; decision records in `decisions/`); the reference backlog `full-backlog.md`; repository `README.md`, `AGENTS.md`
 
@@ -14,9 +14,11 @@ Decision (adopted by founder A, 2026-10-21): DevMentor 1.0 is a marketplace wher
 
 Basis: developers who got stuck describe losing half a day to a week and wanting a fast answer from someone who has done the exact thing; one Discord shows 21% of help threads with no human reply (Problems). No mentee asked for the vault, which stays later (D05).
 
-What could change this: only 3 of 54 survey respondents have ever paid anyone (A01); mentors may not accept an invitation or publish a slot (A02, D18); text sessions run outside the product (D27) and payouts are manual (D28), but the first iteration is still much larger than the 25 build hours from the workshop, which are not estimated here. The 1.0 metric is 10 paid sessions a week for two consecutive weeks by 2026-12-31 (D16).
+What could change this: only 3 of 54 survey respondents have ever paid anyone (A01); mentors may not accept an invitation or publish a slot (A03, D18); text sessions run outside the product (D27) and payouts are manual (D28), but the first iteration is still much larger than the 25 build hours from the workshop, which are not estimated here. The 1.0 metric is 10 paid sessions a week for two consecutive weeks by 2026-12-31 (D16).
 
-Next: file the backlog; answer Q20 (recording mentor-page visits) before 2026-11-28; check the manual payout flow with a lawyer or Stripe before the first payout (Q27). Prices are in EUR (D29). Read all results as signals to check.
+[SYNTHETIC] Questions from the two-run prototype walkthrough: what does an invited mentor believe is public before saving the page, and what payout information do they need before setting prices? These are questions to check, not user evidence or requirements; they do not change existing rules.
+
+Next: file the backlog; use the collection-plan mentor task to inform E02-S02 and E02-S04; answer Q20 (recording mentor-page visits) before 2026-11-28; check the manual payout flow with a lawyer or Stripe before the first payout (Q27). Prices are in EUR (D29). Read all results as signals to check.
 
 ## Vision
 
@@ -173,9 +175,10 @@ Decisions made here after the adoption start at D27 so they do not clash with th
 
 D18 stops further invitations when fewer than 5 of the first 20 invited mentors publish a bookable session within two weeks. D16 sets the metric (10 paid sessions a week for two consecutive weeks by 2026-12-31); what happens if it is missed is not decided and stays with founder A. Completed payments count; verbal intent and started bookings do not. The numbers in D16 and D18 are founder A's choices with no baseline in the material.
 
-## Hypotheses to test
+## Questions to check from the synthetic walkthrough
 
-None: no synthetic walkthrough was run.
+- `[SYNTHETIC question]` Before saving a mentor page, what does an invited mentor believe will be public, and do they want to review the page first? Ask this during a real-user task and observe their decision. Source: `.ai/specs/research/walkthroughs/2026-10-26-mentor-onboarding-session-001/report.md`. This question does not settle PA03 or decide whether to build a separate preview; R04 defines the public work link and description.
+- `[SYNTHETIC question]` Before setting prices, what does an invited mentor expect to happen after a booking, and when do they expect payment or payout details to be requested? Compare the answer with the operator's manual 1.0 process (D28/R20). Source: the same walkthrough report; no payout was simulated. This question does not resolve Q27 or change D28.
 
 ## Open questions
 
@@ -202,4 +205,10 @@ Ready for: filing the backlog. Blocking later: Q20 before 2026-11-28; Q27 (the m
 
 ## Collection plan
 
-No material requests: the open questions are decisions for the founders, not data to collect.
+### Mentor page visibility and payout expectations during invited setup
+
+- What decision or work needs it: inform the page-visibility explanation in E02-S02 and payout information in E02-S04; this does not change D28 or settle Q27.
+- Who can answer it: invited senior engineers who answer technical questions and are considering a mentor page.
+- How: a task-based interview/usability walkthrough. Before saving the page, ask what the mentor believes will be public and observe whether they seek a preview or hesitate. At the pricing step, ask what they expect after a booking and when payment details should be requested; compare this with the operator's manual process. Do not suggest an answer.
+- Owner and by when: unknown.
+- Template: `.ai/specs/research/templates/interview-note.md`

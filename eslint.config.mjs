@@ -65,6 +65,8 @@ const eslintConfig = defineConfig([
     ".ai/**",
     "mentoring-portal-concept/**",
     "prototypes/**",
+    "packages/ui/.storybook/public/prototypes/**",
+    "**/lekcja-07/**",
   ]),
 ]);
 

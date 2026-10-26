@@ -228,6 +228,9 @@ Sprawdzone w `packages/ui/src`: istnieją `Button`, `Badge`, `Card` (z podkompon
 | D-07 | Dwa języki wizualne: ciemne tokeny i shadcn kontra jasna paleta `mentora-*` w komponentach publicznych (G22). | wszystkie | |
 | D-08 | `TutorCard` ma ocenę, liczbę opinii i cenę za godzinę (sprzeczne z N02 i D01, G23). Nie używany w Epiku 01. | poza E01 | |
 | D-09 | `SiteHeader` i `SiteFooter` nie mają wariantu dla zalogowanego (rola, wylogowanie); tokeny noszą nazwę `mentora-*`, a `AGENTS.md` mówi, że „Mentora” nie ma pojawiać się w tekstach (nazwy klas nie są tekstem, ale warto uzgodnić nazwy tokenów); `metadata.title` w `packages/app/src/app/layout.tsx` to nadal „Next.js starter”, czyli tytuł karty na stronie logowania. | s01–s06 | Do zgłoszenia, nie do rozstrzygania tutaj |
+| D-10 | Kolor tekstu destrukcyjnego `#ef4444` z `--color-destructive` ma kontrast 3,3:1 na jasnym tle; definicja w `@theme inline` uniemożliwia nadpisanie go zmienną motywu. | s01–s04, jasny motyw prototypu | Dla tekstu błędu potrzebny token z kontrastem co najmniej AA na jasnym i ciemnym tle. W E01 przyjęto ciemny wygląd (G22), ale prototyp pozwala przełączyć motyw i ujawnił tę lukę. |
+| D-11 | Tabela na s07 przy szerokości 320 px przewija się poziomo we własnym kontenerze, który jest osiągalny klawiszem Tab, ale nie informuje, że są dalsze kolumny. Brak `Input`, `Label` i `Alert` pokrywa już D-04. | s07, 320 px | Dodać widoczną wskazówkę przewijania dla klawiatury i dotyku; nie zmieniać poprawnego przewijania w kontenerze. |
+| D-12 | `RoleShell` nie ma ustalonego zachowania na wąskim ekranie; prototyp zawija nagłówek. | s05–s07, 320 px | Zaprojektować i opisać wariant wąskiego układu w S01b/S03 przed implementacją. |
 
 Elementy tylko prototypu (panel scenariuszy, atrapy s09 i s10, zegar „Teraz”) nie są luką w design systemie; mają je dostarczyć narzędzia z `lekcja-07/silnik-przegladu`.
 
@@ -247,6 +250,6 @@ Elementy tylko prototypu (panel scenariuszy, atrapy s09 i s10, zegar „Teraz”
 | Konta demo | 7 (A1–A7) plus 4 profile GitHuba w atrapie |
 | Luki w specyfikacji | 26 (A: 7, B: 12, C: 4, D: 3); rozstrzygnięte 26 (wszystkie), otwartych 0 |
 | w tym blokujące prototyp | 0 (wszystkie blokujące rozstrzygnięte) |
-| Luki w design systemie | 9 (D-01–D-09) |
+| Luki w design systemie | 12 (D-01–D-12) |
 
-**Koniec etapu.** Mapa jest zatwierdzona, wszystkie luki mają zapisaną decyzję. Specyfikacja, backlog i design system pozostały bez zmian: poprawki treści #36–#38, zamknięcie Q22 w briefie i luki D-01–D-09 są osobnymi zadaniami.
+**Koniec etapu.** Mapa ekranów i odpowiedzi na luki G01–G26 są zatwierdzone. Luki design systemu D-01–D-12 są zinwentaryzowane; D-10–D-12 wynikają z kontroli prototypu i wymagają decyzji lub projektu przed implementacją. Poprawki treści #36–#38, zamknięcie Q22 w briefie oraz rozwiązanie luk design systemu są osobnymi zadaniami.

@@ -1,0 +1,207 @@
+/*
+ * DevMentor design-system tokens.
+ * Raw values are centralized here. Semantic tokens below carry the source
+ * decisions approved in design-system/POSTEP.md on 2026-10-26.
+ */
+
+@theme inline {
+  --color-surface-canvas: var(--surface-canvas);
+  --color-surface-panel: var(--surface-panel);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-text-strong: var(--text-strong);
+  --color-text-muted: var(--text-muted);
+  --color-action-primary: var(--action-primary);
+  --color-action-label: var(--action-label);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error: var(--status-error);
+  --color-stroke-control: var(--stroke-control);
+  --color-stroke-divider: var(--stroke-divider);
+  --spacing-group: var(--space-group);
+  --spacing-related: var(--space-related);
+  --spacing-panel: var(--space-panel);
+  --spacing-section: var(--space-section);
+  --spacing-page-gutter: var(--space-page-gutter);
+  --container-reading: var(--layout-reading-max);
+  --text-page: var(--font-size-page);
+  --text-section: var(--font-size-section);
+  --text-body: var(--font-size-body);
+  --text-label: var(--font-size-label);
+  --text-meta: var(--font-size-meta);
+  --text-code: var(--font-size-code);
+  --leading-compact: var(--line-compact);
+  --leading-body: var(--line-body);
+  --leading-section: var(--line-section);
+  --leading-page: var(--line-page);
+  --duration-fast: var(--motion-fast);
+  --duration-standard: var(--motion-standard);
+  --duration-slow: var(--motion-slow);
+  --radius-control: var(--shape-control);
+  --radius-panel: var(--shape-panel);
+  --font-sans: var(--font-product);
+  --font-mono: var(--font-code);
+}
+
+:root {
+  /* Raw colors — approved proposal P-COLOR.1. */
+  --raw-light-canvas: #fbf8f2;
+  --raw-light-panel: #fffdf9;
+  --raw-light-subtle: #e6f3ef;
+  --raw-light-strong: #1b2430;
+  --raw-light-muted: #5b6673;
+  --raw-light-primary: #1f6f5c;
+  --raw-light-action-label: #fbf8f2;
+  --raw-light-warning: #8c5908;
+  --raw-light-error: #b42318;
+  --raw-light-control-stroke: #5b6673;
+  --raw-light-divider: #e1e5ea;
+  --raw-dark-canvas: #141313;
+  --raw-dark-panel: #1c1b1b;
+  --raw-dark-subtle: #262524;
+  --raw-dark-strong: #edf5cd;
+  --raw-dark-muted: #948d85;
+  --raw-dark-primary: #63b69c;
+  --raw-dark-action-label: #141313;
+  --raw-dark-warning: #e98a3c;
+  --raw-dark-error: #ff667a;
+  --raw-dark-control-stroke: #948d85;
+  --raw-dark-divider: #948d85;
+
+  /* Raw dimensions and type scale — approved P-SPACE.1/P-TYPE.1. */
+  --raw-space-1: 4px;
+  --raw-space-2: 8px;
+  --raw-space-3: 12px;
+  --raw-space-4: 16px;
+  --raw-space-6: 24px;
+  --raw-space-8: 32px;
+  --raw-space-12: 48px;
+  --raw-icon-standard: 20px;
+  --raw-layout-min-column: 192px;
+  --raw-font-page: 32px;
+  --raw-font-section: 24px;
+  --raw-font-body: 16px;
+  --raw-font-label: 14px;
+  --raw-font-meta: 12px;
+  --raw-font-code: 14px;
+  --raw-line-body: 24px;
+  --raw-line-compact: 20px;
+  --raw-line-page: 40px;
+  --raw-line-section: 32px;
+
+  /* Raw shape, depth and motion — approved P-SHAPE.1/P-MOTION.1. */
+  --raw-radius-control: 4px;
+  --raw-radius-panel: 8px;
+  --raw-stroke-width: 1px;
+  --raw-overlay-shadow: 0 12px 24px rgb(20 19 19 / 16%);
+  --raw-motion-fast: 120ms;
+  --raw-motion-standard: 180ms;
+  --raw-motion-slow: 240ms;
+  --raw-motion-easing: cubic-bezier(.2, 0, 0, 1);
+  --raw-content-width: 1200px;
+  --raw-reading-width: 65ch;
+
+  color-scheme: dark;
+
+  /* Semantic tokens: context-based names, sourced from accepted references. */
+  /* P-COLOR.1; R01.1 information-dense workspace and R02.1 readable conversation. */
+  --surface-canvas: var(--raw-dark-canvas);
+  /* P-COLOR.1; R01.1 panel surfaces separate workspace regions. */
+  --surface-panel: var(--raw-dark-panel);
+  /* P-COLOR.1; R01.1 subtle grouped content. */
+  --surface-subtle: var(--raw-dark-subtle);
+  /* P-COLOR.1; R01.1 high-readability content. */
+  --text-strong: var(--raw-dark-strong);
+  /* P-COLOR.1; R01.1 secondary metadata. */
+  --text-muted: var(--raw-dark-muted);
+  /* P-COLOR.1; R01.1 primary actions; P-R01.1 accepted. */
+  --action-primary: var(--raw-dark-primary);
+  /* P-COLOR.1; readable label on primary actions. */
+  --action-label: var(--raw-dark-action-label);
+  /* P-COLOR.1; status is also conveyed by text/icon per WCAG 1.4.1. */
+  --status-success: var(--raw-dark-primary);
+  /* P-COLOR.1; warning state. */
+  --status-warning: var(--raw-dark-warning);
+  /* P-COLOR.1; error state. */
+  --status-error: var(--raw-dark-error);
+  /* P-COLOR.1; functional control boundary and visible focus, WCAG 1.4.11. */
+  --stroke-control: var(--raw-dark-control-stroke);
+  /* P-COLOR.1; R01.1 thin row dividers; decorative use only. */
+  --stroke-divider: var(--raw-dark-divider);
+  /* P-SPACE.1; rhythm inside a related control group. */
+  --space-group: var(--raw-space-2);
+  /* P-SPACE.1; rhythm between related groups. */
+  --space-related: var(--raw-space-4);
+  /* P-SPACE.1; panel interior spacing. */
+  --space-panel: var(--raw-space-6);
+  /* P-SPACE.1; separation between page sections. */
+  --space-section: var(--raw-space-12);
+  /* P-TYPE.1; system sans role for UI text. */
+  --font-product: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* P-TYPE.1; R01.2 monospace code and file names. */
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* P-SHAPE.1; compact controls. */
+  --shape-control: var(--raw-radius-control);
+  /* P-SHAPE.1; panels, cards, dialogs and popovers. */
+  --shape-panel: var(--raw-radius-panel);
+  /* P-SHAPE.1; overlay only. */
+  --depth-overlay: var(--raw-overlay-shadow);
+  /* P-MOTION.1; interaction timing and easing. */
+  --motion-fast: var(--raw-motion-fast);
+  --motion-standard: var(--raw-motion-standard);
+  --motion-slow: var(--raw-motion-slow);
+  --motion-easing: var(--raw-motion-easing);
+  /* P-SPACE.1; product page max width and text measure. */
+  --layout-content-max: var(--raw-content-width);
+  --layout-reading-max: var(--raw-reading-width);
+  /* P-SPACE.1; approved responsive page gutters at 320, 768, and 1440 px. */
+  --space-page-gutter: var(--raw-space-4);
+  /* P-TYPE.1; named text roles used by docs and product UI. */
+  --font-size-page: var(--raw-font-page);
+  --font-size-section: var(--raw-font-section);
+  --font-size-body: var(--raw-font-body);
+  --font-size-label: var(--raw-font-label);
+  --font-size-meta: var(--raw-font-meta);
+  --font-size-code: var(--raw-font-code);
+  --line-page: var(--raw-line-page);
+  --line-section: var(--raw-line-section);
+  --line-body: var(--raw-line-body);
+  --line-compact: var(--raw-line-compact);
+}
+
+@media (min-width: 768px) {
+  :root { --space-page-gutter: var(--raw-space-6); }
+}
+
+@media (min-width: 1440px) {
+  :root { --space-page-gutter: var(--raw-space-8); }
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  /* P-COLOR.1; light semantic equivalents for the user's selected theme. */
+  --surface-canvas: var(--raw-light-canvas);
+  --surface-panel: var(--raw-light-panel);
+  --surface-subtle: var(--raw-light-subtle);
+  --text-strong: var(--raw-light-strong);
+  --text-muted: var(--raw-light-muted);
+  --action-primary: var(--raw-light-primary);
+  --action-label: var(--raw-light-action-label);
+  --status-success: var(--raw-light-primary);
+  --status-warning: var(--raw-light-warning);
+  --status-error: var(--raw-light-error);
+  --stroke-control: var(--raw-light-control-stroke);
+  --stroke-divider: var(--raw-light-divider);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* WCAG 2.3.3 / P-MOTION.1: remove non-essential animated transitions. */
+    --motion-fast: 0ms;
+    --motion-standard: 0ms;
+    --motion-slow: 0ms;
+  }
+}

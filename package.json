@@ -7,6 +7,11 @@
   ],
   "scripts": {
     "dev": "npm run dev -w @devmentor/app --",
+    "storybook": "npm run storybook -w @devmentor/ui --",
+    "build-storybook": "npm run build-storybook -w @devmentor/ui",
+    "test-storybook": "npm run test-storybook -w @devmentor/ui",
+    "test-storybook:themes": "npm run test-storybook:themes -w @devmentor/ui",
+    "check-design-tokens": "npm run check-design-tokens -w @devmentor/ui",
     "build": "npm run build -w @devmentor/app --",
     "start": "npm run start -w @devmentor/app --",
     "lint": "eslint .",

@@ -45,12 +45,17 @@ next-env.d.ts
 /packages/*/node_modules
 /packages/*/.next/
 /packages/*/out/
+/packages/ui/storybook-static/
 
 # agent pipeline QA state (generated per run)
 /.ai/qa/artifacts_*/
 /.ai/qa/test-env.json
 /.ai/qa/test-env.env
+/.ai/qa/test-env.log
+/.ai/qa/test-env-build-cache.json
+/.ai/qa/test-env.lock/
 
 # clickable prototype build output (sources in _src/ are committed; the build is not)
 /prototypes/*/index.html
 /prototypes/*/assets/
+/packages/ui/.storybook/public/prototypes/

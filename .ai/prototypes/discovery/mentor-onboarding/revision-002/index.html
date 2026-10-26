@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevMentor mentor onboarding (discovery prototype)</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1a1a; background: #f2f2f2; line-height: 1.5; }
+  header.banner { background: #333; color: #fff; padding: 0.5rem 1rem; font-size: 0.875rem; }
+  main { max-width: 42rem; margin: 0 auto; padding: 1rem; }
+  nav.steps ol { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; margin: 0 0 1rem; }
+  nav.steps a { display: inline-block; padding: 0.25rem 0.75rem; border: 1px solid #888; border-radius: 4px; background: #fff; color: #1a1a1a; text-decoration: none; }
+  nav.steps a[aria-current="step"] { background: #1a1a1a; color: #fff; font-weight: 700; }
+  section.screen { background: #fff; border: 1px solid #999; border-radius: 4px; padding: 1rem 1.25rem; }
+  section.screen[hidden] { display: none; }
+  h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.25rem; margin: 0 0 0.75rem; }
+  h2:focus { outline: 3px solid #1a1a1a; outline-offset: 2px; }
+  h3 { font-size: 1rem; margin: 1rem 0 0.5rem; }
+  a { color: #1a1a1a; }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid #1a1a1a; outline-offset: 2px; }
+  label, legend { display: block; font-weight: 600; margin-top: 0.75rem; }
+  .hint { font-weight: 400; font-size: 0.875rem; color: #444; display: block; }
+  input[type="text"], input[type="email"], input[type="password"], input[type="number"], textarea, select { width: 100%; padding: 0.5rem; border: 1px solid #666; border-radius: 4px; font: inherit; background: #fff; }
+  input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"] { border: 2px solid #8a1c1c; }
+  fieldset { border: 1px solid #999; border-radius: 4px; margin: 0.75rem 0 0; padding: 0.5rem 0.75rem; }
+  fieldset label { display: inline-block; font-weight: 400; margin: 0.25rem 1rem 0.25rem 0; }
+  .field-error { color: #8a1c1c; font-size: 0.875rem; font-weight: 600; display: block; min-height: 0; }
+  .error-summary { border: 2px solid #8a1c1c; background: #fbeaea; padding: 0.5rem 0.75rem; margin: 0.75rem 0; }
+  .error-summary[hidden] { display: none; }
+  .notice { border: 1px solid #666; background: #ececec; padding: 0.5rem 0.75rem; margin: 0.75rem 0; }
+  .notice[hidden] { display: none; }
+  button, .button { display: inline-block; font: inherit; padding: 0.5rem 1rem; border: 1px solid #1a1a1a; border-radius: 4px; background: #fff; color: #1a1a1a; cursor: pointer; text-decoration: none; margin: 0.5rem 0.5rem 0 0; }
+  button.primary, .button.primary { background: #1a1a1a; color: #fff; font-weight: 700; }
+  button[disabled] { opacity: 0.5; cursor: not-allowed; }
+  ul.plain { list-style: none; padding: 0; margin: 0.5rem 0; }
+  ul.plain li { border: 1px solid #bbb; border-radius: 4px; padding: 0.5rem 0.75rem; margin: 0.5rem 0; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; }
+  th, td { border: 1px solid #bbb; padding: 0.375rem 0.5rem; text-align: left; }
+  .tag { display: inline-block; border: 1px solid #666; border-radius: 4px; padding: 0 0.5rem; margin-right: 0.25rem; font-size: 0.875rem; }
+  details.test-state { margin: 1.5rem 0 0; border: 1px dashed #666; padding: 0.5rem 0.75rem; background: #fafafa; }
+  details.test-state summary { cursor: pointer; font-weight: 600; }
+  #status { min-height: 1.5rem; margin: 0.5rem 0; font-weight: 600; }
+  .deadline-status { border: 1px solid #666; background: #f5f5f5; padding: 0.5rem 0.75rem; margin: 0.75rem 0; }
+  footer { max-width: 42rem; margin: 0 auto; padding: 0 1rem 2rem; font-size: 0.875rem; color: #333; }
+  @media (max-width: 30rem) { main { padding: 0.5rem; } section.screen { padding: 0.75rem; } button, .button { width: 100%; text-align: center; } }
+</style>
+</head>
+<body>
+<header class="banner">Discovery prototype. Simulated data. Nothing is saved or sent.</header>
+<main>
+  <h1>DevMentor</h1>
+  <nav class="steps" aria-label="Mentor setup steps">
+    <ol>
+      <li><a href="#invitation" data-nav="invitation">1. Invitation</a></li>
+      <li><a href="#sign-in" data-nav="sign-in">2. Sign in</a></li>
+      <li><a href="#mentor-page" data-nav="mentor-page">3. Mentor page</a></li>
+      <li><a href="#slots" data-nav="slots">4. Slots</a></li>
+      <li><a href="#prices" data-nav="prices">5. Prices</a></li>
+      <li><a href="#summary" data-nav="summary">6. Summary</a></li>
+    </ol>
+  </nav>
+
+  <div id="status" role="status" aria-live="polite"></div>
+
+  <!-- 1. Invitation -->
+  <section class="screen" id="screen-invitation" data-screen="invitation" hidden>
+    <h2 tabindex="-1">Mentor invitation</h2>
+    <div data-invitation="valid">
+      <p>Jordan Example, DevMentor invites you to become a mentor.</p>
+      <ul>
+        <li>Mentors answer in text, in a 25- or 50-minute session.</li>
+        <li>You publish a mentor page, time slots and your own prices.</li>
+        <li>Prices are in EUR.</li>
+      </ul>
+      <p>This invitation is for <strong>jordan@example.test</strong>.</p>
+      <a class="button primary" href="#sign-in" id="accept-invitation">Accept invitation and sign in</a>
+    </div>
+    <div data-invitation="expired" hidden>
+      <p><strong>This invitation has expired or was already used.</strong></p>
+      <p>Mentors join by invitation only. Ask the DevMentor operator for a new invitation.</p>
+      <a class="button" href="#invitation-help">What can I do?</a>
+    </div>
+    <div data-invitation="none" hidden>
+      <p><strong>There is no invitation attached to this visit.</strong></p>
+      <p>Mentors join by invitation only. There is no way to register as a mentor on this site.</p>
+      <a class="button" href="#invitation-help">What can I do?</a>
+    </div>
+    <div data-invitation="done" hidden>
+      <p>You already accepted this invitation and are signed in as a mentor.</p>
+      <a class="button primary" href="#summary">Go to the setup summary</a>
+    </div>
+  </section>
+
+  <section class="screen" id="screen-invitation-help" data-screen="invitation-help" hidden>
+    <h2 tabindex="-1">Need an invitation?</h2>
+    <p>Mentor accounts are created from invitations sent by the DevMentor operator. This prototype does not simulate the operator side.</p>
+    <p>Mentees looking for help are outside this prototype.</p>
+    <a class="button" href="#invitation">Back to the invitation</a>
+  </section>
+
+  <!-- 2. Sign in -->
+  <section class="screen" id="screen-sign-in" data-screen="sign-in" hidden>
+    <h2 tabindex="-1">Sign in to accept</h2>
+    <div data-signin="gate">
+      <p>Use GitHub, or e-mail and a password if you do not use GitHub.</p>
+      <button type="button" class="primary" id="github-signin">Continue with GitHub</button>
+      <div id="github-error" class="error-summary" role="alert" hidden></div>
+
+      <h3>Or use e-mail and password</h3>
+      <form id="email-form" novalidate>
+        <div id="email-errors" class="error-summary" role="alert" tabindex="-1" hidden></div>
+        <label for="signin-email">E-mail</label>
+        <input id="signin-email" name="email" type="email" autocomplete="off" aria-describedby="signin-email-error">
+        <span class="field-error" id="signin-email-error"></span>
+        <label for="signin-password">Password <span class="hint">At least 8 characters.</span></label>
+        <input id="signin-password" name="password" type="password" autocomplete="off" aria-describedby="signin-password-error">
+        <span class="field-error" id="signin-password-error"></span>
+        <button type="submit" id="email-submit">Create account and accept</button>
+      </form>
+      <p><a href="#invitation">Back to the invitation</a></p>
+    </div>
+    <div data-signin="loading" hidden>
+      <p>Signing in with GitHub...</p>
+    </div>
+    <div data-signin="done" hidden>
+      <p>You are signed in as a mentor.</p>
+      <a class="button primary" href="#mentor-page">Continue to your mentor page</a>
+    </div>
+  </section>
+
+  <!-- Access denied -->
+  <section class="screen" id="screen-denied" data-screen="denied" hidden>
+    <h2 tabindex="-1">Sign in required</h2>
+    <p>This page is for signed-in mentors. Accept your invitation and sign in first.</p>
+    <a class="button primary" href="#invitation">Go to the invitation</a>
+  </section>
+
+  <!-- 3. Mentor page -->
+  <section class="screen" id="screen-mentor-page" data-screen="mentor-page" hidden>
+    <h2 tabindex="-1">Your mentor page</h2>
+    <p>Mentees see this page before booking. Sessions are text only.</p>
+    <form id="page-form" novalidate>
+      <div id="page-errors" class="error-summary" role="alert" tabindex="-1" hidden></div>
+      <label for="public-work">Link to your public work <span class="hint">For example your GitHub profile, a repository or a talk. It must start with https://</span></label>
+      <input id="public-work" name="publicWork" type="text" inputmode="url" autocomplete="off" aria-describedby="public-work-error">
+      <span class="field-error" id="public-work-error"></span>
+
+      <label for="description">Plain description <span class="hint">What you help with, in a few sentences. Up to 400 characters.</span></label>
+      <textarea id="description" name="description" rows="4" aria-describedby="description-error"></textarea>
+      <span class="field-error" id="description-error"></span>
+
+      <fieldset aria-describedby="tags-error">
+        <legend>Stack tags <span class="hint">Choose at least one.</span></legend>
+        <label><input type="checkbox" name="tags" value="TypeScript"> TypeScript</label>
+        <label><input type="checkbox" name="tags" value="React"> React</label>
+        <label><input type="checkbox" name="tags" value="Python"> Python</label>
+        <label><input type="checkbox" name="tags" value="AI agents"> AI agents</label>
+      </fieldset>
+      <span class="field-error" id="tags-error"></span>
+
+      <label for="channel">Where the text session takes place <span class="hint">Name the channel and give its address. Only you and a mentee with a confirmed booking see it.</span></label>
+      <input id="channel" name="channel" type="text" autocomplete="off" aria-describedby="channel-error">
+      <span class="field-error" id="channel-error"></span>
+
+      <button type="submit" class="primary">Save mentor page</button>
+    </form>
+    <div id="page-saved" class="notice" hidden>
+      <p><strong>Mentor page saved.</strong> Your share link:</p>
+      <p id="share-link"></p>
+      <a class="button primary" href="#slots">Next: publish slots</a>
+      <a class="button" href="#public-preview">See the public page</a>
+    </div>
+    <p><a href="#sign-in">Back</a> | <a href="#slots">Skip to slots</a></p>
+  </section>
+
+  <!-- 4. Slots -->
+  <section class="screen" id="screen-slots" data-screen="slots" hidden>
+    <h2 tabindex="-1">Your slots</h2>
+    <p>A slot is bookable when it starts at least two hours from now. The simulated time now is <strong>Mon 26 Oct 2026, 09:00</strong>.</p>
+    <form id="slot-form" novalidate>
+      <div id="slot-errors" class="error-summary" role="alert" tabindex="-1" hidden></div>
+      <label for="slot-start">Slot start</label>
+      <select id="slot-start" name="slot" aria-describedby="slot-error">
+        <option value="">Choose a start time</option>
+        <option value="60">Today, 10:00 UTC</option>
+        <option value="120">Today, 11:00 UTC</option>
+        <option value="1930">Tomorrow, 17:10 UTC</option>
+        <option value="3330">In three days, 16:30 UTC</option>
+        <option value="4500">In four days, 12:00 UTC</option>
+      </select>
+      <span class="field-error" id="slot-error"></span>
+      <button type="submit" class="primary">Publish slot</button>
+    </form>
+    <h3>Published slots</h3>
+    <p id="slots-empty">No slots published yet. Mentees cannot book you until you publish one.</p>
+    <ul class="plain" id="slots-list"></ul>
+    <p><a href="#mentor-page">Back</a> | <a class="button primary" href="#prices">Next: set prices</a></p>
+  </section>
+
+  <!-- 5. Prices -->
+  <section class="screen" id="screen-prices" data-screen="prices" hidden>
+    <h2 tabindex="-1">Your session prices</h2>
+    <p>Set one price for each session length, in EUR. Prices must be whole euros inside the bounds set by DevMentor: <strong>15 to 120 EUR</strong>.</p>
+    <form id="price-form" novalidate>
+      <div id="price-errors" class="error-summary" role="alert" tabindex="-1" hidden></div>
+      <label for="price-25">25-minute session (EUR)</label>
+      <input id="price-25" name="price25" type="text" inputmode="numeric" autocomplete="off" aria-describedby="price-25-error">
+      <span class="field-error" id="price-25-error"></span>
+      <label for="price-50">50-minute session (EUR)</label>
+      <input id="price-50" name="price50" type="text" inputmode="numeric" autocomplete="off" aria-describedby="price-50-error">
+      <span class="field-error" id="price-50-error"></span>
+      <button type="submit" class="primary">Save prices</button>
+    </form>
+    <div id="prices-saved" class="notice" hidden>
+      <p><strong>Prices saved.</strong></p>
+      <a class="button primary" href="#summary">Next: summary</a>
+    </div>
+    <p><a href="#slots">Back</a></p>
+  </section>
+
+  <!-- 6. Summary -->
+  <section class="screen" id="screen-summary" data-screen="summary" hidden>
+    <h2 tabindex="-1">Setup summary</h2>
+    <p id="bookable-status"></p>
+    <p class="deadline-status" id="invitation-target-status" aria-live="polite"></p>
+    <table>
+      <caption class="hint" style="text-align:left">What mentees need before they can book you</caption>
+      <thead><tr><th scope="col">Item</th><th scope="col">State</th><th scope="col">Action</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Mentor page</th><td id="sum-page"></td><td><a href="#mentor-page">Open</a></td></tr>
+        <tr><th scope="row">Published slots</th><td id="sum-slots"></td><td><a href="#slots">Open</a></td></tr>
+        <tr><th scope="row">Session prices</th><td id="sum-prices"></td><td><a href="#prices">Open</a></td></tr>
+      </tbody>
+    </table>
+    <p>Payouts: in this first iteration DevMentor pays mentors by hand. Nothing to set up here.</p>
+    <p><a class="button" href="#public-preview" id="preview-link">See the public page</a></p>
+    <p><a href="#prices">Back</a></p>
+  </section>
+
+  <!-- Public preview -->
+  <section class="screen" id="screen-public-preview" data-screen="public-preview" hidden>
+    <h2 tabindex="-1">Public mentor page (preview)</h2>
+    <div data-preview="empty">
+      <p>Save your mentor page first to see how it looks to mentees.</p>
+      <a class="button primary" href="#mentor-page">Open mentor page</a>
+    </div>
+    <div data-preview="page" hidden>
+      <h3>Jordan Example</h3>
+      <p><strong>Public work:</strong> <span id="pv-work"></span></p>
+      <p id="pv-description"></p>
+      <p id="pv-tags"></p>
+      <p>Sessions are text, 25 or 50 minutes. The session channel is shared after a booking is confirmed.</p>
+      <p><strong>Prices:</strong> <span id="pv-prices"></span></p>
+      <h3>Open slots</h3>
+      <ul class="plain" id="pv-slots"></ul>
+      <p id="pv-slots-empty">No open slots.</p>
+      <p><strong>Share link:</strong> <span id="pv-share"></span></p>
+    </div>
+    <p><a href="#summary">Back to the summary</a></p>
+  </section>
+
+  <!-- Unknown fragment -->
+  <section class="screen" id="screen-notfound" data-screen="notfound" hidden>
+    <h2 tabindex="-1">This screen is not part of the prototype</h2>
+    <p>The address you opened does not match any screen in this simulation.</p>
+    <a class="button primary" href="#invitation">Back to the start</a>
+  </section>
+
+  <details class="test-state" id="test-state">
+    <summary>Test state (prototype controls)</summary>
+    <fieldset>
+      <legend>Invitation</legend>
+      <label><input type="radio" name="invitation" value="valid" checked> Valid</label>
+      <label><input type="radio" name="invitation" value="expired"> Expired or already used</label>
+      <label><input type="radio" name="invitation" value="none"> No invitation</label>
+    </fieldset>
+    <fieldset>
+      <legend>GitHub sign-in outcome</legend>
+      <label><input type="radio" name="github" value="ok" checked> Succeeds</label>
+      <label><input type="radio" name="github" value="fail"> Fails</label>
+    </fieldset>
+    <fieldset>
+      <legend>Time since accepting invitation</legend>
+      <label for="elapsed-days">Choose elapsed-time scenario</label>
+      <select id="elapsed-days" name="elapsedDays">
+        <option value="0">Day 0</option>
+        <option value="13">Day 13</option>
+        <option value="14">Day 14 (deadline)</option>
+        <option value="15">Day 15 (after deadline)</option>
+      </select>
+      <p class="hint">This changes the simulation clock so you can inspect the two-week invitation check. Accepting an invitation starts at day 0.</p>
+    </fieldset>
+    <button type="button" id="simulate-booking">Simulate a mentee booking the first open slot</button>
+    <button type="button" id="reset">Reset simulation</button>
+  </details>
+</main>
+<footer>Discovery prototype. All names, links, times and prices are fictitious.</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var LOADING_MS = 400;
+  var PRICE_MIN = 15;
+  var PRICE_MAX = 120;
+  var PASSWORD_MIN = 8;
+  var DESCRIPTION_MAX = 400;
+  var MIN_LEAD_MINUTES = 120;
+  var INVITATION_WINDOW_DAYS = 14;
+  var SIMULATION_ACCEPTED_AT = Date.parse('2026-10-26T09:00:00Z');
+  var SLOT_LEADS = [60, 120, 1930, 3330, 4500];
+  var SHARE_LINK = 'https://devmentor.example/m/jordan-example';
+  var NAV_ORDER = ['invitation', 'sign-in', 'mentor-page', 'slots', 'prices', 'summary'];
+  var SCREENS = ['invitation', 'invitation-help', 'sign-in', 'denied', 'mentor-page', 'slots', 'prices', 'summary', 'public-preview', 'notfound'];
+  var NEEDS_SIGN_IN = ['mentor-page', 'slots', 'prices', 'summary', 'public-preview'];
+
+  var state;
+  function freshState() {
+    return { signedIn: false, loading: false, page: null, slots: [], prices: null, invitation: 'valid', github: 'ok', acceptedAt: null, elapsedDays: 0, d18Met: false, d18MetAt: null };
+  }
+  state = freshState();
+
+  function $(id) { return document.getElementById(id); }
+  function all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function announce(text) {
+    var el = $('status');
+    el.textContent = '';
+    window.setTimeout(function () { el.textContent = text; }, 20);
+  }
+
+  function clearErrors(form) {
+    all('.field-error', form).forEach(function (e) { e.textContent = ''; });
+    all('[aria-invalid]', form).forEach(function (e) { e.removeAttribute('aria-invalid'); });
+    var summary = form.querySelector('.error-summary');
+    summary.hidden = true;
+    summary.textContent = '';
+  }
+
+  function showErrors(form, errors) {
+    var summary = form.querySelector('.error-summary');
+    summary.textContent = '';
+    var p = document.createElement('p');
+    p.textContent = 'Please fix ' + errors.length + (errors.length === 1 ? ' problem:' : ' problems:');
+    summary.appendChild(p);
+    var ul = document.createElement('ul');
+    errors.forEach(function (err) {
+      var li = document.createElement('li');
+      li.textContent = err.message;
+      ul.appendChild(li);
+      $(err.errorId).textContent = err.message;
+      if (err.fieldId) { $(err.fieldId).setAttribute('aria-invalid', 'true'); }
+    });
+    summary.appendChild(ul);
+    summary.hidden = false;
+    summary.focus();
+  }
+
+  /* ---------- routing ---------- */
+  function currentId() {
+    var id = window.location.hash.replace(/^#/, '');
+    return id === '' ? 'invitation' : id;
+  }
+
+  function route() {
+    var id = currentId();
+    if (SCREENS.indexOf(id) === -1) { id = 'notfound'; }
+    if (NEEDS_SIGN_IN.indexOf(id) !== -1 && !state.signedIn) { id = 'denied'; }
+    all('section.screen').forEach(function (s) { s.hidden = s.getAttribute('data-screen') !== id; });
+    all('[data-nav]').forEach(function (a) {
+      if (a.getAttribute('data-nav') === id) { a.setAttribute('aria-current', 'step'); } else { a.removeAttribute('aria-current'); }
+    });
+    render(id);
+    var heading = document.querySelector('section[data-screen="' + id + '"] h2');
+    if (heading) { heading.focus(); }
+  }
+
+  /* ---------- rendering ---------- */
+  function render(id) {
+    if (id === 'invitation') { renderInvitation(); }
+    if (id === 'sign-in') { renderSignIn(); }
+    if (id === 'mentor-page') { renderMentorPage(); }
+    if (id === 'slots') { renderSlots(); }
+    if (id === 'prices') { renderPrices(); }
+    if (id === 'summary') { renderSummary(); }
+    if (id === 'public-preview') { renderPreview(); }
+  }
+
+  function renderInvitation() {
+    var which = state.signedIn ? 'done' : state.invitation;
+    all('[data-invitation]').forEach(function (d) { d.hidden = d.getAttribute('data-invitation') !== which; });
+  }
+
+  function renderSignIn() {
+    var which = state.loading ? 'loading' : (state.signedIn ? 'done' : 'gate');
+    all('[data-signin]').forEach(function (d) { d.hidden = d.getAttribute('data-signin') !== which; });
+  }
+
+  function renderMentorPage() {
+    $('page-saved').hidden = !state.page;
+    if (state.page) { $('share-link').textContent = SHARE_LINK; }
+  }
+
+  function openSlots() { return state.slots.filter(function (s) { return !s.booked; }); }
+
+  function simulatedNow() {
+    return SIMULATION_ACCEPTED_AT + state.elapsedDays * 24 * 60 * 60 * 1000;
+  }
+
+  function formatDateTime(timestamp) {
+    return new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(timestamp)) + ' UTC';
+  }
+
+  function slotLabel(leadMinutes) {
+    return formatDateTime(simulatedNow() + leadMinutes * 60 * 1000);
+  }
+
+  function updateD18() {
+    var deadline = SIMULATION_ACCEPTED_AT + INVITATION_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+    if (state.acceptedAt !== null && !state.d18Met && state.page && openSlots().length > 0 && state.prices && simulatedNow() <= deadline) {
+      state.d18Met = true;
+      state.d18MetAt = simulatedNow();
+    }
+  }
+
+  function renderSlots() {
+    var select = $('slot-start');
+    all('option', select).forEach(function (option) {
+      if (option.value !== '') { option.textContent = slotLabel(Number(option.value)); }
+    });
+    var list = $('slots-list');
+    list.textContent = '';
+    state.slots.forEach(function (slot, index) {
+      var li = document.createElement('li');
+      var label = document.createElement('span');
+      label.textContent = slot.label + (slot.booked ? ' (booked)' : ' (open)');
+      li.appendChild(label);
+      if (!slot.booked) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = 'Remove';
+        btn.setAttribute('aria-label', 'Remove slot ' + slot.label);
+        btn.addEventListener('click', function () {
+          state.slots.splice(index, 1);
+          renderSlots();
+          announce('Slot ' + slot.label + ' removed.');
+        });
+        li.appendChild(btn);
+      }
+      list.appendChild(li);
+    });
+    $('slots-empty').hidden = state.slots.length > 0;
+    $('simulate-booking').disabled = openSlots().length === 0;
+  }
+
+  function renderPrices() {
+    $('prices-saved').hidden = !state.prices;
+  }
+
+  function setState(el, done, doneText, todoText) {
+    el.textContent = done ? doneText : todoText;
+  }
+
+  function renderSummary() {
+    updateD18();
+    var open = openSlots().length;
+    setState($('sum-page'), !!state.page, 'Saved', 'Not saved yet');
+    setState($('sum-slots'), open > 0, open + ' open', 'None open');
+    setState($('sum-prices'), !!state.prices, state.prices ? state.prices.p25 + ' EUR for 25 min, ' + state.prices.p50 + ' EUR for 50 min' : '', 'Not set');
+    var missing = [];
+    if (!state.page) { missing.push('a mentor page'); }
+    if (open === 0) { missing.push('an open slot'); }
+    if (!state.prices) { missing.push('session prices'); }
+    $('bookable-status').textContent = missing.length === 0
+      ? 'Bookable: a mentee can now pick one of your open slots at your prices.'
+      : 'Not bookable yet. Still needed: ' + missing.join(', ') + '.';
+    var target = $('invitation-target-status');
+    if (state.acceptedAt === null) {
+      target.textContent = 'D18 invitation check starts when you accept this invitation.';
+    } else {
+      var deadline = SIMULATION_ACCEPTED_AT + INVITATION_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+      if (state.d18Met) {
+        target.textContent = 'D18 target met: your setup first became bookable on ' + formatDateTime(state.d18MetAt) + ', within two weeks of accepting the invitation.';
+      } else if (simulatedNow() <= deadline) {
+        target.textContent = 'D18 target: make at least one session bookable by ' + formatDateTime(deadline) + '. Current simulated time: ' + formatDateTime(simulatedNow()) + '.';
+      } else {
+        target.textContent = 'D18 window passed: no session became bookable by ' + formatDateTime(deadline) + '. Setup may still become bookable, but the two-week target was missed.';
+      }
+    }
+    $('preview-link').hidden = !state.page;
+  }
+
+  function renderPreview() {
+    all('[data-preview]').forEach(function (d) { d.hidden = d.getAttribute('data-preview') !== (state.page ? 'page' : 'empty'); });
+    if (!state.page) { return; }
+    $('pv-work').textContent = state.page.publicWork;
+    $('pv-description').textContent = state.page.description;
+    $('pv-tags').textContent = '';
+    state.page.tags.forEach(function (t) {
+      var span = document.createElement('span');
+      span.className = 'tag';
+      span.textContent = t;
+      $('pv-tags').appendChild(span);
+    });
+    $('pv-prices').textContent = state.prices ? state.prices.p25 + ' EUR (25 min), ' + state.prices.p50 + ' EUR (50 min)' : 'Not set yet';
+    $('pv-share').textContent = SHARE_LINK;
+    var list = $('pv-slots');
+    list.textContent = '';
+    openSlots().forEach(function (slot) {
+      var li = document.createElement('li');
+      li.textContent = slot.label;
+      list.appendChild(li);
+    });
+    $('pv-slots-empty').hidden = openSlots().length > 0;
+  }
+
+  /* ---------- sign in ---------- */
+  function completeSignIn(how) {
+    state.loading = false;
+    state.signedIn = true;
+    state.acceptedAt = SIMULATION_ACCEPTED_AT;
+    state.elapsedDays = 0;
+    $('elapsed-days').value = '0';
+    announce('Invitation accepted. You are signed in as a mentor with ' + how + '.');
+    window.location.hash = '#mentor-page';
+    route();
+  }
+
+  $('github-signin').addEventListener('click', function () {
+    var errorBox = $('github-error');
+    errorBox.hidden = true;
+    errorBox.textContent = '';
+    state.loading = true;
+    renderSignIn();
+    announce('Signing in with GitHub.');
+    window.setTimeout(function () {
+      if (state.github === 'fail') {
+        state.loading = false;
+        renderSignIn();
+        errorBox.textContent = 'GitHub sign-in did not complete. Try again, or use e-mail and password below.';
+        errorBox.hidden = false;
+        announce('GitHub sign-in failed.');
+        return;
+      }
+      completeSignIn('GitHub');
+    }, LOADING_MS);
+  });
+
+  $('email-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var form = event.currentTarget;
+    clearErrors(form);
+    var email = $('signin-email').value.trim();
+    var password = $('signin-password').value;
+    var errors = [];
+    if (email === '' || email.indexOf('@') < 1) {
+      errors.push({ fieldId: 'signin-email', errorId: 'signin-email-error', message: 'Enter a valid e-mail address.' });
+    }
+    if (password.length < PASSWORD_MIN) {
+      errors.push({ fieldId: 'signin-password', errorId: 'signin-password-error', message: 'Enter a password of at least ' + PASSWORD_MIN + ' characters.' });
+    }
+    if (errors.length > 0) { showErrors(form, errors); return; }
+    completeSignIn('e-mail and password');
+  });
+
+  /* ---------- mentor page ---------- */
+  $('page-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var form = event.currentTarget;
+    clearErrors(form);
+    var work = $('public-work').value.trim();
+    var description = $('description').value.trim();
+    var channel = $('channel').value.trim();
+    var tags = all('input[name="tags"]:checked', form).map(function (c) { return c.value; });
+    var errors = [];
+    if (work.indexOf('https://') !== 0 || work.length <= 'https://'.length) {
+      errors.push({ fieldId: 'public-work', errorId: 'public-work-error', message: 'Add a link to your public work that starts with https://' });
+    }
+    if (description === '') {
+      errors.push({ fieldId: 'description', errorId: 'description-error', message: 'Add a short description of what you help with.' });
+    } else if (description.length > DESCRIPTION_MAX) {
+      errors.push({ fieldId: 'description', errorId: 'description-error', message: 'Shorten the description to ' + DESCRIPTION_MAX + ' characters or fewer.' });
+    }
+    if (tags.length === 0) {
+      errors.push({ fieldId: null, errorId: 'tags-error', message: 'Choose at least one stack tag.' });
+    }
+    if (channel === '') {
+      errors.push({ fieldId: 'channel', errorId: 'channel-error', message: 'Name the channel where sessions take place and give its address.' });
+    }
+    if (errors.length > 0) { showErrors(form, errors); return; }
+    state.page = { publicWork: work, description: description, tags: tags, channel: channel };
+    updateD18();
+    renderMentorPage();
+    announce('Mentor page saved. Your share link is ready.');
+  });
+
+  /* ---------- slots ---------- */
+  $('slot-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var form = event.currentTarget;
+    clearErrors(form);
+    var raw = $('slot-start').value;
+    var errors = [];
+    if (raw === '') {
+      errors.push({ fieldId: 'slot-start', errorId: 'slot-error', message: 'Choose a start time.' });
+    } else {
+      var lead = Number(raw);
+      var label = slotLabel(lead);
+      if (lead < MIN_LEAD_MINUTES) {
+        errors.push({ fieldId: 'slot-start', errorId: 'slot-error', message: 'A slot must start at least two hours from now. Choose a later time.' });
+      } else if (state.slots.some(function (s) { return s.label === label; })) {
+        errors.push({ fieldId: 'slot-start', errorId: 'slot-error', message: 'You already published this slot. Choose another time.' });
+      } else {
+        state.slots.push({ label: label, lead: lead, booked: false });
+        state.slots.sort(function (a, b) { return a.lead - b.lead; });
+        updateD18();
+        $('slot-start').value = '';
+        renderSlots();
+        announce('Slot ' + label + ' published.');
+        return;
+      }
+    }
+    showErrors(form, errors);
+  });
+
+  $('simulate-booking').addEventListener('click', function () {
+    var first = openSlots()[0];
+    if (!first) { return; }
+    first.booked = true;
+    announce('Simulated booking: slot ' + first.label + ' is now taken.');
+    render(currentId());
+  });
+
+  /* ---------- prices ---------- */
+  function parsePrice(value) {
+    return /^[0-9]+$/.test(value) ? Number(value) : NaN;
+  }
+
+  $('price-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var form = event.currentTarget;
+    clearErrors(form);
+    var fields = [
+      { id: 'price-25', errorId: 'price-25-error', name: '25-minute' },
+      { id: 'price-50', errorId: 'price-50-error', name: '50-minute' }
+    ];
+    var values = [];
+    var errors = [];
+    fields.forEach(function (f) {
+      var n = parsePrice($(f.id).value.trim());
+      values.push(n);
+      if (Number.isNaN(n)) {
+        errors.push({ fieldId: f.id, errorId: f.errorId, message: 'Enter the ' + f.name + ' price as a whole number of euros.' });
+      } else if (n < PRICE_MIN || n > PRICE_MAX) {
+        errors.push({ fieldId: f.id, errorId: f.errorId, message: 'The ' + f.name + ' price must be between ' + PRICE_MIN + ' and ' + PRICE_MAX + ' EUR.' });
+      }
+    });
+    if (errors.length > 0) { showErrors(form, errors); return; }
+    state.prices = { p25: values[0], p50: values[1] };
+    updateD18();
+    renderPrices();
+    announce('Prices saved: ' + values[0] + ' EUR for 25 minutes, ' + values[1] + ' EUR for 50 minutes.');
+  });
+
+  /* ---------- test state and reset ---------- */
+  all('input[name="invitation"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      state.invitation = r.value;
+      render(currentId());
+    });
+  });
+  all('input[name="github"]').forEach(function (r) {
+    r.addEventListener('change', function () { state.github = r.value; });
+  });
+
+  $('elapsed-days').addEventListener('change', function () {
+    state.elapsedDays = Number($('elapsed-days').value);
+    renderSlots();
+    render(currentId());
+    announce('Simulation time moved to ' + formatDateTime(simulatedNow()) + '.');
+  });
+
+  $('reset').addEventListener('click', function () {
+    state = freshState();
+    all('form').forEach(function (f) { f.reset(); clearErrors(f); });
+    all('input[name="invitation"]')[0].checked = true;
+    all('input[name="github"]')[0].checked = true;
+    $('elapsed-days').value = '0';
+    $('github-error').hidden = true;
+    $('github-error').textContent = '';
+    var wasStart = currentId() === 'invitation';
+    window.location.hash = '#invitation';
+    if (wasStart) { route(); }
+    announce('Simulation reset. You are back at the invitation.');
+  });
+
+  window.addEventListener('hashchange', route);
+  route();
+}());
+</script>
+</body>
+</html>

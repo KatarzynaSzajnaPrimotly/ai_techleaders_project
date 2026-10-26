@@ -1,0 +1,22 @@
+{
+  "format": "discovery-prototype-v1",
+  "skill": "om-mockup-prototype",
+  "slug": "mentor-onboarding",
+  "revision": 2,
+  "revisionPath": ".ai/prototypes/discovery/mentor-onboarding/revision-002",
+  "previousRevision": ".ai/prototypes/discovery/mentor-onboarding/revision-001",
+  "brief": ".ai/specs/product-brief.md",
+  "flow": "Invited mentor onboarding with the D18 two-week bookability target",
+  "panelReport": null,
+  "verification": "not-run",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "e1a2a9df1d39d31eca488c112ebcf7c2496ba5947d5196c9ba99b8ef89dc7a25"
+    },
+    {
+      "path": "index.html",
+      "sha256": "de611c0b4cd5ff06f85e2804f795c9318b9a4ce891ac1bc1210f77b1535911ad"
+    }
+  ]
+}

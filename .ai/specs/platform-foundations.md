@@ -205,6 +205,19 @@ None. This spec adds no entity and no migration. Persistent shapes (`users` in t
 
 Only what is unique: the shared form layer has defined states: idle, submitting (submit disabled), field errors under each field, one form-level error region announced with `role="alert"`, Ctrl/Cmd+Enter submits, Escape cancels. The public skin adds the "Saving…" label and focus on the first invalid field. Tailwind has no preflight, so buttons, labels and inputs set their own resets (`.ai/lessons/2026-10-19-tailwind-without-preflight.md`).
 
+### Screen-map acceptance criteria (E01)
+
+The shared contracts below support the screen ids in `lekcja-07/mapa-ekranow.md`; the feature-specific behavior remains in `2026-10-21-auth.md`.
+
+- [s01], [s02], [s04]: both form skins expose associated labels, inline field errors, a form-level `role="alert"`, disabled submit while pending, retained values after failure, and keyboard submission/cancel behavior. The public skin focuses the first invalid field. GitHub sign-in remains a real link and precedes the form in focus order [s01].
+- [s05], [s06], [s07]: `RoleShell` renders the signed-in identity, role badge, sign-out action and role-specific navigation. The operator shell wraps the existing shadcn content; it does not add a second guard mechanism [s07].
+- [s01]–[s07]: use the dark palette from `tokens.css` consistently across public and role screens. Do not introduce a second light visual language for these screens.
+- [s01]–[s07]: document title and product copy use “DevMentor”; no screen title says “Next.js starter” or uses “Mentora” as user-facing text.
+- [s08]: wrong-role handling is a redirect outcome, not a shared access-denied component. Guarding happens before data fetch/render.
+- [s09], [s10]: these are external-service simulations in the prototype and do not require product UI primitives or live integrations.
+
+Out of E01 scope: adding Storybook, changing `TutorCard`, and adding signed-in variants to `SiteHeader`/`SiteFooter` [s01]–[s06]. The screen map records these as separate design-system work; no new reusable component is authorized by those notes.
+
 ## 📝 Edge Cases & Failure Scenarios
 
 - Valid signature, unknown role claim, or a token with a `purpose` claim: rejected as an invalid session (401).

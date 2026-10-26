@@ -6,13 +6,13 @@ Prototyp jest po angielsku (G24). Nie jest częścią aplikacji i nic go nie imp
 
 ## Jak uruchomić
 
-Gotowy wynik budowania (`index.html` i `assets/`) nie jest w git. Zbuduj go z katalogu głównego repozytorium:
+Gotowy wynik budowania (`index.html` i `assets/`) nie jest w git. W podglądzie sandboxa Storybook serwuje pliki z `packages/ui/.storybook/public`. Zbuduj prototyp z katalogu głównego repozytorium:
 
 ```bash
-npx vite build --config prototypes/konta-i-role/_src/vite.config.mts
+npx vite build --config prototypes/konta-i-role/_src/vite.config.mts --outDir ../../../packages/ui/.storybook/public/prototypes/konta-i-role
 ```
 
-Potem otwórz `prototypes/konta-i-role/index.html` podwójnym kliknięciem (działa z `file://`, bez serwera) albo z dowolnego serwera plików pod adresem `/prototypes/konta-i-role/index.html`. W podglądzie sandboxa serwer statyczny uruchamia właściciel.
+Potem otwórz `http://localhost:3000/prototypes/konta-i-role/index.html` w podglądzie sandboxa.
 
 Sprawdzanie typów: `npx tsc -p prototypes/konta-i-role/_src/tsconfig.json`.
 
