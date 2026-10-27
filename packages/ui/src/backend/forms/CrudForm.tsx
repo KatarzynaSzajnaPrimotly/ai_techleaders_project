@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, type FormEvent, type KeyboardEvent } from "react";
 import { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { cn } from "../../lib/utils";
 import type { ApiResult } from "../api/types";
+import { useFormCore } from "./useFormCore";
 
 export interface CrudField {
   name: string;
@@ -23,8 +23,6 @@ export interface CrudFormProps<S extends z.ZodType> {
   cancelLabel?: string;
 }
 
-type FieldErrors = Record<string, string[]>;
-
 export function CrudForm<S extends z.ZodType>({
   schema,
   fields,
@@ -34,44 +32,13 @@ export function CrudForm<S extends z.ZodType>({
   submitLabel = "Save",
   cancelLabel = "Cancel",
 }: CrudFormProps<S>) {
-  const emptyValues = () => Object.fromEntries(fields.map((field) => [field.name, ""]));
-  const [values, setValues] = useState<Record<string, string>>(emptyValues);
-  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFormError(null);
-
-    const parsed = schema.safeParse(values);
-    if (!parsed.success) {
-      setFieldErrors(z.flattenError(parsed.error).fieldErrors as FieldErrors);
-      return;
-    }
-
-    setFieldErrors({});
-    setSubmitting(true);
-    const result = await onSubmit(parsed.data);
-    setSubmitting(false);
-
-    if (result.ok) {
-      setValues(emptyValues());
-      onSuccess?.(result.data);
-      return;
-    }
-    setFieldErrors(result.error.fieldErrors ?? {});
-    setFormError(result.error.message);
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
-    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-      event.preventDefault();
-      event.currentTarget.requestSubmit();
-    } else if (event.key === "Escape") {
-      onCancel?.();
-    }
-  }
+  const { values, setValue, fieldErrors, formError, submitting, handleSubmit, handleKeyDown } = useFormCore({
+    schema,
+    fields,
+    onSubmit,
+    onSuccess,
+    onCancel,
+  });
 
   return (
     <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} noValidate className="space-y-4">
@@ -89,7 +56,7 @@ export function CrudForm<S extends z.ZodType>({
               type={field.type ?? "text"}
               placeholder={field.placeholder}
               value={values[field.name]}
-              onChange={(event) => setValues((current) => ({ ...current, [field.name]: event.target.value }))}
+              onChange={(event) => setValue(field.name, event.target.value)}
               aria-invalid={errors ? true : undefined}
               aria-describedby={errors ? errorId : undefined}
               className={cn(

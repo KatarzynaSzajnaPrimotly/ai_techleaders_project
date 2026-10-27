@@ -14,6 +14,7 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 - Local `GET /api/mentors` on port 3000 returned 200 with the expected API envelope. The user’s browser still gets 404 from the preview mapping, and asked to continue without browser preview.
 - F3.1: added the source-based access contract for API routes and protected page paths, with dated E01-S03 exceptions for the admin mentors page and mentors API. Tests cover imported/local aliases, wrappers, missing declarations, page-role mapping, and TSX parsing. Focused test (7), app typecheck, focused ESLint, and diff check passed. Commit: `6fda454`.
 - F3.2: updated `AGENTS.md`, `.ai/specs/engineering-standards.md`, and `README.md`. Updated GitHub issue bodies #33, #36, #38–#43, and #45–#55; #37 needed no change. Replaced obsolete API references, role terminology, and 422 status claims. Verification: 304 tests at 100% coverage, typecheck and production build pass. Full lint currently reports errors in generated Storybook output and the unrelated untracked lesson-06 backup; integration setup cannot find a container runtime and this checkout has no integration test files. Browser preview remains unavailable to the user.
+- F4.1: extracted `useFormCore` and rebuilt `CrudForm` on the hook while leaving `CrudForm.test.tsx` unchanged. New hook tests cover state, validation, submission results, callbacks, errors, keyboard shortcuts and cancel. Verification: 314 tests at 100% coverage, full typecheck, focused ESLint, and `git diff --check` pass; commit pending.
 
 ## Current state
 

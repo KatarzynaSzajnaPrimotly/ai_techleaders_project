@@ -32,9 +32,9 @@ Manual checkpoint: the access contract test passes with the two named E01-S03 ex
 
 ### Phase 4 — Foundations B2a: shared form core
 
-- [ ] **F4.1** Extract `useFormCore` from `CrudForm` without changing its public API or existing behavior; keep the existing tests green and cover the extracted core.
+- [x] **F4.1** Extract `useFormCore` from `CrudForm` without changing its public API or existing behavior; keep the existing tests green and cover the extracted core.
 
-Manual checkpoint: the admin mentors form still creates and edits records with validation, server field errors, keyboard submit, and Escape cancel.
+Manual checkpoint: `CrudForm`'s unchanged tests and new `useFormCore` behavior tests pass, covering validation, server field errors, submit shortcuts, and Escape cancel. Browser preview remains unavailable through the provided port mapping.
 
 ### Phase 5 — E01 S01a: identity backend
 
@@ -78,7 +78,7 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Phase 1: implementation complete; manual preview unavailable (port forwarding returns 404); user requested to continue.
 - Phase 2: F2.1 commit `7fb7323`; F2.2 commit `9971172`; local API smoke test passed; browser manual checkpoint unavailable as noted above.
 - Phase 3: F3.1 commit `6fda454`; F3.2 commit pending. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; integration suite could not start (no container runtime / no tests found); browser preview unavailable.
-- Phase 4: pending.
+- Phase 4: F4.1 commit pending; coverage is 100% (314 tests), full typecheck and focused lint pass; browser manual checkpoint unavailable.
 - Phase 5: pending.
 - Phase 6: pending.
 - Phase 7: pending.
