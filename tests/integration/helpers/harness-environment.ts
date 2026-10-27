@@ -18,6 +18,7 @@ export function createHarnessEnvironment({ base, databaseUrl, appUrl, fakeServer
     GITHUB_OAUTH_BASE_URL: fakeServerUrl,
     GITHUB_API_BASE_URL: fakeServerUrl,
     MAILER_TRANSPORT: "log",
+    TRUST_PROXY_HOPS: "1",
     ALLOW_INSECURE_HTTP: "true",
   };
 }

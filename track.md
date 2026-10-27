@@ -60,9 +60,9 @@ Manual checkpoint: open `/sign-in`, complete the fake GitHub flow, verify mentee
 - [x] **F7.2** Add password hashing, the password migration, register/confirm/login schemas, safe registration tokens, and `PasswordAuthService`.
 - [x] **F7.3** Add registration, confirmation, login routes and route tests, including generic failures, replay/race handling and rate limits.
 - [x] **F7.4** Add `PublicForm`, registration and confirmation pages, enable the e-mail form, and cover page/form states.
-- [ ] **F7.5** Add full integration coverage for registration, confirmation, login, mail failure, rate limits, headers, and concurrent confirmation.
+- [x] **F7.5** Add full integration coverage for registration, confirmation, login, mail failure, rate limits, headers, and concurrent confirmation.
 
-Manual checkpoint: register a demo address, inspect the development mail adapter, confirm once, sign in, then verify expired/reused links, wrong-password messaging, preserved form values, and rate-limit feedback.
+Manual checkpoint: register a demo address, inspect the development mail adapter, confirm once, sign in, then verify expired/reused links, wrong-password messaging, preserved form values, and rate-limit feedback. Automated browser verification confirms failed login stays on `/sign-in` and shows the generic error. Interactive preview through the shared port remains unavailable.
 
 ### Phase 8 — E01 S03: operator role and guards
 
@@ -83,3 +83,5 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Phase 6: F6.1 commit `106bb8e`; F6.2 commit `bb1c700`. Coverage 100% (543 tests), typecheck and production build pass, and 37 integration tests pass on an isolated temporary PostgreSQL 17 cluster. Scoped ESLint has 0 errors and one warning for `window.location.assign`; full lint remains blocked by unrelated generated and untracked content. Interactive browser checkpoint remains unavailable; user requested continuing.
 - Phase 7: F7.1 commit `a45af16`; F7.2 commit `11b6ded`; F7.3 commit `f7c364f`; F7.4 implemented and verified; commit pending. Coverage 100% (726 tests), typecheck, production build and focused lint pass; 41 integration tests pass on disposable PostgreSQL. F7.2 migration up/down/up and `npm audit` (0 vulnerabilities) pass. Full lint remains blocked by generated Storybook and unrelated untracked prototype files. Browser preview remains unavailable.
 - Phase 8: pending.
+
+- F7.5: added integration coverage for read-only confirmation preview and response headers, exactly-one concurrent confirmation/session, identical login failures with no cookies, generic registration and per-address cooldown, trusted proxy IP limits across emails despite spoofed X-Forwarded-For hops, and browser-confirmed failed login feedback without navigation. Harness explicitly sets `TRUST_PROXY_HOPS=1`; mail adapter failure is already covered by route unit tests. Verification: 47 integration tests, 726 unit tests at 100% coverage, typecheck, focused ESLint, production build, `npm audit` (0 vulnerabilities), and diff check passed. Browser test uses the disposable integration app/DB; disposable DB and browser sessions were cleaned up. Commit pending.
