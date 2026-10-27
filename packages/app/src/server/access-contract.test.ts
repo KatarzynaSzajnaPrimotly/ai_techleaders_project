@@ -317,4 +317,17 @@ describe("access contract", () => {
       { api: "guardedPage", declaration: { kind: "roles", roles: ["operator"] } },
     ]);
   });
+
+  it("recognizes page wrapper aliases and public pages", () => {
+    const fixture = `
+      import { guardedPage as protect, publicPage as expose } from "./guards";
+      const protectedPage = (render: () => unknown) => protect({ path: "/mentor", access: { roles: ["mentor"] } }, render);
+      export const MentorPage = protectedPage(() => null);
+      export default expose(() => null);
+    `;
+    expect(scanSource(fixture, "fixture.tsx")).toEqual([
+      { api: "guardedPage", declaration: { kind: "roles", roles: ["mentor"] } },
+      { api: "publicPage", declaration: { kind: "public", roles: [] } },
+    ]);
+  });
 });

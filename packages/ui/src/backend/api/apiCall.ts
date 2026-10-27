@@ -8,6 +8,7 @@ export interface ApiCallOptions {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   signal?: AbortSignal;
+  onUnauthorized?: "redirect" | "ignore";
 }
 
 export class ApiError extends Error {
@@ -54,7 +55,7 @@ function parseEnvelope<T>(json: unknown, response: Response): ApiResult<T> {
 }
 
 export async function apiCall<T>(url: string, options: ApiCallOptions = {}): Promise<ApiResult<T>> {
-  const { method = "GET", body, signal } = options;
+  const { method = "GET", body, signal, onUnauthorized = "redirect" } = options;
   const hasBody = body !== undefined;
 
   let response: Response;
@@ -73,6 +74,10 @@ export async function apiCall<T>(url: string, options: ApiCallOptions = {}): Pro
     });
   }
 
+  if (response.status === 401 && onUnauthorized === "redirect" && typeof window !== "undefined" && window.location.pathname !== "/sign-in") {
+    const returnTo = `${window.location.pathname}${window.location.search}`;
+    window.location.assign(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+  }
   return parseEnvelope<T>(await readJsonSafe(response), response);
 }
 

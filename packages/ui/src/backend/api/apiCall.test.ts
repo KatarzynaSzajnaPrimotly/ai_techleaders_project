@@ -84,6 +84,30 @@ describe("apiCall", () => {
     });
   });
 
+  it("redirects a 401 to sign-in and preserves the current path and query", async () => {
+    respond({ ok: false, error: { code: "UNAUTHORIZED", message: "Sign in" } }, 401);
+    const assign = vi.fn();
+    vi.stubGlobal("window", { location: { pathname: "/mentor", search: "?tab=upcoming", assign } });
+    await apiCall("/api/mentors");
+    expect(assign).toHaveBeenCalledWith("/sign-in?returnTo=%2Fmentor%3Ftab%3Dupcoming");
+  });
+
+  it("does not redirect when unauthorized responses are configured to be ignored", async () => {
+    respond({ ok: false, error: { code: "UNAUTHORIZED", message: "Invalid credentials" } }, 401);
+    const assign = vi.fn();
+    vi.stubGlobal("window", { location: { pathname: "/sign-in", search: "", assign } });
+    await apiCall("/api/auth/login", { method: "POST", onUnauthorized: "ignore" });
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it("does not redirect when already on sign-in", async () => {
+    respond({ ok: false, error: { code: "UNAUTHORIZED", message: "Sign in" } }, 401);
+    const assign = vi.fn();
+    vi.stubGlobal("window", { location: { pathname: "/sign-in", search: "?returnTo=%2Fhome", assign } });
+    await apiCall("/api/auth/session");
+    expect(assign).not.toHaveBeenCalled();
+  });
+
   it.each([
     ["a non-JSON body", "<html>502</html>", 502, true],
     ["an empty body", "", 204, true],
