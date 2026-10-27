@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AccountService, MentorService, PasswordAuthService } from "@devmentor/core";
+import { AccountService, MentorService, PasswordAuthService, ServiceUnavailableError, UnauthorizedError, ValidationError } from "@devmentor/core";
 
 const mocks = vi.hoisted(() => ({
   createOrm: vi.fn(),
@@ -98,6 +98,10 @@ describe("createRequestScope", () => {
       getUser: expect.any(Function),
       getEmails: expect.any(Function),
     });
+    expect(scope.cradle.githubIdentity.createAuthorizationUrl("state", "https://devmentor.example/callback")).toContain("client_id=test-client");
+    await expect(scope.cradle.githubIdentity.exchangeCode("", "https://devmentor.example/callback")).rejects.toBeInstanceOf(ValidationError);
+    await expect(scope.cradle.githubIdentity.getUser("")).rejects.toBeInstanceOf(ValidationError);
+    await expect(scope.cradle.githubIdentity.getEmails("")).rejects.toBeInstanceOf(ValidationError);
     expect(scope.cradle.accountService).toBeInstanceOf(AccountService);
     expect(scope.cradle.passwordAuthService).toBeInstanceOf(PasswordAuthService);
     expect(scope.cradle.passwordHasher).toMatchObject({ hash: expect.any(Function), compare: expect.any(Function) });
@@ -112,14 +116,23 @@ describe("createRequestScope", () => {
     expect(scope.cradle.mailer).toMatchObject({ send: expect.any(Function) });
   });
 
-  it("fails closed when mail adapter configuration is unset", async () => {
+  it("allows login services to resolve without mail config but fails closed when mail is sent", async () => {
     delete process.env.MAILER_TRANSPORT;
+    delete process.env.GITHUB_CLIENT_ID;
+    delete process.env.GITHUB_CLIENT_SECRET;
+    vi.stubEnv("JWT_SECRET", "container-test-secret-long-enough-for-hs256");
     const { orm } = createFakeOrm();
     mocks.createOrm.mockResolvedValue(orm);
+    mocks.createUserRepository.mockReturnValue({ findByEmail: vi.fn().mockResolvedValue(null) });
     const scope = await createRequestScope();
-    expect(() => scope.cradle.mailer).toThrowError(
-      expect.objectContaining({ name: "ServiceUnavailableError", status: 503, message: "Required adapter configuration is missing: MAILER_TRANSPORT" }),
-    );
+    expect(scope.cradle.passwordAuthService).toBeInstanceOf(PasswordAuthService);
+    await expect(scope.cradle.passwordAuthService.authenticate("missing@example.test", "ignored password")).rejects.toBeInstanceOf(UnauthorizedError);
+    await expect(scope.cradle.passwordAuthService.confirmRegistration("invalid-token", "ignored password")).rejects.toBeInstanceOf(UnauthorizedError);
+    await expect(scope.cradle.mailer.send({ to: "ada@example.test", subject: "Confirm", text: "Link" })).rejects.toBeInstanceOf(ServiceUnavailableError);
+    expect(() => scope.cradle.githubIdentity.createAuthorizationUrl("state", "https://devmentor.example/callback")).toThrowError(ServiceUnavailableError);
+    await expect(scope.cradle.githubIdentity.exchangeCode("code", "https://devmentor.example/callback")).rejects.toBeInstanceOf(ServiceUnavailableError);
+    await expect(scope.cradle.githubIdentity.getUser("access-token")).rejects.toBeInstanceOf(ServiceUnavailableError);
+    await expect(scope.cradle.githubIdentity.getEmails("access-token")).rejects.toBeInstanceOf(ServiceUnavailableError);
   });
 });
 
