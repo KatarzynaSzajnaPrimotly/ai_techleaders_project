@@ -29,6 +29,7 @@ export interface NewUser {
 
 export interface PasswordAuthAccount {
   id: string;
+  email: string;
   role: StoredRole;
 }
 

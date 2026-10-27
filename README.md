@@ -101,7 +101,10 @@ message text before logging. Configure `TRUST_PROXY_HOPS` to the number
 of trusted proxies that append to `X-Forwarded-For`. Its unset default is `0`, which
 does not trust forwarded addresses and applies login limits by e-mail only. Production
 logs a warning when proxy hops are unset; never use a client-controlled leftmost
-forwarded value as the rate-limit IP.
+forwarded value as the rate-limit IP. Set `OPERATOR_EMAILS` to the founders' e-mail
+addresses separated by commas; values are trimmed and lower-cased, and the default
+is empty. An allowlisted mentee signs in with the operator role; an allowlisted mentor
+keeps the mentor role and cannot be granted mentor again.
 
 ## Testing and CI
 

@@ -25,7 +25,7 @@ function request(body: unknown, headers: Record<string, string> = {}): Request {
 }
 
 beforeEach(() => {
-  mocks.passwordAuthService.authenticate.mockReset().mockResolvedValue({ id: "user-1", role: "mentee" });
+  mocks.passwordAuthService.authenticate.mockReset().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentee" });
   mocks.rateLimiter.hit.mockReset().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
   vi.stubEnv("APP_URL", APP_URL);
   vi.stubEnv("JWT_SECRET", JWT_SECRET);
