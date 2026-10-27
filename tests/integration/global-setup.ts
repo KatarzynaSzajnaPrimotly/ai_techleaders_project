@@ -18,6 +18,8 @@ declare module "vitest" {
     databaseUrl: string;
     fakeServerUrl: string;
     jwtSecret: string;
+    operatorEmail: string;
+    listedMentorEmail: string;
   }
 }
 
@@ -76,6 +78,9 @@ export default async function setup(project: TestProject) {
     portReservation = await reservePort();
     const appUrl = `http://127.0.0.1:${portReservation.port}`;
     const jwtSecret = randomBytes(JWT_SECRET_BYTES).toString("base64url");
+    const identitySuffix = randomBytes(12).toString("hex");
+    const operatorEmail = `operator-${identitySuffix}@example.test`;
+    const listedMentorEmail = `mentor-operator-${identitySuffix}@example.test`;
     fakeServer = await startFakeExternalServer();
 
     let databaseUrl = process.env.INTEGRATION_DATABASE_URL;
@@ -90,6 +95,8 @@ export default async function setup(project: TestProject) {
       appUrl,
       fakeServerUrl: fakeServer.url,
       jwtSecret,
+      operatorEmail,
+      listedMentorEmail,
     });
     run("npm", ["run", "migration:up", "-w", "@devmentor/db"], env);
     if (!process.env.INTEGRATION_SKIP_BUILD) run("npm", ["run", "build"], env);
@@ -110,6 +117,8 @@ export default async function setup(project: TestProject) {
     project.provide("databaseUrl", databaseUrl);
     project.provide("fakeServerUrl", fakeServer.url);
     project.provide("jwtSecret", jwtSecret);
+    project.provide("operatorEmail", operatorEmail);
+    project.provide("listedMentorEmail", listedMentorEmail);
   } catch (error) {
     await stop();
     throw error;
