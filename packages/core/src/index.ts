@@ -20,6 +20,7 @@ export {
 export { parseWithSchema, readJsonBody } from "./http/validate";
 export { signPurposeToken, verifyPurposeToken, type PurposeToken } from "./http/tokens";
 export { absoluteUrl } from "./config/absolute-url";
+export { getGithubConfig, type GithubConfig } from "./config/github";
 export { enforceAccess, type Access } from "./http/access";
 export {
   apiHandler,
@@ -50,5 +51,16 @@ export type { MentorRepositoryPort } from "./services/mentors/mentor-repository.
 export { MentorService } from "./services/mentors/mentor.service";
 export type { User, NewUser, StoredRole } from "./services/auth/user.types";
 export type { UserRepositoryPort } from "./services/auth/user-repository.port";
+export { effectiveRole, issueSession, type IssuedSession } from "./services/auth/session-issuer";
+export type { GithubEmail, GithubIdentityPort, GithubUser } from "./services/auth/github-identity.port";
+export { createGithubIdentityAdapter, type GithubAdapterDependencies } from "./services/auth/adapters/github-identity.adapter";
+export {
+  clearOAuthStateCookie,
+  createOAuthState,
+  readOAuthStateCookie,
+  verifyOAuthState,
+  type OAuthStateClaims,
+  type OAuthStateIssue,
+} from "./services/auth/oauth-state";
 
 export { mentorCreateSchema, type MentorCreateInput } from "./validators";

@@ -21,6 +21,21 @@ describe("parseEnv", () => {
     });
   });
 
+  it("accepts optional GitHub credentials and URL overrides without making them required", () => {
+    expect(parseEnv({})).not.toHaveProperty("GITHUB_CLIENT_ID");
+    expect(parseEnv({
+      GITHUB_CLIENT_ID: "client-id",
+      GITHUB_CLIENT_SECRET: "client-secret",
+      GITHUB_OAUTH_BASE_URL: "http://127.0.0.1:4000",
+      GITHUB_API_BASE_URL: "http://127.0.0.1:4000",
+    })).toMatchObject({
+      GITHUB_CLIENT_ID: "client-id",
+      GITHUB_CLIENT_SECRET: "client-secret",
+      GITHUB_OAUTH_BASE_URL: "http://127.0.0.1:4000",
+      GITHUB_API_BASE_URL: "http://127.0.0.1:4000",
+    });
+  });
+
   it("rejects invalid values, naming the variables but never their values", () => {
     expect(() => parseEnv({ LOG_LEVEL: "loud", JWT_SECRET: "short" })).toThrowError(
       "Invalid environment variables: LOG_LEVEL, JWT_SECRET",

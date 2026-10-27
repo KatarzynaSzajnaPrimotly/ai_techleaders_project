@@ -90,7 +90,11 @@ npm run build   # use NODE_ENV=production if your shell sets NODE_ENV=developmen
 Authentication configuration is optional until the auth routes are enabled. API routes must declare `access` through `apiHandler` or `makeCrudRoute`; protected pages use `guardedPage`, while public pages use `publicPage`. The shared `enforceAccess` policy handles anonymous, authenticated, and role-restricted access. The mentors API and `/admin/mentors` are temporary E01-S03 exceptions.
 `JWT_SECRET` must be at least 32 characters. `ALLOW_INSECURE_HTTP=true` is a
 test-only setting for plain-HTTP integration tests; do not set it when `APP_URL`
-uses HTTPS.
+uses HTTPS. GitHub OAuth is configured with `GITHUB_CLIENT_ID` and
+`GITHUB_CLIENT_SECRET`; `GITHUB_OAUTH_BASE_URL` and `GITHUB_API_BASE_URL` default
+to `https://github.com` and `https://api.github.com` and can point to the local
+fake GitHub service in integration tests. Set `APP_URL` to the public application
+origin; it is used to build the OAuth callback and safe return URLs.
 
 ## Testing and CI
 
