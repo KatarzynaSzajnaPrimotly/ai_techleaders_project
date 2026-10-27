@@ -4,10 +4,11 @@ import { MentorHomeView } from "./mentor-view";
 
 describe("MentorHomeView", () => {
   it("renders a neutral mentor welcome in the role shell", () => {
-    render(<MentorHomeView session={{ userId: "user-2", role: "mentor" }} />);
+    render(<MentorHomeView name="mentor-login" session={{ userId: "user-2", role: "mentor" }} />);
     expect(screen.getByRole("heading", { name: "Welcome" })).toBeTruthy();
     expect(screen.getByText("You are signed in as a mentor.")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Sign out" })).toBeTruthy();
+    expect(screen.getByText("mentor-login")).toBeTruthy();
     expect(screen.queryByText(/become a mentor/i)).toBeNull();
   });
 });

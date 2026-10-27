@@ -1,13 +1,19 @@
-export type SignInError = "state" | "no-verified-email" | "unavailable";
+"use client";
+
+import { loginSchema } from "@devmentor/core/validators";
+import { PublicForm, apiCall } from "@devmentor/ui";
+
+export type SignInError = "state" | "no-verified-email" | "unavailable" | "session-expired";
 
 const errorMessages: Record<SignInError, string> = {
   state: "We couldn't verify the GitHub sign-in. Please try again.",
   "no-verified-email": "GitHub didn't share a verified e-mail address. Verify an e-mail address on GitHub and try again.",
   unavailable: "We couldn't sign you in with GitHub. Please try again.",
+  "session-expired": "Your session expired. Sign in to continue.",
 };
 
 export function getSignInErrorMessage(error: string | undefined): string | null {
-  if (error === "state" || error === "no-verified-email" || error === "unavailable") return errorMessages[error];
+  if (error === "state" || error === "no-verified-email" || error === "unavailable" || error === "session-expired") return errorMessages[error];
   if (error === undefined) return null;
   return errorMessages.unavailable;
 }
@@ -41,7 +47,16 @@ export function SignInView({
         </a>
         <div className="space-y-2 text-center">
           <p className="m-0 text-sm text-mentora-muted">Or use your e-mail</p>
-          <p className="m-0 text-sm text-mentora-muted" role="note">E-mail sign-in isn&apos;t available yet. Use GitHub for now.</p>
+          <PublicForm
+            schema={loginSchema}
+            fields={[{ name: "email", label: "E-mail", type: "email", autoComplete: "email" }, { name: "password", label: "Password", type: "password", autoComplete: "current-password" }]}
+            submitLabel="Sign in with e-mail"
+            onSubmit={(values) => apiCall<{ redirectTo: string }>("/api/auth/login", { method: "POST", body: { ...values, ...(returnTo ? { returnTo } : {}) }, onUnauthorized: "ignore" })}
+            onSuccess={(data) => { const target = data as { redirectTo: string }; window.location.assign(target.redirectTo); }}
+            onErrorMessage={(failure) => failure.status === 401 ? "Invalid credentials, or sign in with GitHub instead." : "We couldn't sign you in. Please try again."}
+            formNote={<p className="m-0 text-sm text-mentora-muted">Forgot your password? Password reset isn&apos;t available yet — sign in with GitHub or contact the DevMentor team at <a href="mailto:support@devmentor.test">support@devmentor.test</a>.</p>}
+          />
+          <p className="m-0 text-sm text-mentora-muted">New to DevMentor? <a href={`/register${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}>Create an account</a>.</p>
         </div>
       </section>
     </main>

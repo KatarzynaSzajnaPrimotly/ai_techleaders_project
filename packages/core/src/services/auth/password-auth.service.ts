@@ -22,6 +22,8 @@ export interface ConfirmRegistrationResult {
   returnTo?: string;
 }
 
+export type RegistrationPreview = { email: string; status: "ready" | "used" } | null;
+
 type PasswordAuthAccounts = Pick<AccountService, "findByEmail" | "createPasswordAccount" | "findForLogin">;
 
 function normalizeEmail(email: string): string {
@@ -116,5 +118,23 @@ export class PasswordAuthService {
     const validPassword = await this.passwordHasher.compare(password, passwordHash);
     if (!user || !user.passwordHash || !validPassword) throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
     return { id: user.id, role: user.role };
+  }
+
+  async inspectRegistrationToken(token: string): Promise<RegistrationPreview> {
+    let claims;
+    try {
+      claims = await verifyPurposeToken(token, REGISTRATION_TOKEN_PURPOSE, requireJwtSecret());
+    } catch {
+      return null;
+    }
+    const parsed = registerSchema.safeParse({ email: claims.email, displayName: claims.displayName });
+    if (!parsed.success || (claims.returnTo !== undefined && typeof claims.returnTo !== "string")) return null;
+    try {
+      if (claims.returnTo !== undefined) safeReturnTo(claims.returnTo, new URL(absoluteUrl("/")).origin);
+    } catch {
+      return null;
+    }
+    const existing = await this.accountService.findByEmail(parsed.data.email);
+    return { email: parsed.data.email, status: existing ? "used" : "ready" };
   }
 }

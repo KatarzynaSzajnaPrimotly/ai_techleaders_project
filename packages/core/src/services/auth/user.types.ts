@@ -42,6 +42,11 @@ export interface ExistingAccountLookup {
   githubId: string | null;
 }
 
+export interface RoleHomeProfile {
+  displayName: string | null;
+  githubLogin: string | null;
+}
+
 export interface NewPasswordAccount {
   email: string;
   emailVerifiedAt: Date;

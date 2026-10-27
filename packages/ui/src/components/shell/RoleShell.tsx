@@ -12,11 +12,17 @@ export interface RoleNavigationItem {
 
 export function navFor(role: ShellRole): RoleNavigationItem[] {
   switch (role) {
-    case "mentee": return [{ label: "Home", href: "/home" }];
-    case "mentor": return [{ label: "Home", href: "/mentor" }];
+    case "mentee": return [];
+    case "mentor": return [];
     case "operator": return [{ label: "Mentors", href: "/admin/mentors" }];
   }
 }
+
+const roleHome: Record<ShellRole, string> = {
+  mentee: "/home",
+  mentor: "/mentor",
+  operator: "/admin/mentors",
+};
 
 const roleLabel: Record<ShellRole, string> = { mentee: "Mentee", mentor: "Mentor", operator: "Operator" };
 
@@ -48,7 +54,7 @@ export function RoleShell({
   return (
     <div className="min-h-screen">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 sm:px-6">
-        <a className="font-semibold tracking-tight" href={navFor(role)[0].href}>DevMentor</a>
+        <a className="font-semibold tracking-tight" href={roleHome[role]}>DevMentor</a>
         <nav aria-label="Main navigation" className="flex items-center gap-4 text-sm">
           {navFor(role).map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
         </nav>

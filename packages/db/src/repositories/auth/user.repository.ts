@@ -15,6 +15,9 @@ function conflictOnUniqueViolation(error: unknown): never | void {
 
 export function createUserRepository(em: EntityManager): UserRepositoryPort {
   return {
+    async findById(userId): Promise<User | null> {
+      return em.findOne<User>(USER, { id: userId });
+    },
     async findByEmail(email): Promise<User | null> {
       return em.findOne<User>(USER, { email: email.trim().toLowerCase() });
     },

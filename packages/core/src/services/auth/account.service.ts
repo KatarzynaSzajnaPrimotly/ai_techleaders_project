@@ -1,7 +1,7 @@
 import { ConflictError, ForbiddenError } from "../../http/errors";
 import type { GithubIdentityPort, GithubUser } from "./github-identity.port";
 import type { UserRepositoryPort } from "./user-repository.port";
-import type { ExistingAccountLookup, LoginAccount, NewPasswordAccount, PasswordAuthAccount, User } from "./user.types";
+import type { ExistingAccountLookup, LoginAccount, NewPasswordAccount, PasswordAuthAccount, RoleHomeProfile, User } from "./user.types";
 
 const NO_VERIFIED_PRIMARY_EMAIL_MESSAGE = "GitHub account has no verified primary e-mail";
 const ACCOUNT_CANNOT_BE_LINKED_MESSAGE = "This account cannot be linked to GitHub";
@@ -50,6 +50,12 @@ export class AccountService {
     const user = await this.userRepository.findByEmail(email);
     if (!user) return null;
     return { id: user.id, email: user.email, githubId: user.githubId };
+  }
+
+  async findForRoleHome(userId: string): Promise<RoleHomeProfile | null> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) return null;
+    return { displayName: user.displayName, githubLogin: user.githubLogin };
   }
 
   async createPasswordAccount(input: NewPasswordAccount): Promise<PasswordAuthAccount> {

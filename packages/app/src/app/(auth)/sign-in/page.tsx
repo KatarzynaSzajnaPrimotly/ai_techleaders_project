@@ -10,7 +10,7 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 function asSignInError(value: string | undefined): SignInError | undefined {
-  if (value === "state" || value === "no-verified-email" || value === "unavailable") return value;
+  if (value === "state" || value === "no-verified-email" || value === "unavailable" || value === "session-expired") return value;
   if (value !== undefined) return "unavailable";
   return undefined;
 }

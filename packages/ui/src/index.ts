@@ -13,6 +13,7 @@ export { MentorCard, type MentorCardProps } from "./components/mentors/mentor-ca
 export type { ApiErrorBody, ApiFieldErrors, ApiResult } from "./backend/api/types";
 export { apiCall, apiCallOrThrow, ApiError, readJsonSafe, type ApiCallOptions } from "./backend/api/apiCall";
 export { CrudForm, type CrudField, type CrudFormProps } from "./backend/forms/CrudForm";
+export { PublicForm, type PublicField, type PublicFieldType, type PublicFormProps } from "./frontend/forms/PublicForm";
 export {
   DataTable,
   type DataTableColumn,

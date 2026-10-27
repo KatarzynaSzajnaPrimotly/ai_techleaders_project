@@ -9,17 +9,17 @@ afterEach(() => { apiCall.mockReset(); vi.unstubAllGlobals(); });
 
 describe("navFor", () => {
   it.each([
-    ["mentee", [{ label: "Home", href: "/home" }]],
-    ["mentor", [{ label: "Home", href: "/mentor" }]],
+    ["mentee", []],
+    ["mentor", []],
     ["operator", [{ label: "Mentors", href: "/admin/mentors" }]],
   ] as const)("returns %s navigation", (role, items) => expect(navFor(role)).toEqual(items));
 });
 
 describe("RoleShell", () => {
-  it("shows DevMentor identity, role navigation, role badge and optional badge content", () => {
+  it("shows DevMentor identity, an empty mentor menu, role badge and optional badge content", () => {
     render(<RoleShell name="Ari" role="mentor" onSignedOut={() => undefined} badge={<span>Verified</span>}><h1>Dashboard</h1></RoleShell>);
     expect((screen.getByRole("link", { name: "DevMentor" }) as HTMLAnchorElement).href).toContain("/mentor");
-    expect(screen.getByRole("navigation", { name: "Main navigation" }).textContent).toContain("Home");
+    expect(screen.getByRole("navigation", { name: "Main navigation" }).textContent).toBe("");
     expect(screen.getByText("Ari")).toBeTruthy();
     expect(screen.getByText("Mentor")).toBeTruthy();
     expect(screen.getByText("Verified")).toBeTruthy();

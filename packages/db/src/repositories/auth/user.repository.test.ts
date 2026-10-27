@@ -15,6 +15,13 @@ function createEm(overrides: Record<string, unknown> = {}) {
 const asEm = (em: ReturnType<typeof createEm>) => em as unknown as Parameters<typeof createUserRepository>[0];
 
 describe("createUserRepository", () => {
+  it("finds a user by id", async () => {
+    const user = { id: "u-1" };
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(user) });
+    await expect(createUserRepository(asEm(em)).findById("u-1")).resolves.toBe(user);
+    expect(em.findOne).toHaveBeenCalledWith("User", { id: "u-1" });
+  });
+
   it("finds users by normalized e-mail", async () => {
     const user = { id: "u-1" };
     const em = createEm({ findOne: vi.fn().mockResolvedValue(user) });

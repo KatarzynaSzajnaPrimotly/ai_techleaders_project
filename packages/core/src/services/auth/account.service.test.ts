@@ -36,6 +36,7 @@ function user(overrides: Partial<User> = {}): User {
 
 function setup() {
   const userRepository = {
+    findById: vi.fn<UserRepositoryPort["findById"]>().mockResolvedValue(null),
     findByEmail: vi.fn<UserRepositoryPort["findByEmail"]>().mockResolvedValue(null),
     findByGithubId: vi.fn<UserRepositoryPort["findByGithubId"]>().mockResolvedValue(null),
     create: vi.fn<UserRepositoryPort["create"]>(),
@@ -248,6 +249,21 @@ describe("AccountService.findOrCreateFromGithub", () => {
 });
 
 describe("AccountService password account lookups", () => {
+  it("returns only the display name and GitHub login for a role home", async () => {
+    const existing = user({ passwordHash: "$2b$12$sensitive", githubLogin: "ada-lovelace" });
+    const { service, userRepository } = setup();
+    userRepository.findById.mockResolvedValue(existing);
+
+    await expect(service.findForRoleHome(existing.id)).resolves.toEqual({ displayName: "Ada", githubLogin: "ada-lovelace" });
+    expect(userRepository.findById).toHaveBeenCalledWith(existing.id);
+  });
+
+  it("returns null when a role home account lookup misses", async () => {
+    const { service, userRepository } = setup();
+    userRepository.findById.mockResolvedValue(null);
+    await expect(service.findForRoleHome("missing")).resolves.toBeNull();
+  });
+
   it("returns an allowlisted e-mail lookup without the password hash", async () => {
     const existing = user({ passwordHash: "$2b$12$sensitive" });
     const { service, userRepository } = setup();
