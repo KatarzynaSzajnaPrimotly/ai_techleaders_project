@@ -50,7 +50,7 @@ Manual checkpoint: integration tests exercised the local fake GitHub flow, cance
 ### Phase 6 — E01 S01b: sign-in and role homes
 
 - [x] **F6.1** Implement page guards/public pages, session reader, role navigation/shell, unauthorized API-call behavior, and response headers; reuse the `homeFor` helper added in F5.6 for callback redirects.
-- [ ] **F6.2** Add the working GitHub-first sign-in page, mentee and mentor homes, sign-out, page tests, and browser integration checks.
+- [x] **F6.2** Add the working GitHub-first sign-in page, mentee and mentor homes, sign-out, page tests, and browser integration checks.
 
 Manual checkpoint: open `/sign-in`, complete the fake GitHub flow, verify mentee and mentor destinations, reject anonymous/wrong-role visits, and sign out.
 
@@ -80,6 +80,6 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Phase 3: F3.1 commit `6fda454`; F3.2 commit `3938132`. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; browser preview unavailable. The integration suite later passed on a disposable DB during F5.3 (17 tests).
 - Phase 4: F4.1 commit `01b512a`; coverage is 100% (314 tests), full typecheck and focused lint pass; browser manual checkpoint unavailable.
 - Phase 5: F5.1 commit `57ac13c`; F5.2 commit `9e4432b`; F5.3 commit `da003bf`; F5.4 commit `10f777e`; F5.5 commit `c221f19`; F5.6 commit `6b58f7f`. Coverage 100% (501 tests), full typecheck, focused ESLint, diff check, and production build pass. Full integration suite (29 tests) passed on a disposable database. Interactive browser checkpoint remains unavailable.
-- Phase 6: F6.1 commit `4901eb7`. Coverage 100% (522 tests), typecheck and production build pass, and 30 integration tests pass on a disposable database. Scoped ESLint has 0 errors and one warning for `window.location.assign`; full lint remains blocked by unrelated generated and untracked content. Browser manual checkpoint remains unavailable; user requested continuing.
+- Phase 6: F6.1 commit `106bb8e`; F6.2 implemented and verified; commit pending. Coverage 100% (543 tests), typecheck and production build pass, and 37 integration tests pass on an isolated temporary PostgreSQL 17 cluster. Scoped ESLint has 0 errors and one warning for `window.location.assign`; full lint remains blocked by unrelated generated and untracked content. Interactive browser checkpoint remains unavailable; user requested continuing.
 - Phase 7: pending.
 - Phase 8: pending.

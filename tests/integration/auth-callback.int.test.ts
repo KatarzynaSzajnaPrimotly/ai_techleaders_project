@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, inject, it } from "vitest";
-import { verifySession } from "../../packages/core/src/http/auth";
-import { createUser } from "./helpers/identity";
+import { SESSION_COOKIE, verifySession } from "../../packages/core/src/http/auth";
+import { createUser, mintSessionCookie } from "./helpers/identity";
 import { runConcurrently } from "./helpers/concurrency";
 
 const baseUrl = inject("baseUrl");
@@ -75,6 +75,50 @@ describe("GitHub OAuth callback integration", () => {
       expect(response.headers.get("referrer-policy")).toBe("no-referrer");
       expect(response.headers.get("cache-control")).toContain("no-store");
     }
+  });
+
+  it("redirects anonymous visitors from both role homes with 307", async () => {
+    for (const [path, returnTo] of [["/home", "/home"], ["/mentor", "/mentor"]]) {
+      const response = await fetch(new URL(path, baseUrl), { redirect: "manual" });
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    }
+  });
+
+  it.each([
+    ["mentee", "/home", "mentor", "/mentor"],
+    ["mentor", "/mentor", "mentee", "/home"],
+  ] as const)("allows the %s role on %s and redirects the wrong role", async (_role, ownPath, wrongRole, wrongHome) => {
+    const role = _role;
+    const ownCookie = await mintSessionCookie({ userId: `page-${role}-${unique}`, role }, jwtSecret);
+    const ownResponse = await fetch(new URL(ownPath, baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${ownCookie}` }, redirect: "manual" });
+    expect(ownResponse.status).toBe(200);
+
+    const wrongCookie = await mintSessionCookie({ userId: `page-${wrongRole}-${unique}`, role: wrongRole }, jwtSecret);
+    const wrongResponse = await fetch(new URL(ownPath, baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${wrongCookie}` }, redirect: "manual" });
+    expect(wrongResponse.status).toBe(307);
+    expect(wrongResponse.headers.get("location")).toBe(wrongHome);
+  });
+
+  it.each([
+    ["mentee", "/home"],
+    ["mentor", "/mentor"],
+    ["operator", "/admin/mentors"],
+  ] as const)("redirects a signed-in %s away from sign-in to %s", async (role, home) => {
+    const token = await mintSessionCookie({ userId: `signin-${role}-${unique}`, role }, jwtSecret);
+    const response = await fetch(new URL("/sign-in", baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${token}` }, redirect: "manual" });
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(home);
+  });
+
+  it("renders cancellation and generic GitHub error messages", async () => {
+    const cancelled = await fetch(new URL("/sign-in?cancelled=1", baseUrl));
+    expect(cancelled.status).toBe(200);
+    expect(await cancelled.text()).toContain("You cancelled the GitHub sign-in");
+
+    const failed = await fetch(new URL("/sign-in?error=unavailable", baseUrl));
+    expect(failed.status).toBe(200);
+    expect(await failed.text()).toContain("We couldn&#x27;t sign you in with GitHub");
   });
 
   it("completes the callback, creates a mentee session, and keeps both Set-Cookie headers separate", async () => {
