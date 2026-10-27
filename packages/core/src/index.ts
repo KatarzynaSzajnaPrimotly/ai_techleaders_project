@@ -52,6 +52,7 @@ export { MentorService } from "./services/mentors/mentor.service";
 export type { User, NewUser, StoredRole } from "./services/auth/user.types";
 export type { UserRepositoryPort } from "./services/auth/user-repository.port";
 export { effectiveRole, issueSession, type IssuedSession } from "./services/auth/session-issuer";
+export { AccountService, NoVerifiedGithubEmailError } from "./services/auth/account.service";
 export type { GithubEmail, GithubIdentityPort, GithubUser } from "./services/auth/github-identity.port";
 export { createGithubIdentityAdapter, type GithubAdapterDependencies } from "./services/auth/adapters/github-identity.adapter";
 export {

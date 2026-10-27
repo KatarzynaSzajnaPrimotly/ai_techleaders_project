@@ -1,12 +1,22 @@
 import { asClass, asFunction, asValue, createContainer, InjectionMode, type AwilixContainer } from "awilix";
-import { MentorService, type MentorRepositoryPort } from "@devmentor/core";
-import { createMentorRepository, createOrm, type Orm } from "@devmentor/db";
+import {
+  AccountService,
+  MentorService,
+  createGithubIdentityAdapter,
+  type GithubIdentityPort,
+  type MentorRepositoryPort,
+  type UserRepositoryPort,
+} from "@devmentor/core";
+import { createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
 
 export interface Cradle {
   orm: Orm;
   em: Orm["em"];
   mentorRepository: MentorRepositoryPort;
   mentorService: MentorService;
+  userRepository: UserRepositoryPort;
+  githubIdentity: GithubIdentityPort;
+  accountService: AccountService;
 }
 
 const globalForContainer = globalThis as unknown as {
@@ -29,6 +39,9 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     em: asFunction(({ orm }: Cradle) => orm.em.fork()).scoped(),
     mentorRepository: asFunction(({ em }: Cradle) => createMentorRepository(em)).scoped(),
     mentorService: asClass(MentorService).scoped(),
+    userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
+    githubIdentity: asFunction(() => createGithubIdentityAdapter()).scoped(),
+    accountService: asClass(AccountService).scoped(),
   });
   return scope;
 }

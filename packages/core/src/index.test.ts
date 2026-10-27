@@ -29,6 +29,8 @@ describe("@devmentor/core public API", () => {
     "verifyPurposeToken",
     "effectiveRole",
     "issueSession",
+    "AccountService",
+    "NoVerifiedGithubEmailError",
     "createGithubIdentityAdapter",
     "createOAuthState",
     "verifyOAuthState",

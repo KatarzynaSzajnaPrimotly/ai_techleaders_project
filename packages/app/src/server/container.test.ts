@@ -1,11 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MentorService } from "@devmentor/core";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AccountService, MentorService } from "@devmentor/core";
 
-const mocks = vi.hoisted(() => ({ createOrm: vi.fn(), createMentorRepository: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  createOrm: vi.fn(),
+  createMentorRepository: vi.fn(),
+  createUserRepository: vi.fn(),
+}));
 
 vi.mock("@devmentor/db", () => ({
   createOrm: mocks.createOrm,
   createMentorRepository: mocks.createMentorRepository,
+  createUserRepository: mocks.createUserRepository,
 }));
 
 import { createRequestScope, withScope } from "./container";
@@ -21,7 +26,10 @@ beforeEach(() => {
   delete globalForContainer.devmentorContainer;
   mocks.createOrm.mockReset();
   mocks.createMentorRepository.mockReset();
+  mocks.createUserRepository.mockReset();
 });
+
+afterEach(() => vi.unstubAllEnvs());
 
 describe("createRequestScope", () => {
   it("builds the root container once and reuses it for later scopes", async () => {
@@ -63,6 +71,33 @@ describe("createRequestScope", () => {
     expect(scope.cradle.mentorService).toBeInstanceOf(MentorService);
     await expect(scope.cradle.mentorService.list()).resolves.toEqual([]);
     expect(repository.findAll).toHaveBeenCalledTimes(1);
+  });
+
+  it("registers the auth repository, GitHub adapter, and account service in the request scope", async () => {
+    vi.stubEnv("GITHUB_CLIENT_ID", "test-client");
+    vi.stubEnv("GITHUB_CLIENT_SECRET", "test-secret");
+    const { orm } = createFakeOrm();
+    const userRepository = {
+      findByEmail: vi.fn(),
+      findByGithubId: vi.fn(),
+      create: vi.fn(),
+      linkGithub: vi.fn(),
+      grantRole: vi.fn(),
+    };
+    mocks.createOrm.mockResolvedValue(orm);
+    mocks.createUserRepository.mockReturnValue(userRepository);
+
+    const scope = await createRequestScope();
+
+    expect(scope.cradle.userRepository).toBe(userRepository);
+    expect(mocks.createUserRepository).toHaveBeenCalledWith(scope.cradle.em);
+    expect(scope.cradle.githubIdentity).toMatchObject({
+      createAuthorizationUrl: expect.any(Function),
+      exchangeCode: expect.any(Function),
+      getUser: expect.any(Function),
+      getEmails: expect.any(Function),
+    });
+    expect(scope.cradle.accountService).toBeInstanceOf(AccountService);
   });
 });
 
