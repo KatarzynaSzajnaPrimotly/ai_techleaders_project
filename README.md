@@ -47,8 +47,8 @@ Pages and routes (all in `packages/app`):
 |---|---|
 | `/` | Starter home page (original behavior preserved) |
 | `/mentors` | Public page, Tailwind (`MentorCard` from `ui`) |
-| `/admin/mentors` | Admin page: shadcn/ui components, list through `apiCall` + `DataTable`, create through `CrudForm` |
-| `/api/mentors` | Public `GET` list and `POST` create (temporary until E01-S03; see the dated access-contract exception). Invalid input returns 400 with field errors, duplicate email returns 409, and a state-changing request without CSRF returns 403. Built with `makeCrudRoute({ access: "public", ... })`; resolves `MentorService` from Awilix |
+| `/admin/mentors` | Operator-only admin page: shadcn/ui components, list through `apiCall` + `DataTable`, create through `CrudForm` |
+| `/api/mentors` | Operator-only `GET` list and `POST` create. Anonymous requests return 401; mentee and mentor requests return 403. Invalid input returns 400 with field errors, duplicate email returns 409, and a state-changing request without CSRF returns 403. Built with `makeCrudRoute({ access: { roles: ["operator"] }, ... })`; resolves `MentorService` from Awilix |
 
 Tailwind 4 is configured in `app` (no preflight, so the starter page is unchanged); `@source` covers `packages/ui`.
 shadcn/ui components are vendored in `packages/ui/src/components`.
@@ -63,12 +63,13 @@ The migration scripts read the process environment only; the Next.js app also re
 npm run migration:up -w @devmentor/db
 ```
 
-Sample endpoint using the container, service and repository: `GET`/`POST /api/mentors`. Responses use one envelope,
+Sample endpoint using the container, service and repository: `GET`/`POST /api/mentors` (requires an operator session cookie). Responses use one envelope,
 `{ "ok": true, "data": ... }` or `{ "ok": false, "error": { "code", "message", "fieldErrors"? } }`, and state-changing
 requests must send the header `x-devmentor-csrf: 1` (the `apiCall` helper in `ui` always does):
 
 ```bash
-curl -X POST localhost:3000/api/mentors -H 'content-type: application/json' -H 'x-devmentor-csrf: 1' \
+curl -X POST localhost:3000/api/mentors -b "devmentor_session=$OPERATOR_SESSION" \
+  -H 'content-type: application/json' -H 'x-devmentor-csrf: 1' \
   -d '{"name":"Ada Lovelace","email":"ada@example.com"}'
 ```
 
@@ -87,7 +88,7 @@ npm run test:integration # Testcontainers PostgreSQL + agent-browser (needs Dock
 npm run build   # use NODE_ENV=production if your shell sets NODE_ENV=development
 ```
 
-Authentication configuration is optional until the auth routes are enabled. API routes must declare `access` through `apiHandler` or `makeCrudRoute`; protected pages use `guardedPage`, while public pages use `publicPage`. The shared `enforceAccess` policy handles anonymous, authenticated, and role-restricted access. The mentors API and `/admin/mentors` are temporary E01-S03 exceptions.
+Authentication routes are available. Configure `JWT_SECRET` and the provider settings described below to enable sign-in. API routes must declare `access` through `apiHandler` or `makeCrudRoute`; protected pages use `guardedPage`, while public pages use `publicPage`. The shared `enforceAccess` policy handles anonymous, authenticated, and role-restricted access. The mentors API and `/admin/mentors` require the operator role; configure founder addresses with `OPERATOR_EMAILS`.
 `JWT_SECRET` must be at least 32 characters. `ALLOW_INSECURE_HTTP=true` is a
 test-only setting for plain-HTTP integration tests; do not set it when `APP_URL`
 uses HTTPS. GitHub OAuth is configured with `GITHUB_CLIENT_ID` and

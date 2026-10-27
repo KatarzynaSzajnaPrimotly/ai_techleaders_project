@@ -30,12 +30,12 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 
 ## Current state
 
-- F8.2 is implemented and verified; its task commit is pending. Beginning F8.3.
+- F8.3 is implemented and verified; its task commit is pending. The auth spec is ready to move to `implemented/`.
 - Unrelated pre-existing untracked user files are being left untouched.
 
 ## Follow-ups
 
-- Continue with F8.3; commit the task separately.
+- Spec implementation is complete; preserve the task commits and report remaining environment limitations.
 - Complete later phases and record each manual checkpoint. Browser-only checkpoints may remain unavailable while preview routing returns 404.
 - Move the spec to `.ai/specs/implemented/` only after all specified work has shipped.
 
@@ -44,3 +44,5 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 - F8.1: added normalized `OPERATOR_EMAILS` configuration, derived operator role for allowlisted mentees at session issuance, preserved mentor role for allowlisted mentors, and blocked granting mentor to listed addresses. Documented env config and tested all stored/effective role combinations plus `grantRole`. Verification: 97 focused tests, 735 full coverage tests at 100% for all metrics, typecheck, focused ESLint, production build, and `git diff --check` pass. Commit pending.
 
 - F8.2: guarded GET/POST `/api/mentors` and `/admin/mentors` for operators; added `/admin` layout with the operator RoleShell while keeping authorization on the page; removed both temporary access-contract exceptions and added an empty-list assertion; covered absence of mentor-join links across roles. Existing RoleShell already provided its operator Mentors nav. Verification: 39 focused tests, 748 full coverage tests at 100%, focused ESLint, typecheck, production build, and diff check passed. Operator API and redirect integration scenarios remain in F8.3 as specified. Commit pending.
+
+- F8.3: added `roles.int.test.ts` and updated the mentors integration tests/harness for operator cookies and unique allowlist addresses. Coverage includes anonymous 401, mentee/mentor 403, operator 201, 307 page redirects, allowlisted GitHub mentee becoming operator, and listed GitHub mentor remaining mentor. Updated `AGENTS.md`, `README.md`, `CODE_REVIEW.md`, closed Q22 as `mentee` in the product brief, and updated GitHub issues #36–#38 bodies with implementation status and shipped behavior. Verification: integration suite 51/51 on disposable PostgreSQL 17; coverage 748 tests at 100% all metrics; typecheck, focused ESLint, production build, `npm audit` (0 vulnerabilities) and diff check pass. Full lint is blocked by 451 errors in generated `packages/ui/storybook-static` and unrelated untracked `ai-techleaders-project-after-lesson-06`; temporary database/cluster/snapshot cleaned. Commit pending.

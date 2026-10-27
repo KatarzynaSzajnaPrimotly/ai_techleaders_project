@@ -9,6 +9,8 @@ describe("integration harness environment", () => {
       appUrl: "http://127.0.0.1:4123",
       fakeServerUrl: "http://127.0.0.1:4234",
       jwtSecret: "random-test-secret",
+      operatorEmail: "operator@example.test",
+      listedMentorEmail: "mentor@example.test",
     })).toEqual({
       PATH: "/usr/bin",
       CUSTOM_SETTING: "keep",
@@ -22,6 +24,7 @@ describe("integration harness environment", () => {
       GITHUB_API_BASE_URL: "http://127.0.0.1:4234",
       MAILER_TRANSPORT: "log",
       TRUST_PROXY_HOPS: "1",
+      OPERATOR_EMAILS: "operator@example.test,mentor@example.test",
       ALLOW_INSECURE_HTTP: "true",
     });
   });

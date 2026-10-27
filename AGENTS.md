@@ -103,9 +103,8 @@ The rules agents most often need:
   `{ roles: [...] }`; role checks happen server-side and fail closed. Pages
   use `guardedPage({ path, access }, render)` or `publicPage(...)`. For a configured state-changing API method, CSRF is
   checked before access; an unconfigured CRUD method returns 405 before either check.
-- Known gap until E01-S03: `GET/POST /api/mentors` declares `access: "public"` and `/admin/mentors` remains unguarded;
-  both have dated exceptions in `packages/app/src/server/access-contract.test.ts`. Do not copy this exception. The first
-  protected feature declares its role with `access: { roles: [...] }` / `guardedPage` before touching services.
+- `GET/POST /api/mentors` and `/admin/mentors` are operator-only. Their role checks use `access: { roles: ["operator"] }`
+  and `guardedPage`; do not expose mentor administration publicly. The public `/mentors` directory remains a separate surface.
 
 ## Conventions
 
