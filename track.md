@@ -18,7 +18,7 @@ Manual checkpoint: the application still starts; public mentor reads still work 
 
 ### Phase 2 — Foundations A2: access policy
 
-- [ ] **F2.1** Implement `Access` and `enforceAccess`, including lazy secret reads and the public, authenticated, and role branches.
+- [x] **F2.1** Implement `Access` and `enforceAccess`, including lazy secret reads and the public, authenticated, and role branches.
 - [ ] **F2.2** Require declared access in `apiHandler` and `makeCrudRoute`; pass the verified session to handlers; add navigation error mapping; declare the mentors API public with an E01-S03 note; update callers and tests.
 
 Manual checkpoint: `GET /api/mentors` remains public and returns the API envelope; a small temporary/unit-driven check covers 401, 403, CSRF, 405, and navigation errors.
@@ -75,7 +75,7 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 ## Commit and manual test log
 
 - Planning: pending initial commit.
-- Phase 1: implementation complete; manual checkpoint pending.
+- Phase 1: implementation complete; manual preview unavailable (port forwarding returns 404); user requested to continue.
 - Phase 2: pending.
 - Phase 3: pending.
 - Phase 4: pending.

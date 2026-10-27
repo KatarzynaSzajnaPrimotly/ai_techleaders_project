@@ -4,7 +4,6 @@ import {
   assertOwns,
   buildSessionCookie,
   clearSessionCookie,
-  requireRole,
   requireSession,
   SESSION_COOKIE,
   SESSION_TTL_SECONDS,
@@ -108,11 +107,6 @@ describe("authorization helpers", () => {
     expect(isRole("operator")).toBe(true);
     expect(isRole("admin")).toBe(false);
     expect(isRole(undefined)).toBe(false);
-  });
-
-  it("requireRole allows a matching role and denies another", () => {
-    expect(() => requireRole(session, "mentor")).not.toThrow();
-    expect(() => requireRole(session, "admin")).toThrowError(expect.objectContaining({ status: 403 }));
   });
 
   it("assertOwns allows only the owner and fails closed otherwise", () => {

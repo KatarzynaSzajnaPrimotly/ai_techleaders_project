@@ -56,8 +56,8 @@ export async function requireSession(request: Request, secret: string = requireJ
   return verifySession(token, secret);
 }
 
-export function requireRole(session: Session, role: string): void {
-  if (session.role !== role) throw new ForbiddenError();
+export function hasSessionCookie(request: Request): boolean {
+  return readCookie(request.headers.get("cookie"), SESSION_COOKIE) !== undefined;
 }
 
 // Fails closed: a missing or different owner id is a denial, never a best-effort allow.

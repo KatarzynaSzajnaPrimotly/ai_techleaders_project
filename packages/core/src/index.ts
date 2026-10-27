@@ -18,6 +18,7 @@ export {
   type FieldErrors,
 } from "./http/errors";
 export { parseWithSchema, readJsonBody } from "./http/validate";
+export { enforceAccess, type Access } from "./http/access";
 export {
   apiHandler,
   created,
@@ -33,8 +34,6 @@ export {
   assertOwns,
   buildSessionCookie,
   clearSessionCookie,
-  requireRole,
-  requireSession,
   isRole,
   signSession,
   verifySession,
