@@ -28,24 +28,7 @@ interface Exception {
   expected: AccessDeclaration;
 }
 
-// E01-S03 removes these temporary public surfaces. Keep the date and owner visible
-// so the contract cannot silently turn a known gap into a permanent exception.
-const EXCEPTIONS: readonly Exception[] = [
-  {
-    path: "admin/mentors/page.tsx",
-    recordedOn: "2026-10-27",
-    until: "E01-S03",
-    reason: "The admin page remains public until operator sign-in and page guards ship.",
-    expected: { kind: "missing", roles: [] },
-  },
-  {
-    path: "api/mentors/route.ts",
-    recordedOn: "2026-10-27",
-    until: "E01-S03",
-    reason: "The mentor CRUD API remains public until operator sign-in and API guards ship.",
-    expected: { kind: "public", roles: [] },
-  },
-];
+const EXCEPTIONS: readonly Exception[] = [];
 
 function sourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -151,7 +134,7 @@ function accessUses(text: string, fileName: string): AccessUse[] {
 }
 
 function requiredRoles(path: string): string[] | undefined {
-  if (path.startsWith("admin/") || path.startsWith("api/operator/")) return ["operator"];
+  if (path.startsWith("admin/") || path.startsWith("api/operator/") || path === "api/mentors/route.ts") return ["operator"];
   if (path.startsWith("(mentor)/")) return ["mentor"];
   if (path.startsWith("(mentee)/")) return ["mentee"];
   return undefined;
@@ -253,25 +236,8 @@ describe("access contract", () => {
     );
   });
 
-  it("keeps only the named, dated E01-S03 exceptions with source comments", () => {
-    expect(EXCEPTIONS.map(({ path, recordedOn, until, reason }) => ({ path, recordedOn, until, reason }))).toEqual([
-      {
-        path: "admin/mentors/page.tsx",
-        recordedOn: "2026-10-27",
-        until: "E01-S03",
-        reason: "The admin page remains public until operator sign-in and page guards ship.",
-      },
-      {
-        path: "api/mentors/route.ts",
-        recordedOn: "2026-10-27",
-        until: "E01-S03",
-        reason: "The mentor CRUD API remains public until operator sign-in and API guards ship.",
-      },
-    ]);
-    for (const exception of EXCEPTIONS) {
-      const text = readFileSync(join(appRoot, exception.path), "utf8");
-      expect(text).toContain(exception.until);
-    }
+  it("has no temporary access exceptions", () => {
+    expect(EXCEPTIONS).toEqual([]);
   });
 
   it("maps protected route paths to their required role", () => {
@@ -279,7 +245,15 @@ describe("access contract", () => {
     expect(requiredRoles("api/operator/reports/route.ts")).toEqual(["operator"]);
     expect(requiredRoles("(mentor)/home/page.tsx")).toEqual(["mentor"]);
     expect(requiredRoles("(mentee)/home/page.tsx")).toEqual(["mentee"]);
-    expect(requiredRoles("api/mentors/route.ts")).toBeUndefined();
+    expect(requiredRoles("api/mentors/route.ts")).toEqual(["operator"]);
+  });
+
+  it("does not expose a become-mentor route or link in role navigation", () => {
+    const pages = sourceFiles(appRoot).filter((path) => path.endsWith(`${sep}page.tsx`));
+    expect(pages.some((path) => /(?:become|join).*mentor|mentor.*(?:become|join)/i.test(normalizedPath(path)))).toBe(false);
+    const roleShell = readFileSync(join(process.cwd(), "packages/ui/src/components/shell/RoleShell.tsx"), "utf8");
+    expect(roleShell).not.toMatch(/become a mentor/i);
+    expect(roleShell).not.toMatch(/href=["']\/mentor\/(?:join|become)/i);
   });
 
   it("recognizes aliased APIs and local wrapper aliases", () => {
