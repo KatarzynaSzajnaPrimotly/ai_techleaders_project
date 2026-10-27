@@ -40,7 +40,7 @@ Manual checkpoint: `CrudForm`'s unchanged tests and new `useFormCore` behavior t
 
 - [x] **F5.1** Build the integration test kit core: fake external server/control API, signed identity, browser cookie helper, concurrency helper, migration helper, and harness environment.
 - [x] **F5.2** Add `absoluteUrl`, purpose-tagged tokens, and `safeReturnTo` with security and boundary tests.
-- [ ] **F5.3** Add the generated `users` migration, entity, repository port/types and repository; verify up/down/up and duplicate/link behavior.
+- [x] **F5.3** Add the generated `users` migration, entity, repository port/types and repository; verify up/down/up and duplicate/link behavior.
 - [ ] **F5.4** Add GitHub config, session issuer, GitHub identity port/adapter, OAuth state helper, and their unit tests.
 - [ ] **F5.5** Implement `AccountService.findOrCreateFromGithub`, register the services in Awilix, and test verified-email linking and concurrent first sign-in.
 - [ ] **F5.6** Implement GitHub start/callback and logout routes, typed navigation errors, route tests, and the end-to-end GitHub callback tests.
@@ -77,9 +77,9 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Planning: pending initial commit.
 - Phase 1: implementation complete; manual preview unavailable (port forwarding returns 404); user requested to continue.
 - Phase 2: F2.1 commit `7fb7323`; F2.2 commit `9971172`; local API smoke test passed; browser manual checkpoint unavailable as noted above.
-- Phase 3: F3.1 commit `6fda454`; F3.2 commit `3938132`. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; integration setup could not start (no container runtime); browser preview unavailable.
+- Phase 3: F3.1 commit `6fda454`; F3.2 commit `3938132`. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; browser preview unavailable. The integration suite later passed on a disposable DB during F5.3 (17 tests).
 - Phase 4: F4.1 commit `01b512a`; coverage is 100% (314 tests), full typecheck and focused lint pass; browser manual checkpoint unavailable.
-- Phase 5: F5.1 commit `57ac13c`; F5.2 commit pending. Full coverage 100% (382 tests), full typecheck and focused ESLint pass. Integration setup cannot run in this sandbox without a container runtime.
+- Phase 5: F5.1 commit `57ac13c`; F5.2 commit `9e4432b`; F5.3 commit pending. Coverage 100% (395 tests), full typecheck, focused ESLint, and diff check pass. The migration `up/down/up` cycle and full integration suite (17 tests) passed on disposable databases. Browser preview remains unavailable.
 - Phase 6: pending.
 - Phase 7: pending.
 - Phase 8: pending.
