@@ -7,6 +7,10 @@ export const envSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   JWT_SECRET: z.string().min(MIN_JWT_SECRET_LENGTH).optional(),
   ALLOW_INSECURE_HTTP: z.enum(["true", "false"]).transform((value) => value === "true").optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GITHUB_OAUTH_BASE_URL: z.string().optional(),
+  GITHUB_API_BASE_URL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
