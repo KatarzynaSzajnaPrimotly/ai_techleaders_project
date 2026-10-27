@@ -12,7 +12,8 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 - F2.2: required declared access in API handlers and CRUD routes, forwarded verified sessions, added navigation error mapping, and declared mentor reads public pending E01-S03. Commit: `3f73c2b`.
 - Coverage is at 100% (297 tests); core and app typechecks, focused ESLint, and diff checks passed for F2.2.
 - Local `GET /api/mentors` on port 3000 returned 200 with the expected API envelope. The user’s browser still gets 404 from the preview mapping, and asked to continue without browser preview.
-- F3.1: added the source-based access contract for API routes and protected page paths, with dated E01-S03 exceptions for the admin mentors page and mentors API. Tests cover imported/local aliases, wrappers, missing declarations, page-role mapping, and TSX parsing. Focused test (7), app typecheck, focused ESLint, and diff check passed; commit pending.
+- F3.1: added the source-based access contract for API routes and protected page paths, with dated E01-S03 exceptions for the admin mentors page and mentors API. Tests cover imported/local aliases, wrappers, missing declarations, page-role mapping, and TSX parsing. Focused test (7), app typecheck, focused ESLint, and diff check passed. Commit: `6fda454`.
+- F3.2: updated `AGENTS.md`, `.ai/specs/engineering-standards.md`, and `README.md`. Updated GitHub issue bodies #33, #36, #38–#43, and #45–#55; #37 needed no change. Replaced obsolete API references, role terminology, and 422 status claims. Verification: 304 tests at 100% coverage, typecheck and production build pass. Full lint currently reports errors in generated Storybook output and the unrelated untracked lesson-06 backup; integration setup cannot find a container runtime and this checkout has no integration test files. Browser preview remains unavailable to the user.
 
 ## Current state
 

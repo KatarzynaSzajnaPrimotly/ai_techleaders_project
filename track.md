@@ -26,9 +26,9 @@ Manual checkpoint: user could not access the preview through port 3000 and asked
 ### Phase 3 — Foundations A3: access contract and docs
 
 - [x] **F3.1** Add the source-based access contract test, dated exceptions for the two mentors surfaces, and tests for aliases/wrappers and missing declarations.
-- [ ] **F3.2** Update `AGENTS.md`, engineering standards, `README.md`, and the superseded GitHub issue descriptions to match the access contract and the auth spec.
+- [x] **F3.2** Update `AGENTS.md`, engineering standards, `README.md`, and the superseded GitHub issue descriptions to match the access contract and the auth spec.
 
-Manual checkpoint: the contract test passes with only its named E01-S03 exceptions; the current routes and pages continue to work.
+Manual checkpoint: the access contract test passes with the two named E01-S03 exceptions; production build succeeds and lists the current pages/routes. Browser preview remains unavailable (port mapping returns 404). Full integration suite could not start: no container runtime is available, `INTEGRATION_DATABASE_URL` is not configured, and Vitest reports no integration test files in this checkout.
 
 ### Phase 4 — Foundations B2a: shared form core
 
@@ -77,7 +77,7 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Planning: pending initial commit.
 - Phase 1: implementation complete; manual preview unavailable (port forwarding returns 404); user requested to continue.
 - Phase 2: F2.1 commit `7fb7323`; F2.2 commit `9971172`; local API smoke test passed; browser manual checkpoint unavailable as noted above.
-- Phase 3: pending.
+- Phase 3: F3.1 commit `6fda454`; F3.2 commit pending. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; integration suite could not start (no container runtime / no tests found); browser preview unavailable.
 - Phase 4: pending.
 - Phase 5: pending.
 - Phase 6: pending.
