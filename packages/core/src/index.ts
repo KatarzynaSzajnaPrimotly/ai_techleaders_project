@@ -48,5 +48,7 @@ export {
 export type { Mentor, NewMentor } from "./services/mentors/mentor.types";
 export type { MentorRepositoryPort } from "./services/mentors/mentor-repository.port";
 export { MentorService } from "./services/mentors/mentor.service";
+export type { User, NewUser, StoredRole } from "./services/auth/user.types";
+export type { UserRepositoryPort } from "./services/auth/user-repository.port";
 
 export { mentorCreateSchema, type MentorCreateInput } from "./validators";
