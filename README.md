@@ -48,7 +48,7 @@ Pages and routes (all in `packages/app`):
 | `/` | Starter home page (original behavior preserved) |
 | `/mentors` | Public page, Tailwind (`MentorCard` from `ui`) |
 | `/admin/mentors` | Admin page: shadcn/ui components, list through `apiCall` + `DataTable`, create through `CrudForm` |
-| `/api/mentors` | `GET` list, `POST` create (400 invalid input with field errors, 409 duplicate email, 403 without the CSRF header); built with `makeCrudRoute`, resolves `MentorService` from the Awilix container |
+| `/api/mentors` | Public `GET` list and `POST` create (temporary until E01-S03; see the dated access-contract exception). Invalid input returns 400 with field errors, duplicate email returns 409, and a state-changing request without CSRF returns 403. Built with `makeCrudRoute({ access: "public", ... })`; resolves `MentorService` from Awilix |
 
 Tailwind 4 is configured in `app` (no preflight, so the starter page is unchanged); `@source` covers `packages/ui`.
 shadcn/ui components are vendored in `packages/ui/src/components`.
@@ -87,7 +87,7 @@ npm run test:integration # Testcontainers PostgreSQL + agent-browser (needs Dock
 npm run build   # use NODE_ENV=production if your shell sets NODE_ENV=development
 ```
 
-Authentication configuration is optional until the auth routes are enabled.
+Authentication configuration is optional until the auth routes are enabled. API routes must declare `access` through `apiHandler` or `makeCrudRoute`; protected pages use `guardedPage`, while public pages use `publicPage`. The shared `enforceAccess` policy handles anonymous, authenticated, and role-restricted access. The mentors API and `/admin/mentors` are temporary E01-S03 exceptions.
 `JWT_SECRET` must be at least 32 characters. `ALLOW_INSECURE_HTTP=true` is a
 test-only setting for plain-HTTP integration tests; do not set it when `APP_URL`
 uses HTTPS.

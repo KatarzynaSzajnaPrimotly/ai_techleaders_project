@@ -54,17 +54,19 @@ Create a concept folder only when its first file is added; never scaffold empty 
 not a module runtime: no per-concept setup, ACL or auto-discovery. Event IDs follow `concept.entity.action`
 (`bookings.booking.created`) and go through a typed in-process emitter in `core/src/events`, added only when the first
 feature needs one; there is no queue or worker. External integrations (payments, notifications) are accessed through
-a port in `core` with a mock adapter first. A new service is one explicit line in `app/src/server/container.ts`.
+a port in `core` with a mock adapter first; the composition root selects the adapter explicitly from configuration,
+and services depend only on the port. A new service is one explicit line in `app/src/server/container.ts`.
 
 ### Reusable API & UI layer
 
-Every route and page reuses two shared layers instead of re-implementing fetch, validation, auth and error handling:
+Every route and page reuses two shared layers instead of re-implementing fetch, validation, access control and error handling:
 
 - `packages/core/src/http/`: `errors.ts` (typed `AppError` hierarchy), `apiHandler.ts` (wraps a route: CSRF check,
   maps `AppError`s to status and envelope, logs unexpected failures with the shared pino `logger`), `makeCrudRoute.ts`
-  (`{ list, create, update, remove, authorize }` config in, `{ GET, POST, PUT, DELETE }` out; unconfigured methods
-  answer 405; for plain CRUD resources), `auth.ts` (`requireSession`, `requireRole`, `assertOwns`, session JWT and
-  cookie helpers), `validate.ts` (`parseWithSchema`, `readJsonBody`). Configuration lives in `config/env.ts`.
+  (`{ access, list, create, update, remove }` config in, `{ GET, POST, PUT, DELETE }` out; unconfigured methods
+  answer 405 before CSRF or access checks; for plain CRUD resources), `access.ts` (`Access`, `enforceAccess`),
+  `auth.ts` (`assertOwns`, session JWT and cookie helpers; `requireSession` is internal and `requireRole` is removed),
+  `validate.ts` (`parseWithSchema`, `readJsonBody`). Configuration lives in `config/env.ts`.
 - `packages/ui/src/backend/`: `api/apiCall.ts` (the only place a `fetch()` to `/api/*` may be written; ESLint enforces
   it), `forms/CrudForm.tsx` (schema-driven, shows server `fieldErrors`, Ctrl/Cmd+Enter submits, Escape cancels),
   `tables/DataTable.tsx` (loading, empty, error, pagination, row actions), `feedback/{LoadingMessage,ErrorMessage,EmptyState}.tsx`.
@@ -79,6 +81,8 @@ tied to one concept's shape goes to `ui/src/components/<concept>/`; one used by 
 
 The binding source is `.ai/specs/engineering-standards.md` (naming table, principles, security minimums, code quality,
 review checklist) and how it maps to this repo is in `.ai/specs/implemented/2026-10-19-engineering-standards-rollout.md`.
+The standing catalogue of decided platform contracts is `.ai/specs/platform-foundations.md`; consult it when adding
+shared auth/access behavior, service ports and adapters, persistence patterns, or form primitives.
 The rules agents most often need:
 
 - Naming: entity `<name>.entity.ts`, service `<name>.service.ts`, port `<name>.port.ts`, schema `<name>.schema.ts`
@@ -94,8 +98,14 @@ The rules agents most often need:
 - Anything that checks then writes shared state (slot availability, booking status) runs in a DB transaction backed by
   a unique constraint, and has an integration test for the concurrent case.
 - A bug fix ships a regression test that fails without the fix; a security-relevant fix says so in the PR.
-- Known gap: `POST /api/mentors` and `/admin/*` are still public because authentication has not been built yet. The
-  first feature that needs a session must call `requireSession` before touching a service.
+- Access policy: every API route declares `access` in `apiHandler` or `makeCrudRoute`; the handler receives the verified
+  session. The former `requireSession` + `requireRole` pair is now `access`. Use `"public"`, `"authenticated"`, or
+  `{ roles: [...] }`; role checks happen server-side and fail closed. Pages
+  use `guardedPage({ path, access }, render)` or `publicPage(...)`. For a configured state-changing API method, CSRF is
+  checked before access; an unconfigured CRUD method returns 405 before either check.
+- Known gap until E01-S03: `GET/POST /api/mentors` declares `access: "public"` and `/admin/mentors` remains unguarded;
+  both have dated exceptions in `packages/app/src/server/access-contract.test.ts`. Do not copy this exception. The first
+  protected feature declares its role with `access: { roles: [...] }` / `guardedPage` before touching services.
 
 ## Conventions
 
@@ -191,8 +201,9 @@ Naming rule for every file created under `.ai/` (specs and runs alike): `YYYY-MM
 `YYYY-MM-DD` is the date the file was authored and `slug` is a short kebab-case description
 (e.g. `2026-10-19-mentor-matching.md`). Never rename the date when a spec is later moved between
 `specs/`, `specs/implemented/`, or `specs/archive/` — it records when it was written, not when it moved.
-The one exception is the standing document `.ai/specs/engineering-standards.md`: it keeps its fixed name, stays in
-`specs/` (it is never "implemented"), and is amended in place.
+The two exceptions are the standing documents `.ai/specs/engineering-standards.md` and
+`.ai/specs/platform-foundations.md`: each keeps its fixed name, stays in `specs/` (it is never "implemented"), and is
+amended in place.
 
 ## Specs (`.ai/specs/`)
 
