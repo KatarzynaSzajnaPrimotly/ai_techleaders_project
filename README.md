@@ -95,6 +95,13 @@ uses HTTPS. GitHub OAuth is configured with `GITHUB_CLIENT_ID` and
 to `https://github.com` and `https://api.github.com` and can point to the local
 fake GitHub service in integration tests. Set `APP_URL` to the public application
 origin; it is used to build the OAuth callback and safe return URLs.
+For e-mail authentication, set `MAILER_TRANSPORT=log` explicitly for the local log
+adapter; an unset selector fails closed. It redacts credential values from URLs in
+message text before logging. Configure `TRUST_PROXY_HOPS` to the number
+of trusted proxies that append to `X-Forwarded-For`. Its unset default is `0`, which
+does not trust forwarded addresses and applies login limits by e-mail only. Production
+logs a warning when proxy hops are unset; never use a client-controlled leftmost
+forwarded value as the rate-limit IP.
 
 ## Testing and CI
 

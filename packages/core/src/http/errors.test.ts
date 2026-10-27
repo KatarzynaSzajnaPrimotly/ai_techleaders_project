@@ -6,6 +6,7 @@ import {
   MethodNotAllowedError,
   NotFoundError,
   ServiceUnavailableError,
+  TooManyRequestsError,
   UnauthorizedError,
   ValidationError,
 } from "./errors";
@@ -31,6 +32,13 @@ describe("AppError hierarchy", () => {
 
   it("accepts a custom message", () => {
     expect(new NotFoundError("Mentor 7 not found").message).toBe("Mentor 7 not found");
+  });
+
+  it("includes the retry delay on rate limit errors", () => {
+    const error = new TooManyRequestsError(19);
+    expect(error).toBeInstanceOf(AppError);
+    expect(error).toMatchObject({ name: "TooManyRequestsError", code: "RATE_LIMITED", status: 429, retryAfterSeconds: 19 });
+    expect(error.message).toBe("Too many requests");
   });
 
   it("carries field errors on validation errors", () => {

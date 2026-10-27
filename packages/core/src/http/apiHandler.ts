@@ -1,7 +1,7 @@
 import { logger } from "../logger";
 import { enforceAccess, type Access } from "./access";
 import type { Session } from "./auth";
-import { AppError, ForbiddenError, type FieldErrors } from "./errors";
+import { AppError, ForbiddenError, TooManyRequestsError, type FieldErrors } from "./errors";
 
 export const CSRF_HEADER = "x-devmentor-csrf";
 export const CSRF_VALUE = "1";
@@ -44,13 +44,17 @@ function failure(status: number, error: ApiFailure["error"]): Response {
 }
 
 export function appErrorResponse(error: AppError): Response {
-  return failure(error.status, {
+  const response = failure(error.status, {
     code: error.code,
     message: error.message,
     ...( "fieldErrors" in error && error.fieldErrors
       ? { fieldErrors: error.fieldErrors as FieldErrors }
       : {}),
   });
+  if (error instanceof TooManyRequestsError) {
+    response.headers.set("Retry-After", String(error.retryAfterSeconds));
+  }
+  return response;
 }
 
 export function apiHandler<C = unknown, A extends Access = Access>(

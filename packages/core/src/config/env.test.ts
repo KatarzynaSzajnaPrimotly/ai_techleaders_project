@@ -36,6 +36,21 @@ describe("parseEnv", () => {
     });
   });
 
+  it("parses optional proxy hops as a non-negative integer and reads the mail transport selector", () => {
+    expect(parseEnv({ TRUST_PROXY_HOPS: "2", MAILER_TRANSPORT: "log" })).toMatchObject({
+      TRUST_PROXY_HOPS: 2,
+      MAILER_TRANSPORT: "log",
+    });
+    expect(parseEnv({ TRUST_PROXY_HOPS: "0" }).TRUST_PROXY_HOPS).toBe(0);
+    expect(parseEnv({})).not.toHaveProperty("TRUST_PROXY_HOPS");
+    expect(parseEnv({})).not.toHaveProperty("MAILER_TRANSPORT");
+  });
+
+  it.each(["-1", "1.5", "1e2", " 1", "01", "abc"]) (
+    "rejects invalid TRUST_PROXY_HOPS value %s",
+    (value) => expect(() => parseEnv({ TRUST_PROXY_HOPS: value })).toThrowError("Invalid environment variables: TRUST_PROXY_HOPS"),
+  );
+
   it("rejects invalid values, naming the variables but never their values", () => {
     expect(() => parseEnv({ LOG_LEVEL: "loud", JWT_SECRET: "short" })).toThrowError(
       "Invalid environment variables: LOG_LEVEL, JWT_SECRET",
