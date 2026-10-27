@@ -42,6 +42,38 @@ async function buildRootContainer(): Promise<AwilixContainer<Cradle>> {
   return container;
 }
 
+function createConfiguredMailer(): MailerPort {
+  return {
+    async send(message) {
+      const adapter = selectAdapter("MAILER_TRANSPORT", { log: createLogMailerAdapter() }, process.env.MAILER_TRANSPORT);
+      await adapter.send(message);
+    },
+  };
+}
+
+function createConfiguredGithubIdentity(): GithubIdentityPort {
+  let adapter: GithubIdentityPort | undefined;
+  const resolve = () => {
+    adapter ??= createGithubIdentityAdapter();
+    return adapter;
+  };
+
+  return {
+    createAuthorizationUrl(state, redirectUri) {
+      return resolve().createAuthorizationUrl(state, redirectUri);
+    },
+    async exchangeCode(code, redirectUri) {
+      return resolve().exchangeCode(code, redirectUri);
+    },
+    async getUser(accessToken) {
+      return resolve().getUser(accessToken);
+    },
+    async getEmails(accessToken) {
+      return resolve().getEmails(accessToken);
+    },
+  };
+}
+
 // Every dependency is registered by hand (no loadModules globbing) so each binding stays greppable.
 export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
   globalForContainer.devmentorContainer ??= buildRootContainer();
@@ -52,12 +84,12 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     mentorRepository: asFunction(({ em }: Cradle) => createMentorRepository(em)).scoped(),
     mentorService: asClass(MentorService).scoped(),
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
-    githubIdentity: asFunction(() => createGithubIdentityAdapter()).scoped(),
+    githubIdentity: asFunction(() => createConfiguredGithubIdentity()).scoped(),
     accountService: asClass(AccountService).scoped(),
     passwordHasher: asFunction(() => createPasswordHasher()).scoped(),
     passwordAuthService: asClass(PasswordAuthService).scoped(),
     rateLimiter: asFunction(() => createMemoryRateLimiter()).scoped(),
-    mailer: asFunction(() => selectAdapter("MAILER_TRANSPORT", { log: createLogMailerAdapter() }, process.env.MAILER_TRANSPORT)).scoped(),
+    mailer: asFunction(() => createConfiguredMailer()).scoped(),
   });
   return scope;
 }

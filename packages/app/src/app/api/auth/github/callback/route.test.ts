@@ -127,8 +127,10 @@ describe("GET /api/auth/github/callback", () => {
   it("redirects a tampered state cookie to the state error", async () => {
     const issued = await createOAuthState();
     const [name, token] = cookieValue(issued.cookie).split("=");
-    const last = token?.slice(-1) === "a" ? "b" : "a";
-    const tampered = `${name}=${token?.slice(0, -1)}${last}`;
+    const [header, payload, signature] = token?.split(".") ?? [];
+    const firstSignatureCharacter = signature?.[0] ?? "A";
+    const replacement = firstSignatureCharacter === "A" ? "B" : "A";
+    const tampered = `${name}=${header}.${payload}.${replacement}${signature?.slice(1) ?? ""}`;
     const query = new URLSearchParams({ code: "auth-code", state: issued.state });
     const response = await GET(callbackRequest(`?${query}`, tampered), undefined);
 
