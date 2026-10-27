@@ -31,13 +31,18 @@ export function RoleShell({
   children: ReactNode;
   name: string;
   role: ShellRole;
-  onSignedOut: () => void;
+  onSignedOut?: () => void;
   wide?: boolean;
   badge?: ReactNode;
 }) {
   async function signOut() {
     const result = await apiCall("/api/auth/logout", { method: "POST", onUnauthorized: "ignore" });
-    if (result.ok) onSignedOut();
+    if (!result.ok) return;
+    if (onSignedOut) {
+      onSignedOut();
+      return;
+    }
+    window.location.assign("/sign-in");
   }
 
   return (
