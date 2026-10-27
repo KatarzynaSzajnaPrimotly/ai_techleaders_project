@@ -8,6 +8,7 @@ export const UserSchema = new EntitySchema<User>({
     id: { type: "uuid", primary: true, defaultRaw: "gen_random_uuid()" },
     email: { type: "string", columnType: "text", unique: true },
     emailVerifiedAt: { type: "Date", fieldName: "email_verified_at", columnType: "timestamptz" },
+    passwordHash: { type: "string", fieldName: "password_hash", columnType: "text", nullable: true },
     displayName: { type: "string", fieldName: "display_name", columnType: "text", nullable: true },
     role: { type: "string", columnType: "text", default: "mentee", check: "role in ('mentee', 'mentor')" },
     githubId: { type: "string", fieldName: "github_id", columnType: "text", unique: true, nullable: true },

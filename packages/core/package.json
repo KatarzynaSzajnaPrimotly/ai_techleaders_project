@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "jose": "^6.2.12",
     "pino": "^10.4.0",
     "zod": "^4.6.7"

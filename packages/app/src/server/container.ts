@@ -2,12 +2,15 @@ import { asClass, asFunction, asValue, createContainer, InjectionMode, type Awil
 import {
   AccountService,
   MentorService,
+  PasswordAuthService,
   createLogMailerAdapter,
   createMemoryRateLimiter,
+  createPasswordHasher,
   createGithubIdentityAdapter,
   selectAdapter,
   type GithubIdentityPort,
   type MailerPort,
+  type PasswordHasherPort,
   type MentorRepositoryPort,
   type RateLimiterPort,
   type UserRepositoryPort,
@@ -22,6 +25,8 @@ export interface Cradle {
   userRepository: UserRepositoryPort;
   githubIdentity: GithubIdentityPort;
   accountService: AccountService;
+  passwordHasher: PasswordHasherPort;
+  passwordAuthService: PasswordAuthService;
   rateLimiter: RateLimiterPort;
   mailer: MailerPort;
 }
@@ -49,6 +54,8 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
     githubIdentity: asFunction(() => createGithubIdentityAdapter()).scoped(),
     accountService: asClass(AccountService).scoped(),
+    passwordHasher: asFunction(() => createPasswordHasher()).scoped(),
+    passwordAuthService: asClass(PasswordAuthService).scoped(),
     rateLimiter: asFunction(() => createMemoryRateLimiter()).scoped(),
     mailer: asFunction(() => selectAdapter("MAILER_TRANSPORT", { log: createLogMailerAdapter() }, process.env.MAILER_TRANSPORT)).scoped(),
   });

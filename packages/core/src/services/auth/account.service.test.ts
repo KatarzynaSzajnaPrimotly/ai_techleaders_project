@@ -22,6 +22,7 @@ function user(overrides: Partial<User> = {}): User {
     id: "user-1",
     email: "ada@example.test",
     emailVerifiedAt: now,
+    passwordHash: null,
     displayName: "Ada",
     role: "mentee",
     githubId: null,
@@ -243,5 +244,61 @@ describe("AccountService.findOrCreateFromGithub", () => {
     await expect(service.findOrCreateFromGithub("access-token")).rejects.toBe(failure);
     expect(githubIdentity.getEmails).not.toHaveBeenCalled();
     expect(userRepository.findByGithubId).not.toHaveBeenCalled();
+  });
+});
+
+describe("AccountService password account lookups", () => {
+  it("returns an allowlisted e-mail lookup without the password hash", async () => {
+    const existing = user({ passwordHash: "$2b$12$sensitive" });
+    const { service, userRepository } = setup();
+    userRepository.findByEmail.mockResolvedValue(existing);
+
+    await expect(service.findByEmail(existing.email)).resolves.toEqual({
+      id: existing.id,
+      email: existing.email,
+      githubId: existing.githubId,
+    });
+  });
+
+  it("returns null for an e-mail lookup miss", async () => {
+    const { service } = setup();
+    await expect(service.findByEmail("missing@example.test")).resolves.toBeNull();
+  });
+
+  it("creates a mentee password account and returns no credential fields", async () => {
+    const created = user({ passwordHash: "$2b$12$sensitive" });
+    const { service, userRepository } = setup();
+    userRepository.create.mockResolvedValue(created);
+
+    await expect(service.createPasswordAccount({
+      email: created.email,
+      emailVerifiedAt: created.emailVerifiedAt,
+      displayName: created.displayName ?? "Ada",
+      passwordHash: created.passwordHash ?? "hash",
+    })).resolves.toEqual({ id: created.id, role: created.role });
+    expect(userRepository.create).toHaveBeenCalledWith({
+      email: created.email,
+      emailVerifiedAt: created.emailVerifiedAt,
+      displayName: created.displayName ?? "Ada",
+      passwordHash: created.passwordHash ?? "hash",
+      role: "mentee",
+    });
+  });
+
+  it("returns only the login fields required by password authentication", async () => {
+    const existing = user({ passwordHash: "$2b$12$sensitive" });
+    const { service, userRepository } = setup();
+    userRepository.findByEmail.mockResolvedValue(existing);
+
+    await expect(service.findForLogin(existing.email)).resolves.toEqual({
+      id: existing.id,
+      role: existing.role,
+      passwordHash: existing.passwordHash,
+    });
+  });
+
+  it("returns null for a password login lookup miss", async () => {
+    const { service } = setup();
+    await expect(service.findForLogin("missing@example.test")).resolves.toBeNull();
   });
 });

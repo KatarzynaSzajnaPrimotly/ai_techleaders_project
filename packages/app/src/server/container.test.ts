@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AccountService, MentorService } from "@devmentor/core";
+import { AccountService, MentorService, PasswordAuthService } from "@devmentor/core";
 
 const mocks = vi.hoisted(() => ({
   createOrm: vi.fn(),
@@ -76,6 +76,7 @@ describe("createRequestScope", () => {
   it("registers the auth repository, GitHub adapter, and account service in the request scope", async () => {
     vi.stubEnv("GITHUB_CLIENT_ID", "test-client");
     vi.stubEnv("GITHUB_CLIENT_SECRET", "test-secret");
+    vi.stubEnv("MAILER_TRANSPORT", "log");
     const { orm } = createFakeOrm();
     const userRepository = {
       findByEmail: vi.fn(),
@@ -98,6 +99,8 @@ describe("createRequestScope", () => {
       getEmails: expect.any(Function),
     });
     expect(scope.cradle.accountService).toBeInstanceOf(AccountService);
+    expect(scope.cradle.passwordAuthService).toBeInstanceOf(PasswordAuthService);
+    expect(scope.cradle.passwordHasher).toMatchObject({ hash: expect.any(Function), compare: expect.any(Function) });
   });
 
   it("registers the in-memory rate limiter and selects the log mailer only explicitly", async () => {

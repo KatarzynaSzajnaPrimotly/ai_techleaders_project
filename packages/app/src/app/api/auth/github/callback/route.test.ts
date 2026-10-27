@@ -34,6 +34,7 @@ const user: User = {
   id: "user-1",
   email: "ada@example.test",
   emailVerifiedAt: new Date("2026-10-27T00:00:00.000Z"),
+  passwordHash: null,
   displayName: "Ada",
   role: "mentor",
   githubId: "123",

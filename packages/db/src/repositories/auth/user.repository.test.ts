@@ -39,6 +39,7 @@ describe("createUserRepository", () => {
     expect(em.create).toHaveBeenCalledWith("User", {
       email: "ada@example.com",
       emailVerifiedAt: new Date(10),
+      passwordHash: null,
       role: "mentee",
       displayName: null,
       githubId: null,
@@ -50,6 +51,17 @@ describe("createUserRepository", () => {
     expect(em.flush).toHaveBeenCalledOnce();
   });
 
+  it("persists an explicit password hash without transforming it", async () => {
+    const user = { id: "u-password" };
+    const em = createEm({ create: vi.fn().mockReturnValue(user), flush: vi.fn().mockResolvedValue(undefined) });
+    await createUserRepository(asEm(em)).create({
+      email: "ada@example.test",
+      emailVerifiedAt: new Date(10),
+      passwordHash: "$2b$12$hash-value",
+    });
+    expect(em.create).toHaveBeenCalledWith("User", expect.objectContaining({ passwordHash: "$2b$12$hash-value" }));
+  });
+
   it("keeps supplied role and optional profile values when creating a user", async () => {
     const user = { id: "u-2" };
     const em = createEm({ create: vi.fn().mockReturnValue(user), flush: vi.fn().mockResolvedValue(undefined) });
@@ -57,6 +69,7 @@ describe("createUserRepository", () => {
       email: "mentor@example.test",
       emailVerifiedAt: new Date(20),
       role: "mentor",
+      passwordHash: null,
       displayName: "Mentor",
       githubId: "1234",
       githubLogin: "mentor",
@@ -64,6 +77,7 @@ describe("createUserRepository", () => {
     })).resolves.toBe(user);
     expect(em.create).toHaveBeenCalledWith("User", expect.objectContaining({
       role: "mentor",
+      passwordHash: null,
       displayName: "Mentor",
       githubId: "1234",
       githubLogin: "mentor",
