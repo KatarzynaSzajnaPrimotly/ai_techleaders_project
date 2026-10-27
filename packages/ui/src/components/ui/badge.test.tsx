@@ -5,12 +5,15 @@ import { Badge } from "./badge";
 describe("Badge", () => {
   it("uses the default variant", () => {
     render(<Badge>New</Badge>);
-    expect(screen.getByText("New").className).toContain("bg-primary");
+    expect(screen.getByText("New").className).toContain("bg-action-primary");
   });
 
   it.each([
-    ["secondary", "bg-secondary"],
-    ["outline", "text-foreground"],
+    ["secondary", "bg-surface-subtle"],
+    ["outline", "border-stroke-control"],
+    ["success", "text-status-success"],
+    ["warning", "text-status-warning"],
+    ["error", "text-status-error"],
   ] as const)("supports the %s variant", (variant, expected) => {
     render(<Badge variant={variant}>Tag</Badge>);
     expect(screen.getByText("Tag").className).toContain(expected);

@@ -1,6 +1,7 @@
 @import "tailwindcss/theme" layer(theme);
 @import "tailwindcss/utilities" layer(utilities);
 @import "../../../ui/src/tokens.css";
+@import "../../../ui/src/design-system-tokens.css";
 @source "../../../ui/src";
 
 /* Page-wide basics first. The starter screen's own classes follow; once
@@ -67,12 +68,12 @@ body {
   width: 100%;
   height: 100%;
   opacity: 0.55;
-  -webkit-mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, transparent 38%, rgba(0, 0, 0, 0.55) 72%, #000 100%);
-  mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, transparent 38%, rgba(0, 0, 0, 0.55) 72%, #000 100%);
+  -webkit-mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, transparent 38%, rgb(var(--decoration-mask-rgb) / var(--decoration-mask-edge-opacity)) 72%, rgb(var(--decoration-mask-rgb) / 1) 100%);
+  mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, transparent 38%, rgb(var(--decoration-mask-rgb) / var(--decoration-mask-edge-opacity)) 72%, rgb(var(--decoration-mask-rgb) / 1) 100%);
 }
 
 .vignette {
-  background: radial-gradient(120% 110% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+  background: radial-gradient(120% 110% at 50% 40%, transparent 55%, rgb(var(--decoration-vignette-rgb) / var(--decoration-vignette-opacity)) 100%);
 }
 
 .mark-field {
@@ -118,7 +119,7 @@ body {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #34d399;
+  background: var(--success);
 }
 
 .starter h1 {
@@ -148,7 +149,7 @@ body {
 .starter code {
   padding: 0.1em 0.35em;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--secondary);
   color: var(--headline);
   font-family: var(--mono);
   font-size: 0.875em;

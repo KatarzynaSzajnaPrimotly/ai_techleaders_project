@@ -16,6 +16,17 @@
   --color-border: var(--border);
   --color-input: var(--border);
   --color-ring: var(--primary);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-success: var(--success);
+  --container-page-content: 1160px;
+  --container-hero-title: 720px;
+  --container-hero-copy: 580px;
+  --container-search: 560px;
+  --text-hero-title: 40px;
+  --text-hero-copy: 17px;
+  --text-stat: 28px;
+  --text-caption: 13px;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -23,7 +34,7 @@
 
 /* Palette from the original public-facing concept design. */
 @theme {
-  --color-mentora: #1f6f5c;
+  --color-mentora: var(--brand);
   --color-mentora-light: #e6f3ef;
   --color-mentora-accent: #e98a3c;
   --color-mentora-ink: #1b2430;
@@ -43,6 +54,31 @@
   --radius: 8px;
   --card: #1c1b1b;
   --secondary: #262524;
+  /* Status and brand colors use paired semantic values for both themes. */
+  --brand: #63b69c;
+  --brand-foreground: #141313;
+  --success: #63b69c;
+  /* Decorative backdrop effects; they do not carry text or control meaning. */
+  --decoration-mask-rgb: 0 0 0;
+  --decoration-mask-edge-opacity: 0.55;
+  --decoration-vignette-rgb: 0 0 0;
+  --decoration-vignette-opacity: 0.45;
+  /* Product card width used by the horizontally scrolling tutor list. */
+  --size-tutor-card: 280px;
   --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --brand: #1f6f5c;
+  --brand-foreground: #f7f8fa;
+  --success: #1f6f5c;
+  --decoration-mask-rgb: 27 36 48;
+  --decoration-vignette-rgb: 27 36 48;
+  --decoration-vignette-opacity: 0.2;
+}
+
+@utility auto-cols-tutor-card {
+  grid-auto-columns: var(--size-tutor-card);
 }

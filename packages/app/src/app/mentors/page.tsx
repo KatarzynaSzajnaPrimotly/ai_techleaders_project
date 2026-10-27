@@ -17,7 +17,7 @@ export default async function MentorsPage() {
         <p className="mt-3 text-muted-foreground">Experienced developers ready to help you grow.</p>
       </header>
       {mentors.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-white/15 p-8 text-center text-muted-foreground">
+        <p className="rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground">
           No mentors have joined yet.
         </p>
       ) : (

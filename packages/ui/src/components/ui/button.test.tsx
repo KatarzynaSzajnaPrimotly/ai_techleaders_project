@@ -6,23 +6,23 @@ describe("Button", () => {
   it("renders a button with the default variant and size", () => {
     render(<Button>Save</Button>);
     const button = screen.getByRole("button", { name: "Save" });
-    expect(button.className).toContain("bg-primary");
-    expect(button.className).toContain("h-9");
+    expect(button.className).toContain("bg-action-primary");
+    expect(button.className).toContain("min-h-10");
   });
 
   it.each([
-    ["secondary", "bg-secondary"],
-    ["outline", "border"],
-    ["ghost", "hover:bg-accent"],
-    ["destructive", "bg-destructive"],
+    ["secondary", "bg-surface-subtle"],
+    ["outline", "border-stroke-control"],
+    ["ghost", "hover:bg-surface-subtle"],
+    ["destructive", "bg-status-error"],
   ] as const)("applies the %s variant", (variant, expected) => {
     render(<Button variant={variant}>Go</Button>);
     expect(screen.getByRole("button").className).toContain(expected);
   });
 
   it.each([
-    ["sm", "h-8"],
-    ["lg", "h-10"],
+    ["sm", "min-h-8"],
+    ["lg", "min-h-12"],
   ] as const)("applies the %s size", (size, expected) => {
     render(<Button size={size}>Go</Button>);
     expect(screen.getByRole("button").className).toContain(expected);
@@ -54,6 +54,6 @@ describe("Button", () => {
   });
 
   it("exposes the variant helper", () => {
-    expect(buttonVariants({ variant: "ghost", size: "sm" })).toContain("h-8");
+    expect(buttonVariants({ variant: "ghost", size: "sm" })).toContain("min-h-8");
   });
 });

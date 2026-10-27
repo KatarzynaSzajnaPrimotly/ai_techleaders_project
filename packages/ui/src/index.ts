@@ -5,6 +5,8 @@ export { Button, buttonVariants, type ButtonProps } from "./components/ui/button
 export { Badge, type BadgeProps } from "./components/ui/badge";
 export { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./components/ui/card";
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "./components/ui/table";
+export { Input, type InputProps } from "./components/ui/input";
+export { Textarea, type TextareaProps } from "./components/ui/textarea";
 
 export { MentorCard, type MentorCardProps } from "./components/mentors/mentor-card";
 
