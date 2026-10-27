@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-vi.mock("../logger", () => ({ logger: { error: vi.fn() } }));
+const log = vi.hoisted(() => ({ error: vi.fn(), warn: vi.fn() }));
+vi.mock("../logger", () => ({ logger: log }));
 
 import { CSRF_HEADER, CSRF_VALUE } from "./apiHandler";
-import { ForbiddenError, UnauthorizedError } from "./errors";
+import { signSession, SESSION_COOKIE } from "./auth";
 import { makeCrudRoute } from "./makeCrudRoute";
 
 const schema = z.object({ name: z.string().trim().min(1, "Name is required") });
@@ -16,11 +17,10 @@ const list = vi.fn();
 const create = vi.fn();
 const update = vi.fn();
 const remove = vi.fn();
-const authorize = vi.fn();
 
-function buildRoute() {
+function buildRoute(access: "public" | "authenticated" = "public") {
   return makeCrudRoute({
-    authorize,
+    access,
     list,
     create: { schema, run: create },
     update: { schema, run: update },
@@ -29,18 +29,31 @@ function buildRoute() {
 }
 
 beforeEach(() => {
-  [list, create, update, remove, authorize].forEach((mock) => mock.mockReset());
-  authorize.mockResolvedValue(undefined);
+  [list, create, update, remove].forEach((mock) => mock.mockReset());
+  log.warn.mockReset();
+  vi.stubEnv("JWT_SECRET", "s".repeat(32));
 });
 
 describe("makeCrudRoute", () => {
-  it("lists through GET and authorizes first", async () => {
+  it("lists through GET and passes the session in CRUD context", async () => {
     list.mockResolvedValue([{ id: "1" }]);
-    const response = await buildRoute().GET(send("GET"), { params: "p" });
+    const session = { userId: "user-1", role: "mentee" as const };
+    const token = await signSession(session, "s".repeat(32));
+    const request = new Request("http://x/api", { headers: { cookie: `${SESSION_COOKIE}=${token}` } });
+    const response = await buildRoute().GET(request, { params: "p" });
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ ok: true, data: [{ id: "1" }] });
-    expect(authorize).toHaveBeenCalledWith(expect.any(Request), "GET");
-    expect(list).toHaveBeenCalledWith({ request: expect.any(Request), context: { params: "p" } });
+    expect(list).toHaveBeenCalledWith({ request, context: { params: "p" }, session });
+  });
+
+  it("passes the verified session to guarded CRUD callbacks", async () => {
+    const session = { userId: "user-2", role: "mentor" as const };
+    const token = await signSession(session, "s".repeat(32));
+    const request = new Request("http://x/api", { headers: { cookie: `${SESSION_COOKIE}=${token}` } });
+    list.mockResolvedValue([]);
+    const response = await buildRoute("authenticated").GET(request, undefined);
+    expect(response.status).toBe(200);
+    expect(list).toHaveBeenCalledWith({ request, context: undefined, session });
   });
 
   it("creates through POST: parses the body, then answers 201", async () => {
@@ -48,7 +61,7 @@ describe("makeCrudRoute", () => {
     const response = await buildRoute().POST(send("POST", { name: "  Ada ", role: "admin" }), undefined);
     expect(response.status).toBe(201);
     await expect(response.json()).resolves.toEqual({ ok: true, data: { id: "1", name: "Ada" } });
-    expect(create).toHaveBeenCalledWith({ name: "Ada" }, expect.objectContaining({ request: expect.any(Request) }));
+    expect(create).toHaveBeenCalledWith({ name: "Ada" }, expect.objectContaining({ request: expect.any(Request), session: null }));
   });
 
   it("rejects an invalid body with field errors and does not run the action", async () => {
@@ -70,45 +83,55 @@ describe("makeCrudRoute", () => {
     update.mockResolvedValue({ id: "1", name: "Grace" });
     const response = await buildRoute().PUT(send("PUT", { name: "Grace" }), undefined);
     expect(response.status).toBe(200);
-    expect(update).toHaveBeenCalledWith({ name: "Grace" }, expect.anything());
+    expect(update).toHaveBeenCalledWith({ name: "Grace" }, expect.objectContaining({ session: null }));
   });
 
   it("removes through DELETE", async () => {
     remove.mockResolvedValue({ removed: true });
     const response = await buildRoute().DELETE(send("DELETE"), undefined);
     expect(response.status).toBe(200);
-    expect(remove).toHaveBeenCalledTimes(1);
+    expect(remove).toHaveBeenCalledWith(expect.objectContaining({ session: null }));
   });
 
-  it("requires the CSRF header on state-changing methods", async () => {
+  it("checks CSRF before access for configured state-changing methods", async () => {
+    vi.stubEnv("JWT_SECRET", "");
     const request = new Request("http://x/api", { method: "POST", body: JSON.stringify({ name: "Ada" }) });
-    const response = await buildRoute().POST(request, undefined);
+    const response = await buildRoute("authenticated").POST(request, undefined);
     expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ error: { message: "Missing CSRF header" } });
     expect(create).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ["unauthenticated", new UnauthorizedError(), 401],
-    ["forbidden", new ForbiddenError(), 403],
-  ])("denies when authorization fails (%s) without running the action", async (_label, error, status) => {
-    authorize.mockRejectedValue(error);
-    const response = await buildRoute().POST(send("POST", { name: "Ada" }), undefined);
-    expect(response.status).toBe(status);
-    expect(create).not.toHaveBeenCalled();
-  });
-
-  it("answers 405 for methods that are not configured", async () => {
-    const route = makeCrudRoute({ list });
-    for (const handler of [route.POST, route.PUT, route.DELETE]) {
-      const response = await handler(send("POST", { name: "x" }), undefined);
+  it("answers 405 for unconfigured methods before CSRF or access", async () => {
+    vi.stubEnv("JWT_SECRET", "");
+    const route = makeCrudRoute({ access: "public", list });
+    for (const method of ["POST", "PUT", "DELETE"] as const) {
+      const response = await route[method](new Request("http://x/api", { method }), undefined);
       expect(response.status).toBe(405);
       await expect(response.json()).resolves.toMatchObject({ error: { code: "METHOD_NOT_ALLOWED" } });
     }
   });
 
-  it("works without an authorize hook", async () => {
-    list.mockResolvedValue([]);
-    const response = await makeCrudRoute({ list }).GET(send("GET"), undefined);
-    expect(response.status).toBe(200);
+  it("returns 405 without reading access config for an unconfigured method with a cookie", async () => {
+    vi.stubEnv("JWT_SECRET", "");
+    const route = makeCrudRoute({ access: "public", list });
+    const request = new Request("http://x/api", { method: "POST", headers: { cookie: "devmentor_session=invalid" } });
+
+    const response = await route.POST(request, undefined);
+
+    expect(response.status).toBe(405);
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      error: { code: "METHOD_NOT_ALLOWED", message: "Method not allowed" },
+    });
+    expect(log.warn).not.toHaveBeenCalled();
+  });
+
+  it("requires access for configured methods after CSRF passes", async () => {
+    vi.stubEnv("JWT_SECRET", "");
+    const request = send("POST", { name: "Ada" });
+    const response = await buildRoute("authenticated").POST(request, undefined);
+    expect(response.status).toBe(503);
+    expect(create).not.toHaveBeenCalled();
   });
 });
