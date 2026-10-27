@@ -10,7 +10,15 @@ const SECRET = "a".repeat(32);
 
 describe("parseEnv", () => {
   it("applies defaults", () => {
-    expect(parseEnv({})).toEqual({ NODE_ENV: "development", LOG_LEVEL: "info" });
+    expect(parseEnv({})).toEqual({ NODE_ENV: "development", LOG_LEVEL: "info", OPERATOR_EMAILS: [] });
+  });
+
+  it("parses operator addresses as a trimmed, lower-case list and drops empty entries", () => {
+    expect(parseEnv({ OPERATOR_EMAILS: " Founder@Example.Test, ,SECOND@example.test " }).OPERATOR_EMAILS).toEqual([
+      "founder@example.test",
+      "second@example.test",
+    ]);
+    expect(parseEnv({ OPERATOR_EMAILS: " , " }).OPERATOR_EMAILS).toEqual([]);
   });
 
   it("reads validated values", () => {
@@ -18,6 +26,7 @@ describe("parseEnv", () => {
       NODE_ENV: "production",
       LOG_LEVEL: "warn",
       JWT_SECRET: SECRET,
+      OPERATOR_EMAILS: [],
     });
   });
 

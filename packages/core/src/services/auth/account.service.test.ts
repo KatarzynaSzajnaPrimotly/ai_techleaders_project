@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ConflictError, ServiceUnavailableError } from "../../http/errors";
+import { ConflictError, ForbiddenError, ServiceUnavailableError } from "../../http/errors";
 import type { GithubEmail, GithubIdentityPort, GithubUser } from "./github-identity.port";
 import type { UserRepositoryPort } from "./user-repository.port";
 import type { User } from "./user.types";
@@ -291,7 +291,7 @@ describe("AccountService password account lookups", () => {
       emailVerifiedAt: created.emailVerifiedAt,
       displayName: created.displayName ?? "Ada",
       passwordHash: created.passwordHash ?? "hash",
-    })).resolves.toEqual({ id: created.id, role: created.role });
+    })).resolves.toEqual({ id: created.id, email: created.email, role: created.role });
     expect(userRepository.create).toHaveBeenCalledWith({
       email: created.email,
       emailVerifiedAt: created.emailVerifiedAt,
@@ -308,6 +308,7 @@ describe("AccountService password account lookups", () => {
 
     await expect(service.findForLogin(existing.email)).resolves.toEqual({
       id: existing.id,
+      email: existing.email,
       role: existing.role,
       passwordHash: existing.passwordHash,
     });
@@ -316,5 +317,40 @@ describe("AccountService password account lookups", () => {
   it("returns null for a password login lookup miss", async () => {
     const { service } = setup();
     await expect(service.findForLogin("missing@example.test")).resolves.toBeNull();
+  });
+});
+
+describe("AccountService.grantRole", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("grants mentor to an account outside the operator allowlist", async () => {
+    const { service, userRepository } = setup();
+    userRepository.findById.mockResolvedValue(user({ email: "mentor@example.test" }));
+    userRepository.grantRole.mockResolvedValue(true);
+    await expect(service.grantRole("user-1", "mentor")).resolves.toBe(true);
+    expect(userRepository.grantRole).toHaveBeenCalledWith("user-1", "mentor");
+  });
+
+  it("refuses mentor role for an allowlisted address regardless of e-mail case or spaces", async () => {
+    vi.stubEnv("OPERATOR_EMAILS", "FOUNDER@example.test");
+    const { service, userRepository } = setup();
+    userRepository.findById.mockResolvedValue(user({ email: " Founder@Example.Test " }));
+    await expect(service.grantRole("user-1", "mentor")).rejects.toBeInstanceOf(ForbiddenError);
+    expect(userRepository.grantRole).not.toHaveBeenCalled();
+  });
+
+  it("allows the mentee role for an allowlisted address", async () => {
+    vi.stubEnv("OPERATOR_EMAILS", "founder@example.test");
+    const { service, userRepository } = setup();
+    userRepository.findById.mockResolvedValue(user({ email: "founder@example.test" }));
+    userRepository.grantRole.mockResolvedValue(true);
+    await expect(service.grantRole("user-1", "mentee")).resolves.toBe(true);
+    expect(userRepository.grantRole).toHaveBeenCalledWith("user-1", "mentee");
+  });
+
+  it("returns false and does not update when the account does not exist", async () => {
+    const { service, userRepository } = setup();
+    await expect(service.grantRole("missing", "mentee")).resolves.toBe(false);
+    expect(userRepository.grantRole).not.toHaveBeenCalled();
   });
 });

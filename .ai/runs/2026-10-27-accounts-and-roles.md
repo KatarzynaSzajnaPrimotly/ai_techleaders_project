@@ -30,13 +30,15 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 
 ## Current state
 
-- F7.5 is implemented and verified; its task commit is pending. Beginning F8.1.
+- F8.1 is implemented and verified; its task commit is pending. Beginning F8.2.
 - Unrelated pre-existing untracked user files are being left untouched.
 
 ## Follow-ups
 
-- Continue with F7.5 onward in order; commit each task separately.
+- Continue with F8.2 and F8.3 in order; commit each task separately.
 - Complete later phases and record each manual checkpoint. Browser-only checkpoints may remain unavailable while preview routing returns 404.
 - Move the spec to `.ai/specs/implemented/` only after all specified work has shipped.
 
-- F7.5: added six integration scenarios covering read-only confirmation preview/headers, concurrent confirmation with one session, indistinguishable login errors without cookies, generic registration plus per-address cooldown, trusted proxy IP rate limits despite spoofed hops, and failed login remaining on `/sign-in` with its generic message. Set `TRUST_PROXY_HOPS=1` explicitly in integration harness. Mailer failure is already covered in register route unit tests; E2E harness uses the required log adapter. Verification: 47 integration tests, 726 unit tests at 100% coverage, typecheck, focused ESLint, production build, `npm audit` (0 vulnerabilities), and diff check pass. Disposable PostgreSQL, snapshot, and browser session cleaned up. Commit pending.
+- F7.5: added six integration scenarios covering read-only confirmation preview/headers, concurrent confirmation with one session, indistinguishable login errors without cookies, generic registration plus per-address cooldown, trusted proxy IP rate limits despite spoofed hops, and failed login remaining on `/sign-in` with its generic message. Set `TRUST_PROXY_HOPS=1` explicitly in integration harness. Mailer failure is already covered in register route unit tests; E2E harness uses the required log adapter. Verification: 47 integration tests, 726 unit tests at 100% coverage, typecheck, focused ESLint, production build, `npm audit` (0 vulnerabilities), and diff check pass. Disposable PostgreSQL, snapshot, and browser session cleaned up. Commit `d537f40`.
+
+- F8.1: added normalized `OPERATOR_EMAILS` configuration, derived operator role for allowlisted mentees at session issuance, preserved mentor role for allowlisted mentors, and blocked granting mentor to listed addresses. Documented env config and tested all stored/effective role combinations plus `grantRole`. Verification: 97 focused tests, 735 full coverage tests at 100% for all metrics, typecheck, focused ESLint, production build, and `git diff --check` pass. Commit pending.

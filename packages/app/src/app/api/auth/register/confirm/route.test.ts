@@ -25,7 +25,7 @@ function request(body: unknown, headers: Record<string, string> = {}): Request {
 }
 
 beforeEach(() => {
-  mocks.passwordAuthService.confirmRegistration.mockReset().mockResolvedValue({ account: { id: "user-1", role: "mentee" }, returnTo: "/mentor/sessions" });
+  mocks.passwordAuthService.confirmRegistration.mockReset().mockResolvedValue({ account: { id: "user-1", email: "ada@example.test", role: "mentee" }, returnTo: "/mentor/sessions" });
   mocks.rateLimiter.hit.mockReset().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
   vi.stubEnv("APP_URL", APP_URL);
   vi.stubEnv("JWT_SECRET", JWT_SECRET);
@@ -58,7 +58,7 @@ describe("POST /api/auth/register/confirm", () => {
   });
 
   it("uses the role home when the confirmed registration has no returnTo", async () => {
-    mocks.passwordAuthService.confirmRegistration.mockResolvedValue({ account: { id: "user-2", role: "mentor" } });
+    mocks.passwordAuthService.confirmRegistration.mockResolvedValue({ account: { id: "user-2", email: "mentor@example.test", role: "mentor" } });
     const response = await POST(request({ token: "registration-token", password: "a long enough password" }), undefined);
     await expect(response.json()).resolves.toMatchObject({ ok: true, data: { redirectTo: "/mentor" } });
   });

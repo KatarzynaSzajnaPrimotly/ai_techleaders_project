@@ -113,7 +113,7 @@ describe("PasswordAuthService.requestRegistration", () => {
 describe("PasswordAuthService.confirmRegistration", () => {
   it("creates a verified mentee account and returns only the account and safe return path", async () => {
     const { service, accountService, passwordHasher } = setup();
-    accountService.createPasswordAccount = vi.fn().mockResolvedValue({ id: "user-1", role: "mentee" }) as typeof accountService.createPasswordAccount;
+    accountService.createPasswordAccount = vi.fn().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentee" }) as typeof accountService.createPasswordAccount;
     const token = await signPurposeToken("register", {
       email: " ADA@Example.Test ",
       displayName: "Ada Lovelace",
@@ -121,7 +121,7 @@ describe("PasswordAuthService.confirmRegistration", () => {
     }, REGISTRATION_TOKEN_TTL_SECONDS, JWT_SECRET);
 
     await expect(service.confirmRegistration(token, "a strong password")).resolves.toEqual({
-      account: { id: "user-1", role: "mentee" },
+      account: { id: "user-1", email: "ada@example.test", role: "mentee" },
       returnTo: "/mentor/sessions",
     });
     expect(passwordHasher.hash).toHaveBeenCalledWith("a strong password");
@@ -135,9 +135,9 @@ describe("PasswordAuthService.confirmRegistration", () => {
 
   it("omits returnTo when the signed registration token has none", async () => {
     const { service, accountService } = setup();
-    accountService.createPasswordAccount = vi.fn().mockResolvedValue({ id: "user-1", role: "mentee" }) as typeof accountService.createPasswordAccount;
+    accountService.createPasswordAccount = vi.fn().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentee" }) as typeof accountService.createPasswordAccount;
     const token = await signPurposeToken("register", { email: "ada@example.test", displayName: "Ada" }, 60, JWT_SECRET);
-    await expect(service.confirmRegistration(token, "a strong password")).resolves.toEqual({ account: { id: "user-1", role: "mentee" } });
+    await expect(service.confirmRegistration(token, "a strong password")).resolves.toEqual({ account: { id: "user-1", email: "ada@example.test", role: "mentee" } });
   });
 
   it("rejects a malformed token with a generic registration-link error", async () => {
@@ -197,17 +197,17 @@ describe("PasswordAuthService.confirmRegistration", () => {
 describe("PasswordAuthService.authenticate", () => {
   it("normalizes the e-mail and returns only the account session fields on success", async () => {
     const { service, accountService, passwordHasher } = setup();
-    accountService.findForLogin = vi.fn().mockResolvedValue({ id: "user-1", role: "mentor", passwordHash: "$2b$12$stored" }) as typeof accountService.findForLogin;
+    accountService.findForLogin = vi.fn().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentor", passwordHash: "$2b$12$stored" }) as typeof accountService.findForLogin;
     (passwordHasher.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-    await expect(service.authenticate(" ADA@Example.Test ", "correct password")).resolves.toEqual({ id: "user-1", role: "mentor" });
+    await expect(service.authenticate(" ADA@Example.Test ", "correct password")).resolves.toEqual({ id: "user-1", email: "ada@example.test", role: "mentor" });
     expect(accountService.findForLogin).toHaveBeenCalledWith("ada@example.test");
     expect(passwordHasher.compare).toHaveBeenCalledWith("correct password", "$2b$12$stored");
   });
 
   it.each([
     ["unknown address", null],
-    ["wrong password", { id: "user-1", role: "mentee", passwordHash: "$2b$12$stored" }],
-    ["GitHub-only account", { id: "user-2", role: "mentee", passwordHash: null }],
+    ["wrong password", { id: "user-1", email: "ada@example.test", role: "mentee", passwordHash: "$2b$12$stored" }],
+    ["GitHub-only account", { id: "user-2", email: "ada@example.test", role: "mentee", passwordHash: null }],
   ] as const)("uses the same generic failure for %s", async (_label, account) => {
     const { service, accountService, passwordHasher } = setup();
     accountService.findForLogin = vi.fn().mockResolvedValue(account) as typeof accountService.findForLogin;
@@ -221,7 +221,7 @@ describe("PasswordAuthService.authenticate", () => {
 
   it("still rejects a GitHub-only account if the dummy comparison happens to return true", async () => {
     const { service, accountService, passwordHasher } = setup();
-    accountService.findForLogin = vi.fn().mockResolvedValue({ id: "github-user", role: "mentee", passwordHash: null }) as typeof accountService.findForLogin;
+    accountService.findForLogin = vi.fn().mockResolvedValue({ id: "github-user", email: "ada@example.test", role: "mentee", passwordHash: null }) as typeof accountService.findForLogin;
     (passwordHasher.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);
     await expect(service.authenticate("ada@example.test", "irrelevant")).rejects.toMatchObject({ message: "Invalid credentials" });
   });

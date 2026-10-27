@@ -117,7 +117,7 @@ export class PasswordAuthService {
     const passwordHash = user?.passwordHash ?? DUMMY_PASSWORD_HASH;
     const validPassword = await this.passwordHasher.compare(password, passwordHash);
     if (!user || !user.passwordHash || !validPassword) throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
-    return { id: user.id, role: user.role };
+    return { id: user.id, email: user.email, role: user.role };
   }
 
   async inspectRegistrationToken(token: string): Promise<RegistrationPreview> {
