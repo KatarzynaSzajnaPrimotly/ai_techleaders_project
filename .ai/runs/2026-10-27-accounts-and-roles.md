@@ -30,15 +30,17 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 
 ## Current state
 
-- F8.1 is implemented and verified; its task commit is pending. Beginning F8.2.
+- F8.2 is implemented and verified; its task commit is pending. Beginning F8.3.
 - Unrelated pre-existing untracked user files are being left untouched.
 
 ## Follow-ups
 
-- Continue with F8.2 and F8.3 in order; commit each task separately.
+- Continue with F8.3; commit the task separately.
 - Complete later phases and record each manual checkpoint. Browser-only checkpoints may remain unavailable while preview routing returns 404.
 - Move the spec to `.ai/specs/implemented/` only after all specified work has shipped.
 
 - F7.5: added six integration scenarios covering read-only confirmation preview/headers, concurrent confirmation with one session, indistinguishable login errors without cookies, generic registration plus per-address cooldown, trusted proxy IP rate limits despite spoofed hops, and failed login remaining on `/sign-in` with its generic message. Set `TRUST_PROXY_HOPS=1` explicitly in integration harness. Mailer failure is already covered in register route unit tests; E2E harness uses the required log adapter. Verification: 47 integration tests, 726 unit tests at 100% coverage, typecheck, focused ESLint, production build, `npm audit` (0 vulnerabilities), and diff check pass. Disposable PostgreSQL, snapshot, and browser session cleaned up. Commit `d537f40`.
 
 - F8.1: added normalized `OPERATOR_EMAILS` configuration, derived operator role for allowlisted mentees at session issuance, preserved mentor role for allowlisted mentors, and blocked granting mentor to listed addresses. Documented env config and tested all stored/effective role combinations plus `grantRole`. Verification: 97 focused tests, 735 full coverage tests at 100% for all metrics, typecheck, focused ESLint, production build, and `git diff --check` pass. Commit pending.
+
+- F8.2: guarded GET/POST `/api/mentors` and `/admin/mentors` for operators; added `/admin` layout with the operator RoleShell while keeping authorization on the page; removed both temporary access-contract exceptions and added an empty-list assertion; covered absence of mentor-join links across roles. Existing RoleShell already provided its operator Mentors nav. Verification: 39 focused tests, 748 full coverage tests at 100%, focused ESLint, typecheck, production build, and diff check passed. Operator API and redirect integration scenarios remain in F8.3 as specified. Commit pending.

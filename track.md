@@ -67,7 +67,7 @@ Manual checkpoint: register a demo address, inspect the development mail adapter
 ### Phase 8 — E01 S03: operator role and guards
 
 - [x] **F8.1** Add `OPERATOR_EMAILS`, derive operator role at sign-in, enforce the mentor/allowlist rule, and test all stored/effective-role combinations.
-- [ ] **F8.2** Guard mentor API and admin page, add operator navigation/layout, remove the two contract exceptions, and prove the no-mentor-join navigation rule.
+- [x] **F8.2** Guard mentor API and admin page, add operator navigation/layout, remove the two contract exceptions, and prove the no-mentor-join navigation rule.
 - [ ] **F8.3** Update project docs and the E01 issue text, close the mentee/`student` question, update integration tests, and complete the spec's full gate.
 
 Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, configured founders reach operator pages, a listed mentor remains a mentor, and no role can access another role's screens.
@@ -82,6 +82,6 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Phase 5: F5.1 commit `57ac13c`; F5.2 commit `9e4432b`; F5.3 commit `da003bf`; F5.4 commit `10f777e`; F5.5 commit `c221f19`; F5.6 commit `6b58f7f`. Coverage 100% (501 tests), full typecheck, focused ESLint, diff check, and production build pass. Full integration suite (29 tests) passed on a disposable database. Interactive browser checkpoint remains unavailable.
 - Phase 6: F6.1 commit `106bb8e`; F6.2 commit `bb1c700`. Coverage 100% (543 tests), typecheck and production build pass, and 37 integration tests pass on an isolated temporary PostgreSQL 17 cluster. Scoped ESLint has 0 errors and one warning for `window.location.assign`; full lint remains blocked by unrelated generated and untracked content. Interactive browser checkpoint remains unavailable; user requested continuing.
 - Phase 7: F7.1 commit `a45af16`; F7.2 commit `11b6ded`; F7.3 commit `f7c364f`; F7.4 commits `1ea4e57`, `95e42c9`; F7.5 commit `d537f40`. Coverage 100% (726 tests), typecheck, production build and focused lint pass; 47 integration tests pass on disposable PostgreSQL. F7.2 migration up/down/up and `npm audit` (0 vulnerabilities) pass. Full lint remains blocked by generated Storybook and unrelated untracked prototype files. Shared preview remains unavailable.
-- Phase 8: F8.1 implemented and verified; commit pending. F8.2 and F8.3 remain.
+- Phase 8: F8.1 commit `8ab9d6f`; F8.2 implemented and verified, commit pending. F8.3 remains.
 
 - F7.5: added integration coverage for read-only confirmation preview and response headers, exactly-one concurrent confirmation/session, identical login failures with no cookies, generic registration and per-address cooldown, trusted proxy IP limits across emails despite spoofed X-Forwarded-For hops, and browser-confirmed failed login feedback without navigation. Harness explicitly sets `TRUST_PROXY_HOPS=1`; mail adapter failure is already covered by route unit tests. Verification: 47 integration tests, 726 unit tests at 100% coverage, typecheck, focused ESLint, production build, `npm audit` (0 vulnerabilities), and diff check passed. Browser test uses the disposable integration app/DB; disposable DB and browser sessions were cleaned up. Commit pending.

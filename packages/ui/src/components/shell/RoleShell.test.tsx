@@ -13,6 +13,12 @@ describe("navFor", () => {
     ["mentor", []],
     ["operator", [{ label: "Mentors", href: "/admin/mentors" }]],
   ] as const)("returns %s navigation", (role, items) => expect(navFor(role)).toEqual(items));
+
+  it("offers no mentor-join link for any role", () => {
+    for (const role of ["mentee", "mentor", "operator"] as const) {
+      expect(navFor(role).some(({ label, href }) => /become a mentor|join.*mentor/i.test(`${label} ${href}`))).toBe(false);
+    }
+  });
 });
 
 describe("RoleShell", () => {
