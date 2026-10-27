@@ -18,15 +18,16 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 - F5.1: added integration helpers for fake GitHub/control API, signed sessions and user fixtures, browser cookie injection, concurrency, migration cycles, port reservation, and harness environment; global setup now reserves the app port before migration/build and passes test secrets/services to the child. Helper tests 21/21; full coverage 100% (335 tests), full typecheck, focused ESLint, and diff check pass. Integration setup cannot run without a container runtime. Commit: `57ac13c`.
 - F5.2: added `absoluteUrl`, purpose-tagged signing/verification, and `safeReturnTo` at the paths specified by the platform contract. Tests cover HTTPS policy, config errors, token purpose separation/tampering/expiry, external and loop destinations, encoded paths, and control characters. Verification: 382 tests at 100% coverage, full typecheck, focused ESLint, and `git diff --check` pass. Commit: `9e4432b`.
 - F5.3: added the generated users migration, entity, core types/port, ORM registration, and PostgreSQL repository with normalized email, duplicate conflicts, conditional GitHub linking, and stored-role updates. Added unit and integration coverage. Verification: 395 tests at 100% coverage, full typecheck/focused lint, migration up/down/up, and full integration suite (17 tests) passed on disposable databases. The shared `devmentor` database was not migrated. Commit: `da003bf`.
-- F5.4: added GitHub config, session issuing, identity port/adapter, and OAuth state cookie/token helpers; documented `APP_URL` and GitHub OAuth variables. Verification: 455 tests at 100% coverage, full typecheck, focused ESLint, and `git diff --check` pass; commit pending.
+- F5.4: added GitHub config, session issuing, identity port/adapter, and OAuth state cookie/token helpers; documented `APP_URL` and GitHub OAuth variables. Verification: 455 tests at 100% coverage, full typecheck, focused ESLint, and `git diff --check` pass. Commit: `10f777e`.
+- F5.5: added `AccountService.findOrCreateFromGithub`, DI wiring, unit tests, and a concurrent first-sign-in integration test. Linking requires a verified primary email; conditional update and unique-conflict retry prevent takeovers and duplicate accounts. Verification: 474 tests at 100% coverage, full typecheck, focused lint, build, and integration suite (18 tests) pass on a disposable database. Commit pending.
 
 ## Current state
 
-- Implementing F5.4: GitHub identity adapter and OAuth session primitives.
+- Implementing F5.5: account creation and verified GitHub email linking.
 - Unrelated pre-existing untracked user files are being left untouched.
 
 ## Follow-ups
 
-- Continue F5.5 onward in order; commit each task separately.
+- Continue F5.6 onward in order; commit each task separately.
 - Complete later phases and record each manual checkpoint. Browser-only checkpoints may remain unavailable while preview routing returns 404.
 - Move the spec to `.ai/specs/implemented/` only after all specified work has shipped.
