@@ -2,9 +2,14 @@ import { asClass, asFunction, asValue, createContainer, InjectionMode, type Awil
 import {
   AccountService,
   MentorService,
+  createLogMailerAdapter,
+  createMemoryRateLimiter,
   createGithubIdentityAdapter,
+  selectAdapter,
   type GithubIdentityPort,
+  type MailerPort,
   type MentorRepositoryPort,
+  type RateLimiterPort,
   type UserRepositoryPort,
 } from "@devmentor/core";
 import { createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
@@ -17,6 +22,8 @@ export interface Cradle {
   userRepository: UserRepositoryPort;
   githubIdentity: GithubIdentityPort;
   accountService: AccountService;
+  rateLimiter: RateLimiterPort;
+  mailer: MailerPort;
 }
 
 const globalForContainer = globalThis as unknown as {
@@ -42,6 +49,8 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
     githubIdentity: asFunction(() => createGithubIdentityAdapter()).scoped(),
     accountService: asClass(AccountService).scoped(),
+    rateLimiter: asFunction(() => createMemoryRateLimiter()).scoped(),
+    mailer: asFunction(() => selectAdapter("MAILER_TRANSPORT", { log: createLogMailerAdapter() }, process.env.MAILER_TRANSPORT)).scoped(),
   });
   return scope;
 }

@@ -6,6 +6,7 @@ export type ErrorCode =
   | "CONFLICT"
   | "METHOD_NOT_ALLOWED"
   | "SERVICE_UNAVAILABLE"
+  | "RATE_LIMITED"
   | "INTERNAL_ERROR";
 
 export type FieldErrors = Record<string, string[]>;
@@ -55,6 +56,15 @@ export class ConflictError extends AppError {
 export class ServiceUnavailableError extends AppError {
   constructor(message = "Service temporarily unavailable") {
     super(message, "SERVICE_UNAVAILABLE", 503);
+  }
+}
+
+export class TooManyRequestsError extends AppError {
+  readonly retryAfterSeconds: number;
+
+  constructor(retryAfterSeconds: number, message = "Too many requests") {
+    super(message, "RATE_LIMITED", 429);
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 

@@ -4,7 +4,7 @@ const log = vi.hoisted(() => ({ error: vi.fn() }));
 vi.mock("../logger", () => ({ logger: log }));
 
 import { apiHandler, created, CSRF_HEADER, CSRF_VALUE, ok } from "./apiHandler";
-import { ConflictError, ForbiddenError, ValidationError } from "./errors";
+import { ConflictError, ForbiddenError, TooManyRequestsError, ValidationError } from "./errors";
 import { UnauthorizedError } from "./errors";
 import { signSession, SESSION_COOKIE, type Session } from "./auth";
 
@@ -54,6 +54,18 @@ describe("apiHandler", () => {
       error: { code: "CONFLICT", message: "Already exists" },
     });
     expect(log.error).not.toHaveBeenCalled();
+  });
+
+  it("maps rate limits to 429 and includes Retry-After", async () => {
+    const response = await apiHandler(async () => {
+      throw new TooManyRequestsError(42);
+    }, { access: "public" })(get(), undefined);
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBe("42");
+    await expect(response.json()).resolves.toEqual({
+      ok: false,
+      error: { code: "RATE_LIMITED", message: "Too many requests" },
+    });
   });
 
   it("includes field errors for validation failures", async () => {

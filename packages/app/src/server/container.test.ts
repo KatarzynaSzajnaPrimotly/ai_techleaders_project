@@ -99,6 +99,25 @@ describe("createRequestScope", () => {
     });
     expect(scope.cradle.accountService).toBeInstanceOf(AccountService);
   });
+
+  it("registers the in-memory rate limiter and selects the log mailer only explicitly", async () => {
+    vi.stubEnv("MAILER_TRANSPORT", "log");
+    const { orm } = createFakeOrm();
+    mocks.createOrm.mockResolvedValue(orm);
+    const scope = await createRequestScope();
+    expect(scope.cradle.rateLimiter).toMatchObject({ hit: expect.any(Function) });
+    expect(scope.cradle.mailer).toMatchObject({ send: expect.any(Function) });
+  });
+
+  it("fails closed when mail adapter configuration is unset", async () => {
+    delete process.env.MAILER_TRANSPORT;
+    const { orm } = createFakeOrm();
+    mocks.createOrm.mockResolvedValue(orm);
+    const scope = await createRequestScope();
+    expect(() => scope.cradle.mailer).toThrowError(
+      expect.objectContaining({ name: "ServiceUnavailableError", status: 503, message: "Required adapter configuration is missing: MAILER_TRANSPORT" }),
+    );
+  });
 });
 
 describe("withScope", () => {

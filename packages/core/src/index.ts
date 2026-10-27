@@ -12,6 +12,7 @@ export {
   MethodNotAllowedError,
   NotFoundError,
   ServiceUnavailableError,
+  TooManyRequestsError,
   UnauthorizedError,
   ValidationError,
   type ErrorCode,
@@ -55,6 +56,14 @@ export { effectiveRole, issueSession, type IssuedSession } from "./services/auth
 export { AccountService, NoVerifiedGithubEmailError } from "./services/auth/account.service";
 export type { GithubEmail, GithubIdentityPort, GithubUser } from "./services/auth/github-identity.port";
 export { createGithubIdentityAdapter, type GithubAdapterDependencies } from "./services/auth/adapters/github-identity.adapter";
+export { createMemoryRateLimiter } from "./services/ratelimit/memory-rate-limiter.adapter";
+export { enforceRateLimit } from "./services/ratelimit/enforce-rate-limit";
+export { getTrustedClientIp } from "./services/ratelimit/client-ip";
+export { loginRateLimitKeys } from "./services/ratelimit/rate-limit-keys";
+export type { RateLimiterPort, RateLimitPolicy, RateLimitResult } from "./services/ratelimit/rate-limiter.port";
+export { createLogMailerAdapter } from "./services/notifications/adapters/log-mailer.adapter";
+export type { MailerPort, MailMessage } from "./services/notifications/mailer.port";
+export { selectAdapter } from "./services/shared/select-adapter";
 export {
   clearOAuthStateCookie,
   createOAuthState,

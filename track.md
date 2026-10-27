@@ -56,7 +56,7 @@ Manual checkpoint: open `/sign-in`, complete the fake GitHub flow, verify mentee
 
 ### Phase 7 — E01 S02: e-mail and password
 
-- [ ] **F7.1** Add the rate-limiter and mailer ports/adapters, adapter selection, `TooManyRequestsError`, proxy-hop config, and their tests.
+- [x] **F7.1** Add the bounded in-memory rate-limiter and mailer ports/adapters, adapter selection, `enforceRateLimit`, `TooManyRequestsError`/`Retry-After`, trusted proxy-hop config and tests.
 - [ ] **F7.2** Add password hashing, the password migration, register/confirm/login schemas, safe registration tokens, and `PasswordAuthService`.
 - [ ] **F7.3** Add registration, confirmation, login routes and route tests, including generic failures, replay/race handling and rate limits.
 - [ ] **F7.4** Add `PublicForm`, registration and confirmation pages, enable the e-mail form, and cover page/form states.
@@ -80,6 +80,6 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Phase 3: F3.1 commit `6fda454`; F3.2 commit `3938132`. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; browser preview unavailable. The integration suite later passed on a disposable DB during F5.3 (17 tests).
 - Phase 4: F4.1 commit `01b512a`; coverage is 100% (314 tests), full typecheck and focused lint pass; browser manual checkpoint unavailable.
 - Phase 5: F5.1 commit `57ac13c`; F5.2 commit `9e4432b`; F5.3 commit `da003bf`; F5.4 commit `10f777e`; F5.5 commit `c221f19`; F5.6 commit `6b58f7f`. Coverage 100% (501 tests), full typecheck, focused ESLint, diff check, and production build pass. Full integration suite (29 tests) passed on a disposable database. Interactive browser checkpoint remains unavailable.
-- Phase 6: F6.1 commit `106bb8e`; F6.2 implemented and verified; commit pending. Coverage 100% (543 tests), typecheck and production build pass, and 37 integration tests pass on an isolated temporary PostgreSQL 17 cluster. Scoped ESLint has 0 errors and one warning for `window.location.assign`; full lint remains blocked by unrelated generated and untracked content. Interactive browser checkpoint remains unavailable; user requested continuing.
-- Phase 7: pending.
+- Phase 6: F6.1 commit `106bb8e`; F6.2 commit `bb1c700`. Coverage 100% (543 tests), typecheck and production build pass, and 37 integration tests pass on an isolated temporary PostgreSQL 17 cluster. Scoped ESLint has 0 errors and one warning for `window.location.assign`; full lint remains blocked by unrelated generated and untracked content. Interactive browser checkpoint remains unavailable; user requested continuing.
+- Phase 7: F7.1 implemented and verified; commit pending. Coverage 100% (591 tests), typecheck, production build, focused lint, and diff check pass. Full lint remains blocked by generated Storybook and unrelated untracked prototype files. No integration run was needed for ports/config only.
 - Phase 8: pending.

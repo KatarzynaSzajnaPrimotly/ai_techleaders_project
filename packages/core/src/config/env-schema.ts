@@ -11,6 +11,8 @@ export const envSchema = z.object({
   GITHUB_CLIENT_SECRET: z.string().optional(),
   GITHUB_OAUTH_BASE_URL: z.string().optional(),
   GITHUB_API_BASE_URL: z.string().optional(),
+  TRUST_PROXY_HOPS: z.string().regex(/^(0|[1-9]\d*)$/).transform(Number).optional(),
+  MAILER_TRANSPORT: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
