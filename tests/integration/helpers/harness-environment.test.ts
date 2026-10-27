@@ -16,6 +16,8 @@ describe("integration harness environment", () => {
       NODE_ENV: "production",
       APP_URL: "http://127.0.0.1:4123",
       JWT_SECRET: "random-test-secret",
+      GITHUB_CLIENT_ID: "devmentor-integration-client",
+      GITHUB_CLIENT_SECRET: "devmentor-integration-secret",
       GITHUB_OAUTH_BASE_URL: "http://127.0.0.1:4234",
       GITHUB_API_BASE_URL: "http://127.0.0.1:4234",
       MAILER_TRANSPORT: "log",

@@ -32,7 +32,11 @@ describe("fake external server", () => {
     });
     expect(configured.status).toBe(200);
 
-    const tokenResponse = await fetch(`${url}/login/oauth/access_token`, { method: "POST" });
+    const tokenResponse = await fetch(`${url}/login/oauth/access_token`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code: "integration-code" }),
+    });
     expect(tokenResponse.status).toBe(200);
     const token = (await tokenResponse.json() as { access_token: string }).access_token;
     expect(token).toBeTruthy();
@@ -78,5 +82,43 @@ describe("fake external server", () => {
       body: "x".repeat(MAX_BODY_BYTES_FOR_FAKE_SERVER + 1),
     });
     expect(tooLarge.status).toBe(413);
+  });
+
+  it("selects an identity by authorization code for concurrent callback tests", async () => {
+    const url = await start();
+    const firstIdentity: FakeGithubIdentity = {
+      user: { id: 1, login: "first", name: null, avatar_url: null },
+      emails: [{ email: "same@example.test", primary: true, verified: true, visibility: null }],
+    };
+    const secondIdentity: FakeGithubIdentity = {
+      user: { id: 2, login: "second", name: null, avatar_url: null },
+      emails: [{ email: "same@example.test", primary: true, verified: true, visibility: null }],
+    };
+    for (const [code, candidate] of [["first-code", firstIdentity], ["second-code", secondIdentity]] as const) {
+      const configured = await fetch(`${url}/__control/github/identity?code=${code}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(candidate),
+      });
+      expect(configured.status).toBe(200);
+    }
+
+    const firstTokenResponse = await fetch(`${url}/login/oauth/access_token`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code: "first-code" }),
+    });
+    const firstToken = (await firstTokenResponse.json() as { access_token: string }).access_token;
+    const secondTokenResponse = await fetch(`${url}/login/oauth/access_token`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code: "second-code" }),
+    });
+    const secondToken = (await secondTokenResponse.json() as { access_token: string }).access_token;
+
+    await expect((await fetch(`${url}/user`, { headers: { authorization: `Bearer ${firstToken}` } })).json())
+      .resolves.toEqual(firstIdentity.user);
+    await expect((await fetch(`${url}/user`, { headers: { authorization: `Bearer ${secondToken}` } })).json())
+      .resolves.toEqual(secondIdentity.user);
   });
 });
