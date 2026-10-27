@@ -5,6 +5,7 @@ export type ErrorCode =
   | "VALIDATION_ERROR"
   | "CONFLICT"
   | "METHOD_NOT_ALLOWED"
+  | "SERVICE_UNAVAILABLE"
   | "INTERNAL_ERROR";
 
 export type FieldErrors = Record<string, string[]>;
@@ -48,6 +49,12 @@ export class MethodNotAllowedError extends AppError {
 export class ConflictError extends AppError {
   constructor(message = "Conflict") {
     super(message, "CONFLICT", 409);
+  }
+}
+
+export class ServiceUnavailableError extends AppError {
+  constructor(message = "Service temporarily unavailable") {
+    super(message, "SERVICE_UNAVAILABLE", 503);
   }
 }
 

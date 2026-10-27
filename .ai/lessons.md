@@ -9,6 +9,8 @@ See `AGENTS.md` for the full `.ai/` workflow this file is part of.
 - YYYY-MM-DD — One-line summary. [details](lessons/YYYY-MM-DD-slug.md)
 -->
 
+- 2026-10-27 — Keep the config schema/parser independent from logger setup to avoid an ESM initialization cycle when config helpers need to log. [details](lessons/2026-10-27-config-logger-import-cycle.md)
+
 - 2026-10-25 — Browser checks of a prototype: `checkVisibility` sees through closed `<details>`; split long `agent-browser eval` into short calls; `@theme inline` colours can't be overridden by a variable; radio groups and scrollers are tab stops. [details](lessons/2026-10-25-prototype-browser-checks-gotchas.md)
 
 - 2026-10-24 — Clickable prototypes: all screens live in the DOM, so ids must be unique per form (`useId`); build as classic script so it opens from `file://`; guard navigation before the review engine's click capture. [details](lessons/2026-10-24-prototype-all-screens-in-dom-and-file-protocol.md)

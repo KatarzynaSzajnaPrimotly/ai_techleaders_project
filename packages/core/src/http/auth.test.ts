@@ -8,6 +8,7 @@ import {
   requireSession,
   SESSION_COOKIE,
   SESSION_TTL_SECONDS,
+  isRole,
   signSession,
   verifySession,
 } from "./auth";
@@ -17,7 +18,7 @@ afterEach(() => {
 });
 
 const SECRET = "s".repeat(32);
-const session = { userId: "user-1", role: "mentor" };
+const session = { userId: "user-1", role: "mentor" as const };
 const withCookie = (cookie?: string) =>
   new Request("http://x", { headers: cookie === undefined ? {} : { cookie } });
 
@@ -47,6 +48,20 @@ describe("signSession / verifySession", () => {
     const noSubject = await new SignJWT({ role: "mentor" }).setProtectedHeader({ alg: "HS256" }).sign(key);
     await expect(verifySession(noRole, SECRET)).rejects.toMatchObject({ status: 401 });
     await expect(verifySession(noSubject, SECRET)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("rejects tokens with an unknown role or a purpose claim", async () => {
+    const key = new TextEncoder().encode(SECRET);
+    const unknownRole = await new SignJWT({ role: "admin" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setSubject("u")
+      .sign(key);
+    const purposeToken = await new SignJWT({ role: "mentor", purpose: "oauth-state" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setSubject("u")
+      .sign(key);
+    await expect(verifySession(unknownRole, SECRET)).rejects.toMatchObject({ status: 401 });
+    await expect(verifySession(purposeToken, SECRET)).rejects.toMatchObject({ status: 401 });
   });
 
   it("rejects an unsigned token (alg none)", async () => {
@@ -87,6 +102,14 @@ describe("requireSession", () => {
 });
 
 describe("authorization helpers", () => {
+  it("recognizes only the three supported roles", () => {
+    expect(isRole("mentee")).toBe(true);
+    expect(isRole("mentor")).toBe(true);
+    expect(isRole("operator")).toBe(true);
+    expect(isRole("admin")).toBe(false);
+    expect(isRole(undefined)).toBe(false);
+  });
+
   it("requireRole allows a matching role and denies another", () => {
     expect(() => requireRole(session, "mentor")).not.toThrow();
     expect(() => requireRole(session, "admin")).toThrowError(expect.objectContaining({ status: 403 }));

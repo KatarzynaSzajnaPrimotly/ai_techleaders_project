@@ -87,6 +87,11 @@ npm run test:integration # Testcontainers PostgreSQL + agent-browser (needs Dock
 npm run build   # use NODE_ENV=production if your shell sets NODE_ENV=development
 ```
 
+Authentication configuration is optional until the auth routes are enabled.
+`JWT_SECRET` must be at least 32 characters. `ALLOW_INSECURE_HTTP=true` is a
+test-only setting for plain-HTTP integration tests; do not set it when `APP_URL`
+uses HTTPS.
+
 ## Testing and CI
 
 - **Unit tests:** Vitest, colocated as `*.test.ts(x)` in `packages/*/src`. Coverage must stay at **100%**

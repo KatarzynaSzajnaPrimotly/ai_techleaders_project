@@ -1,25 +1,40 @@
-import { z } from "zod";
+import { logger } from "../logger";
+import { ServiceUnavailableError } from "../http/errors";
+import { parseEnv } from "./env-schema";
 
-const MIN_JWT_SECRET_LENGTH = 32;
+export { parseEnv, type Env } from "./env-schema";
 
-const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
-  JWT_SECRET: z.string().min(MIN_JWT_SECRET_LENGTH).optional(),
-});
+export function requireConfig<const Keys extends readonly string[]>(keys: Keys): Record<Keys[number], string> {
+  const values: Partial<Record<Keys[number], string>> = {};
+  const missing: string[] = [];
 
-export type Env = z.infer<typeof envSchema>;
-
-export function parseEnv(source: Record<string, string | undefined> = process.env): Env {
-  const result = envSchema.safeParse(source);
-  if (!result.success) {
-    const names = Object.keys(z.flattenError(result.error).fieldErrors).join(", ");
-    throw new Error(`Invalid environment variables: ${names}`);
+  for (const key of keys) {
+    const value = process.env[key];
+    if (value === undefined || value.trim() === "") {
+      missing.push(key);
+    } else {
+      values[key as Keys[number]] = value;
+    }
   }
-  return result.data;
+
+  if (missing.length > 0) {
+    throw new ServiceUnavailableError(`Required configuration is missing: ${missing.join(", ")}`);
+  }
+
+  return values as Record<Keys[number], string>;
 }
 
-export function requireJwtSecret(env: Env = parseEnv()): string {
-  if (!env.JWT_SECRET) throw new Error("JWT_SECRET is not set");
-  return env.JWT_SECRET;
+export function requireJwtSecret(): string {
+  const secret = requireConfig(["JWT_SECRET"]).JWT_SECRET;
+  if (secret.length < 32) throw new ServiceUnavailableError("Required configuration is invalid: JWT_SECRET");
+  return secret;
+}
+
+export function isInsecureHttpAllowed(): boolean {
+  const allowed = parseEnv().ALLOW_INSECURE_HTTP === true;
+  const appUrl = process.env.APP_URL;
+  if (allowed && appUrl?.toLowerCase().startsWith("https://")) {
+    logger.error("ALLOW_INSECURE_HTTP must not be set when APP_URL uses HTTPS");
+  }
+  return allowed;
 }

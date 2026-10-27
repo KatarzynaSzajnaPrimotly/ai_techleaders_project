@@ -5,6 +5,7 @@ import {
   ForbiddenError,
   MethodNotAllowedError,
   NotFoundError,
+  ServiceUnavailableError,
   UnauthorizedError,
   ValidationError,
 } from "./errors";
@@ -16,6 +17,7 @@ describe("AppError hierarchy", () => {
     [NotFoundError, "NOT_FOUND", 404, "Not found"],
     [MethodNotAllowedError, "METHOD_NOT_ALLOWED", 405, "Method not allowed"],
     [ConflictError, "CONFLICT", 409, "Conflict"],
+    [ServiceUnavailableError, "SERVICE_UNAVAILABLE", 503, "Service temporarily unavailable"],
     [ValidationError, "VALIDATION_ERROR", 400, "Validation failed"],
   ] as const)("%o maps to a code, status and default message", (ErrorClass, code, status, message) => {
     const error = new ErrorClass();

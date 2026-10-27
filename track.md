@@ -12,7 +12,7 @@
 
 ### Phase 1 — Foundations A1: config and role vocabulary
 
-- [ ] **F1.1** Add typed `ServiceUnavailableError`, lazy `requireConfig`, test-only `ALLOW_INSECURE_HTTP`, and the `Role` / session-claim validation. Document the config and cover all branches.
+- [x] **F1.1** Add typed `ServiceUnavailableError`, lazy `requireConfig`, test-only `ALLOW_INSECURE_HTTP`, and the `Role` / session-claim validation. Document the config and cover all branches.
 
 Manual checkpoint: the application still starts; public mentor reads still work without auth configuration; malformed and unknown-role sessions fail closed. No sign-in UI exists yet.
 
@@ -75,7 +75,7 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 ## Commit and manual test log
 
 - Planning: pending initial commit.
-- Phase 1: pending.
+- Phase 1: implementation complete; manual checkpoint pending.
 - Phase 2: pending.
 - Phase 3: pending.
 - Phase 4: pending.

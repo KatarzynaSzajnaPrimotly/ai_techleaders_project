@@ -2,7 +2,7 @@ export const APP_NAME = "DevMentor";
 
 export { FEATURED_TUTORS, SUBJECTS, type Tutor, type TutorBadge } from "./catalog";
 
-export { parseEnv, requireJwtSecret, type Env } from "./config/env";
+export { isInsecureHttpAllowed, parseEnv, requireConfig, requireJwtSecret, type Env } from "./config/env";
 export { createLogger, logger, REDACTED_PATHS } from "./logger";
 
 export {
@@ -11,6 +11,7 @@ export {
   ForbiddenError,
   MethodNotAllowedError,
   NotFoundError,
+  ServiceUnavailableError,
   UnauthorizedError,
   ValidationError,
   type ErrorCode,
@@ -34,11 +35,13 @@ export {
   clearSessionCookie,
   requireRole,
   requireSession,
+  isRole,
   signSession,
   verifySession,
   SESSION_COOKIE,
   SESSION_TTL_SECONDS,
   type Session,
+  type Role,
 } from "./http/auth";
 
 export type { Mentor, NewMentor } from "./services/mentors/mentor.types";
