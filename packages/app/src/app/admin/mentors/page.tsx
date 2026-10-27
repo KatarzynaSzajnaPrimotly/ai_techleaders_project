@@ -5,6 +5,7 @@ import { AdminMentors } from "./admin-mentors";
 
 export const metadata: Metadata = { title: "Mentors | DevMentor admin" };
 
+// E01-S03 replaces this temporary public page with an operator-only guard.
 export default function AdminMentorsPage() {
   return (
     <div className="mx-auto min-h-screen max-w-4xl space-y-6 px-6 py-10">
