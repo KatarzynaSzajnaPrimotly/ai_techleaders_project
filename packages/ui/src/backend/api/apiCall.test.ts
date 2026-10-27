@@ -8,10 +8,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function respond(body: unknown, status = 200, raw = false) {
+function respond(body: unknown, status = 200, raw = false, headers?: HeadersInit) {
   vi.stubGlobal("fetch", fetchMock);
   const noContent = status === 204;
-  fetchMock.mockResolvedValue(new Response(noContent ? null : raw ? (body as string) : JSON.stringify(body), { status }));
+  fetchMock.mockResolvedValue(new Response(noContent ? null : raw ? (body as string) : JSON.stringify(body), { status, headers }));
 }
 
 describe("readJsonSafe", () => {
@@ -74,6 +74,23 @@ describe("apiCall", () => {
     });
   });
 
+  it("returns a numeric Retry-After delay for rate-limited responses", async () => {
+    respond({ ok: false, error: { code: "RATE_LIMITED", message: "Too many requests" } }, 429, false, { "retry-after": "75" });
+    await expect(apiCall("/api/auth/login", { method: "POST", body: {} })).resolves.toEqual({
+      ok: false,
+      status: 429,
+      error: { code: "RATE_LIMITED", message: "Too many requests", fieldErrors: undefined },
+      retryAfterSeconds: 75,
+    });
+  });
+
+  it("ignores malformed Retry-After values", async () => {
+    respond({ ok: false, error: { code: "RATE_LIMITED", message: "Too many requests" } }, 429, false, { "retry-after": "tomorrow" });
+    const result = await apiCall("/api/auth/login", { method: "POST", body: {} });
+    expect(result).toMatchObject({ ok: false, status: 429 });
+    expect(result.ok && "retryAfterSeconds" in result).toBe(false);
+  });
+
   it("returns a failure without field errors when the server sends none", async () => {
     respond({ ok: false, error: { code: "CONFLICT", message: "Exists" } }, 409);
     const result = await apiCall("/api/mentors");
@@ -89,7 +106,7 @@ describe("apiCall", () => {
     const assign = vi.fn();
     vi.stubGlobal("window", { location: { pathname: "/mentor", search: "?tab=upcoming", assign } });
     await apiCall("/api/mentors");
-    expect(assign).toHaveBeenCalledWith("/sign-in?returnTo=%2Fmentor%3Ftab%3Dupcoming");
+    expect(assign).toHaveBeenCalledWith("/sign-in?error=session-expired&returnTo=%2Fmentor%3Ftab%3Dupcoming");
   });
 
   it("does not redirect when unauthorized responses are configured to be ignored", async () => {

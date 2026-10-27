@@ -37,8 +37,13 @@ export async function readJsonSafe(response: Response): Promise<unknown> {
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
 
-function failure(status: number, error: ApiErrorBody): ApiResult<never> {
-  return { ok: false, status, error };
+function failure(status: number, error: ApiErrorBody, retryAfterSeconds?: number): ApiResult<never> {
+  return {
+    ok: false,
+    status,
+    error,
+    ...(retryAfterSeconds === undefined ? {} : { retryAfterSeconds }),
+  };
 }
 
 function parseEnvelope<T>(json: unknown, response: Response): ApiResult<T> {
@@ -48,7 +53,15 @@ function parseEnvelope<T>(json: unknown, response: Response): ApiResult<T> {
   if (isRecord(json) && json.ok === false && isRecord(json.error)) {
     const { code, message, fieldErrors } = json.error;
     if (typeof code === "string" && typeof message === "string") {
-      return failure(response.status, { code, message, fieldErrors: fieldErrors as ApiFieldErrors | undefined });
+      const retryAfterHeader = response.status === 429 ? response.headers.get("retry-after") : null;
+      const retryAfterSeconds = retryAfterHeader && /^\d+$/.test(retryAfterHeader)
+        ? Number(retryAfterHeader)
+        : undefined;
+      return failure(
+        response.status,
+        { code, message, fieldErrors: fieldErrors as ApiFieldErrors | undefined },
+        Number.isSafeInteger(retryAfterSeconds) ? retryAfterSeconds : undefined,
+      );
     }
   }
   return failure(response.status, { code: "INVALID_RESPONSE", message: `Unexpected response (HTTP ${response.status})` });
@@ -76,7 +89,8 @@ export async function apiCall<T>(url: string, options: ApiCallOptions = {}): Pro
 
   if (response.status === 401 && onUnauthorized === "redirect" && typeof window !== "undefined" && window.location.pathname !== "/sign-in") {
     const returnTo = `${window.location.pathname}${window.location.search}`;
-    window.location.assign(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    const query = new URLSearchParams({ error: "session-expired", returnTo });
+    window.location.assign(`/sign-in?${query.toString()}`);
   }
   return parseEnvelope<T>(await readJsonSafe(response), response);
 }

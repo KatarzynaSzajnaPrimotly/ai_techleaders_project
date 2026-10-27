@@ -226,3 +226,37 @@ describe("PasswordAuthService.authenticate", () => {
     await expect(service.authenticate("ada@example.test", "irrelevant")).rejects.toMatchObject({ message: "Invalid credentials" });
   });
 });
+
+describe("PasswordAuthService.inspectRegistrationToken", () => {
+  it("returns the token email without consuming a valid registration token", async () => {
+    const { service, accountService, passwordHasher } = setup();
+    const token = await signPurposeToken("register", { email: "ada@example.test", displayName: "Ada" }, 60, JWT_SECRET);
+    await expect(service.inspectRegistrationToken(token)).resolves.toEqual({ email: "ada@example.test", status: "ready" });
+    expect(accountService.findByEmail).toHaveBeenCalledWith("ada@example.test");
+    expect(accountService.createPasswordAccount).not.toHaveBeenCalled();
+    expect(passwordHasher.hash).not.toHaveBeenCalled();
+  });
+
+  it("reports an existing account as used", async () => {
+    const { service, accountService } = setup();
+    accountService.findByEmail = vi.fn().mockResolvedValue({ id: "user-1", email: "ada@example.test", githubId: null }) as typeof accountService.findByEmail;
+    const token = await signPurposeToken("register", { email: "ada@example.test", displayName: "Ada" }, 60, JWT_SECRET);
+    await expect(service.inspectRegistrationToken(token)).resolves.toEqual({ email: "ada@example.test", status: "used" });
+  });
+
+  it.each(["not-a-token", "bad-claims"]) ("returns null for %s", async (value) => {
+    const { service, accountService } = setup();
+    const token = value === "bad-claims"
+      ? await signPurposeToken("register", { email: "invalid", displayName: "Ada" }, 60, JWT_SECRET)
+      : value;
+    await expect(service.inspectRegistrationToken(token)).resolves.toBeNull();
+    expect(accountService.findByEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unsafe embedded destination without account lookup", async () => {
+    const { service, accountService } = setup();
+    const token = await signPurposeToken("register", { email: "ada@example.test", displayName: "Ada", returnTo: "https://attacker.example" }, 60, JWT_SECRET);
+    await expect(service.inspectRegistrationToken(token)).resolves.toBeNull();
+    expect(accountService.findByEmail).not.toHaveBeenCalled();
+  });
+});

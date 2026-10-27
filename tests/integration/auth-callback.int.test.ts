@@ -90,7 +90,8 @@ describe("GitHub OAuth callback integration", () => {
     ["mentor", "/mentor", "mentee", "/home"],
   ] as const)("allows the %s role on %s and redirects the wrong role", async (_role, ownPath, wrongRole, wrongHome) => {
     const role = _role;
-    const ownCookie = await mintSessionCookie({ userId: `page-${role}-${unique}`, role }, jwtSecret);
+    const account = await createUser({ email: `page-${role}-${unique}@example.test`, role }, databaseUrl);
+    const ownCookie = await mintSessionCookie({ userId: account.id, role }, jwtSecret);
     const ownResponse = await fetch(new URL(ownPath, baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${ownCookie}` }, redirect: "manual" });
     expect(ownResponse.status).toBe(200);
 
@@ -231,6 +232,24 @@ describe("GitHub OAuth callback integration", () => {
     }));
     expect(sessions[0]?.userId).toBeTruthy();
     expect(sessions[1]?.userId).toBe(sessions[0]?.userId);
+  });
+
+  it("renders the mentee home using the saved account display name", async () => {
+    const user = await createUser({ email: `home-${unique}@example.test`, displayName: "Home Profile Name" }, databaseUrl);
+    const session = await mintSessionCookie({ userId: user.id, role: "mentee" }, jwtSecret);
+    const response = await fetch(new URL("/home", baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${session}` } });
+    expect(response.status).toBe(200);
+    const html = await response.text();
+    expect(html).toContain("Home Profile Name");
+    expect(html).not.toContain("password_hash");
+  });
+
+  it("renders the mentor home with GitHub login when display name is absent", async () => {
+    const user = await createUser({ email: `mentor-home-${unique}@example.test`, role: "mentor", githubId: `gh-${unique}`, githubLogin: "mentor-profile-login" }, databaseUrl);
+    const session = await mintSessionCookie({ userId: user.id, role: "mentor" }, jwtSecret);
+    const response = await fetch(new URL("/mentor", baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${session}` } });
+    expect(response.status).toBe(200);
+    expect(await response.text()).toContain("mentor-profile-login");
   });
 
   it("makes logout idempotent and clears stale session cookies with CSRF", async () => {
