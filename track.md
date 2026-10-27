@@ -28,7 +28,7 @@ Manual checkpoint: user could not access the preview through port 3000 and asked
 - [x] **F3.1** Add the source-based access contract test, dated exceptions for the two mentors surfaces, and tests for aliases/wrappers and missing declarations.
 - [x] **F3.2** Update `AGENTS.md`, engineering standards, `README.md`, and the superseded GitHub issue descriptions to match the access contract and the auth spec.
 
-Manual checkpoint: the access contract test passes with the two named E01-S03 exceptions; production build succeeds and lists the current pages/routes. Browser preview remains unavailable (port mapping returns 404). Full integration suite could not start: no container runtime is available, `INTEGRATION_DATABASE_URL` is not configured, and Vitest reports no integration test files in this checkout.
+Manual checkpoint: the access contract test passes with the two named E01-S03 exceptions; production build succeeds and lists the current pages/routes. Browser preview remains unavailable (port mapping returns 404). Integration setup could not start because this sandbox has no container runtime.
 
 ### Phase 4 — Foundations B2a: shared form core
 
@@ -38,7 +38,7 @@ Manual checkpoint: `CrudForm`'s unchanged tests and new `useFormCore` behavior t
 
 ### Phase 5 — E01 S01a: identity backend
 
-- [ ] **F5.1** Build the integration test kit core: fake external server/control API, signed identity, browser cookie helper, concurrency helper, migration helper, and harness environment.
+- [x] **F5.1** Build the integration test kit core: fake external server/control API, signed identity, browser cookie helper, concurrency helper, migration helper, and harness environment.
 - [ ] **F5.2** Add `absoluteUrl`, purpose-tagged tokens, and `safeReturnTo` with security and boundary tests.
 - [ ] **F5.3** Add the generated `users` migration, entity, repository port/types and repository; verify up/down/up and duplicate/link behavior.
 - [ ] **F5.4** Add GitHub config, session issuer, GitHub identity port/adapter, OAuth state helper, and their unit tests.
@@ -77,9 +77,9 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Planning: pending initial commit.
 - Phase 1: implementation complete; manual preview unavailable (port forwarding returns 404); user requested to continue.
 - Phase 2: F2.1 commit `7fb7323`; F2.2 commit `9971172`; local API smoke test passed; browser manual checkpoint unavailable as noted above.
-- Phase 3: F3.1 commit `6fda454`; F3.2 commit pending. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; integration suite could not start (no container runtime / no tests found); browser preview unavailable.
-- Phase 4: F4.1 commit pending; coverage is 100% (314 tests), full typecheck and focused lint pass; browser manual checkpoint unavailable.
-- Phase 5: pending.
+- Phase 3: F3.1 commit `6fda454`; F3.2 commit `3938132`. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; integration setup could not start (no container runtime); browser preview unavailable.
+- Phase 4: F4.1 commit `01b512a`; coverage is 100% (314 tests), full typecheck and focused lint pass; browser manual checkpoint unavailable.
+- Phase 5: F5.1 commit pending; helper tests 21/21 and full coverage 100% (335 tests), typecheck and focused ESLint pass. Integration setup cannot run in this sandbox without a container runtime.
 - Phase 6: pending.
 - Phase 7: pending.
 - Phase 8: pending.
