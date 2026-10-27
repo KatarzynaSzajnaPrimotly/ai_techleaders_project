@@ -25,7 +25,7 @@ Manual checkpoint: user could not access the preview through port 3000 and asked
 
 ### Phase 3 — Foundations A3: access contract and docs
 
-- [ ] **F3.1** Add the source-based access contract test, dated exceptions for the two mentors surfaces, and tests for aliases/wrappers and missing declarations.
+- [x] **F3.1** Add the source-based access contract test, dated exceptions for the two mentors surfaces, and tests for aliases/wrappers and missing declarations.
 - [ ] **F3.2** Update `AGENTS.md`, engineering standards, `README.md`, and the superseded GitHub issue descriptions to match the access contract and the auth spec.
 
 Manual checkpoint: the contract test passes with only its named E01-S03 exceptions; the current routes and pages continue to work.
