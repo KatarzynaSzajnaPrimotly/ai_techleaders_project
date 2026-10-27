@@ -69,6 +69,14 @@ beforeAll(async () => {
 afterAll(clearFakeIdentity);
 
 describe("GitHub OAuth callback integration", () => {
+  it("adds private response headers to sign-in and role areas", async () => {
+    for (const path of ["/sign-in", "/home", "/mentor", "/admin/mentors"]) {
+      const response = await fetch(new URL(path, baseUrl), { redirect: "manual" });
+      expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+      expect(response.headers.get("cache-control")).toContain("no-store");
+    }
+  });
+
   it("completes the callback, creates a mentee session, and keeps both Set-Cookie headers separate", async () => {
     const login = await startLogin("/home?tab=upcoming");
     const response = await callback(`success-${unique}`, login.state, login.cookie);
