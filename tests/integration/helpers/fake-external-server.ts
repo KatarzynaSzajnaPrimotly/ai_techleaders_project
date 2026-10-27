@@ -68,8 +68,10 @@ function isGithubIdentity(value: unknown): value is FakeGithubIdentity {
 async function handleRequest(
   request: IncomingMessage,
   response: ServerResponse,
-  getIdentity: () => FakeGithubIdentity | null,
-  setIdentity: (identity: FakeGithubIdentity | null) => void,
+  getIdentity: (code?: string) => FakeGithubIdentity | null,
+  setIdentity: (identity: FakeGithubIdentity | null, code?: string) => void,
+  setTokenIdentity: (token: string, identity: FakeGithubIdentity) => void,
+  getIdentityForToken: (token: string) => FakeGithubIdentity | null,
 ): Promise<void> {
   const url = new URL(request.url ?? "/", "http://127.0.0.1");
 
@@ -86,7 +88,7 @@ async function handleRequest(
         sendJson(response, 400, { error: "Invalid fake GitHub identity" });
         return;
       }
-      setIdentity(identity);
+      setIdentity(identity, url.searchParams.get("code") ?? undefined);
       sendJson(response, 200, { ok: true });
     } catch (error) {
       const status = error instanceof RangeError ? 413 : 400;
@@ -95,20 +97,43 @@ async function handleRequest(
     return;
   }
 
-  const identity = getIdentity();
-  if (!identity) {
-    sendJson(response, 503, { error: "Fake GitHub identity is not configured" });
-    return;
-  }
-
   if (request.method === "POST" && url.pathname === "/login/oauth/access_token") {
-    sendJson(response, 200, { access_token: FAKE_ACCESS_TOKEN, token_type: "bearer", scope: "user:email" });
+    let code: string | undefined;
+    try {
+      const body = await readJson(request);
+      if (typeof body === "object" && body !== null && "code" in body && typeof body.code === "string") {
+        code = body.code;
+      }
+    } catch {
+      sendJson(response, 400, { error: "Invalid OAuth request" });
+      return;
+    }
+    const identity = getIdentity(code);
+    if (!identity) {
+      sendJson(response, 503, { error: "Fake GitHub identity is not configured" });
+      return;
+    }
+    const accessToken = code ? `${FAKE_ACCESS_TOKEN}:${code}` : FAKE_ACCESS_TOKEN;
+    setTokenIdentity(accessToken, identity);
+    sendJson(response, 200, { access_token: accessToken, token_type: "bearer", scope: "user:email" });
     return;
   }
 
   const authorization = request.headers.authorization;
-  if (authorization !== `Bearer ${FAKE_ACCESS_TOKEN}`) {
+  const accessToken = authorization?.startsWith("Bearer ") ? authorization.slice("Bearer ".length) : "";
+  const tokenIdentity = getIdentityForToken(accessToken);
+  if (!getIdentity() && !tokenIdentity) {
+    sendJson(response, 503, { error: "Fake GitHub identity is not configured" });
+    return;
+  }
+  if (accessToken !== FAKE_ACCESS_TOKEN && !tokenIdentity) {
     sendJson(response, 401, { message: "Bad credentials" });
+    return;
+  }
+
+  const identity = tokenIdentity ?? getIdentity();
+  if (!identity) {
+    sendJson(response, 503, { error: "Fake GitHub identity is not configured" });
     return;
   }
 
@@ -125,8 +150,25 @@ async function handleRequest(
 
 export async function startFakeExternalServer(): Promise<FakeExternalServer> {
   let identity: FakeGithubIdentity | null = null;
+  const codeIdentities = new Map<string, FakeGithubIdentity>();
+  const tokenIdentities = new Map<string, FakeGithubIdentity>();
+  const getIdentity = (code?: string) => code ? codeIdentities.get(code) ?? identity : identity;
+  const setIdentity = (next: FakeGithubIdentity | null, code?: string) => {
+    if (code) {
+      if (next) codeIdentities.set(code, next);
+      else codeIdentities.delete(code);
+      return;
+    }
+    identity = next;
+    if (!next) {
+      codeIdentities.clear();
+      tokenIdentities.clear();
+    }
+  };
+  const setTokenIdentity = (token: string, next: FakeGithubIdentity) => tokenIdentities.set(token, next);
+  const getIdentityForToken = (token: string) => tokenIdentities.get(token) ?? null;
   const server: Server = createServer((request, response) => {
-    void handleRequest(request, response, () => identity, (next) => { identity = next; }).catch((error: unknown) => {
+    void handleRequest(request, response, getIdentity, setIdentity, setTokenIdentity, getIdentityForToken).catch((error: unknown) => {
       if (response.headersSent) {
         response.destroy(error instanceof Error ? error : undefined);
         return;

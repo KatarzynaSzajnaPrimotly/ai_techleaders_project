@@ -43,13 +43,13 @@ Manual checkpoint: `CrudForm`'s unchanged tests and new `useFormCore` behavior t
 - [x] **F5.3** Add the generated `users` migration, entity, repository port/types and repository; verify up/down/up and duplicate/link behavior.
 - [x] **F5.4** Add GitHub config, session issuer, GitHub identity port/adapter, OAuth state helper, and their unit tests.
 - [x] **F5.5** Implement `AccountService.findOrCreateFromGithub`, register the services in Awilix, and test verified-email linking and concurrent first sign-in.
-- [ ] **F5.6** Implement GitHub start/callback and logout routes, typed navigation errors, route tests, and the end-to-end GitHub callback tests.
+- [x] **F5.6** Implement GitHub start/callback and logout routes, typed navigation errors, route tests, and the end-to-end GitHub callback tests.
 
-Manual checkpoint: use the local fake GitHub flow to sign in; verify cancellation, state failure, missing verified e-mail, and logout. The callback must set the session cookie only on success.
+Manual checkpoint: integration tests exercised the local fake GitHub flow, cancellation, state failure, missing verified e-mail, logout, session cookies, stored mentor role, and concurrent callback races (29 integration tests passed). Browser preview remains unavailable through the port mapping, so interactive manual testing remains open.
 
 ### Phase 6 — E01 S01b: sign-in and role homes
 
-- [ ] **F6.1** Implement page guards/public pages, session reader, `homeFor`, role navigation/shell, unauthorized API-call behavior, and response headers.
+- [ ] **F6.1** Implement page guards/public pages, session reader, role navigation/shell, unauthorized API-call behavior, and response headers; reuse the `homeFor` helper added in F5.6 for callback redirects.
 - [ ] **F6.2** Add the working GitHub-first sign-in page, mentee and mentor homes, sign-out, page tests, and browser integration checks.
 
 Manual checkpoint: open `/sign-in`, complete the fake GitHub flow, verify mentee and mentor destinations, reject anonymous/wrong-role visits, and sign out.
@@ -79,7 +79,7 @@ Manual checkpoint: anonymous calls are refused, mentee/mentor calls get 403, con
 - Phase 2: F2.1 commit `7fb7323`; F2.2 commit `9971172`; local API smoke test passed; browser manual checkpoint unavailable as noted above.
 - Phase 3: F3.1 commit `6fda454`; F3.2 commit `3938132`. Coverage 100% (304 tests), typecheck and production build passed; full lint is blocked by errors in generated Storybook files and the unrelated untracked lesson-06 backup directory; browser preview unavailable. The integration suite later passed on a disposable DB during F5.3 (17 tests).
 - Phase 4: F4.1 commit `01b512a`; coverage is 100% (314 tests), full typecheck and focused lint pass; browser manual checkpoint unavailable.
-- Phase 5: F5.1 commit `57ac13c`; F5.2 commit `9e4432b`; F5.3 commit `da003bf`; F5.4 commit `10f777e`; F5.5 commit pending. Coverage 100% (474 tests), full typecheck, focused ESLint, and diff check pass. The migration `up/down/up` cycle and full integration suite (18 tests) passed on disposable databases. Browser preview remains unavailable.
+- Phase 5: F5.1 commit `57ac13c`; F5.2 commit `9e4432b`; F5.3 commit `da003bf`; F5.4 commit `10f777e`; F5.5 commit `c221f19`; F5.6 commit pending. Coverage 100% (501 tests), full typecheck, focused ESLint, diff check, and production build pass. Full integration suite (29 tests) passed on a disposable database. Interactive browser checkpoint remains unavailable.
 - Phase 6: pending.
 - Phase 7: pending.
 - Phase 8: pending.
