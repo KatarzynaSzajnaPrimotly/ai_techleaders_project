@@ -15,15 +15,16 @@ Implement `.ai/specs/2026-10-21-auth.md` in stable, sequential tasks. Keep `trac
 - F3.1: added the source-based access contract for API routes and protected page paths, with dated E01-S03 exceptions for the admin mentors page and mentors API. Tests cover imported/local aliases, wrappers, missing declarations, page-role mapping, and TSX parsing. Focused test (7), app typecheck, focused ESLint, and diff check passed. Commit: `6fda454`.
 - F3.2: updated `AGENTS.md`, `.ai/specs/engineering-standards.md`, and `README.md`. Updated GitHub issue bodies #33, #36, #38–#43, and #45–#55; #37 needed no change. Replaced obsolete API references, role terminology, and 422 status claims. Verification: 304 tests at 100% coverage, typecheck and production build pass. Full lint currently reports errors in generated Storybook output and the unrelated untracked lesson-06 backup; integration setup cannot run because the sandbox has no container runtime. Browser preview remains unavailable to the user. Commit: `3938132`.
 - F4.1: extracted `useFormCore` and rebuilt `CrudForm` on the hook while leaving `CrudForm.test.tsx` unchanged. New hook tests cover state, validation, submission results, callbacks, errors, keyboard shortcuts and cancel. Verification: 314 tests at 100% coverage, full typecheck, focused ESLint, and `git diff --check` pass. Commit: `01b512a`.
-- F5.1: added integration helpers for fake GitHub/control API, signed sessions and user fixtures, browser cookie injection, concurrency, migration cycles, port reservation, and harness environment; global setup now reserves the app port before migration/build and passes test secrets/services to the child. Helper tests 21/21; full coverage 100% (335 tests), full typecheck, focused ESLint, and diff check pass. Integration setup cannot run without a container runtime; commit pending.
+- F5.1: added integration helpers for fake GitHub/control API, signed sessions and user fixtures, browser cookie injection, concurrency, migration cycles, port reservation, and harness environment; global setup now reserves the app port before migration/build and passes test secrets/services to the child. Helper tests 21/21; full coverage 100% (335 tests), full typecheck, focused ESLint, and diff check pass. Integration setup cannot run without a container runtime. Commit: `57ac13c`.
+- F5.2: added `absoluteUrl`, purpose-tagged signing/verification, and `safeReturnTo` at the paths specified by the platform contract. Tests cover HTTPS policy, config errors, token purpose separation/tampering/expiry, external and loop destinations, encoded paths, and control characters. Verification: 382 tests at 100% coverage, full typecheck, focused ESLint, and `git diff --check` pass; commit pending.
 
 ## Current state
 
-- Implementing F3.1: source-based access contract test with the two dated mentor exceptions.
+- Implementing F5.2: base URLs, purpose-tagged tokens, and safe return paths.
 - Unrelated pre-existing untracked user files are being left untouched.
 
 ## Follow-ups
 
-- Continue F3.1, then F3.2 in order; commit each task separately.
+- Continue F5.3 onward in order; commit each task separately.
 - Complete later phases and record each manual checkpoint. Browser-only checkpoints may remain unavailable while preview routing returns 404.
 - Move the spec to `.ai/specs/implemented/` only after all specified work has shipped.
