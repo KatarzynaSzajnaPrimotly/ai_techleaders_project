@@ -21,6 +21,7 @@ describe("integration harness environment", () => {
       GITHUB_OAUTH_BASE_URL: "http://127.0.0.1:4234",
       GITHUB_API_BASE_URL: "http://127.0.0.1:4234",
       MAILER_TRANSPORT: "log",
+      TRUST_PROXY_HOPS: "1",
       ALLOW_INSECURE_HTTP: "true",
     });
   });
