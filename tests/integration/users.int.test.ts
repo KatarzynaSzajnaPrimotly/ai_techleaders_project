@@ -34,6 +34,18 @@ describe("users persistence in an isolated PostgreSQL", () => {
     await expect(repository.findByEmail(`${userTag}@EXAMPLE.TEST`)).resolves.toMatchObject({ id: user.id });
   });
 
+  it("persists a password hash without changing its value", async () => {
+    const orm = await ormPromise;
+    const repository = createUserRepository(orm.em.fork());
+    const passwordHash = "$2b$12$integration-password-hash";
+    const user = await repository.create({
+      email: `password-${userTag}@example.test`,
+      emailVerifiedAt: now,
+      passwordHash,
+    });
+    await expect(repository.findByEmail(user.email)).resolves.toMatchObject({ id: user.id, passwordHash });
+  });
+
   it("maps a duplicate email constraint to a typed conflict", async () => {
     const orm = await ormPromise;
     const repository = createUserRepository(orm.em.fork());

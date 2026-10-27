@@ -26,6 +26,7 @@ export function createUserRepository(em: EntityManager): UserRepositoryPort {
       const user = em.create<User>(USER, {
         ...input,
         email: input.email.trim().toLowerCase(),
+        passwordHash: input.passwordHash ?? null,
         role: input.role ?? "mentee",
         displayName: input.displayName ?? null,
         githubId: input.githubId ?? null,

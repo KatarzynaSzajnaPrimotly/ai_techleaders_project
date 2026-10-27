@@ -10,7 +10,7 @@ describe("UserSchema", () => {
   it("declares the expected columns, constraints, and defaults", () => {
     const properties = UserSchema.meta.properties;
     expect(Object.keys(properties).sort()).toEqual([
-      "avatarUrl", "createdAt", "displayName", "email", "emailVerifiedAt", "githubId", "githubLogin", "id", "role", "updatedAt",
+      "avatarUrl", "createdAt", "displayName", "email", "emailVerifiedAt", "githubId", "githubLogin", "id", "passwordHash", "role", "updatedAt",
     ]);
     expect(properties.id.primary).toBe(true);
     expect(properties.email.unique).toBe(true);
@@ -21,5 +21,6 @@ describe("UserSchema", () => {
     expect(properties.githubId.unique).toBe(true);
     expect(properties.githubId.nullable).toBe(true);
     expect(properties.displayName.nullable).toBe(true);
+    expect(properties.passwordHash.nullable).toBe(true);
   });
 });

@@ -50,10 +50,14 @@ export {
 export type { Mentor, NewMentor } from "./services/mentors/mentor.types";
 export type { MentorRepositoryPort } from "./services/mentors/mentor-repository.port";
 export { MentorService } from "./services/mentors/mentor.service";
-export type { User, NewUser, StoredRole } from "./services/auth/user.types";
+export type { User, NewUser, StoredRole, PasswordAuthAccount, LoginAccount, ExistingAccountLookup, NewPasswordAccount } from "./services/auth/user.types";
 export type { UserRepositoryPort } from "./services/auth/user-repository.port";
 export { effectiveRole, issueSession, type IssuedSession } from "./services/auth/session-issuer";
 export { AccountService, NoVerifiedGithubEmailError } from "./services/auth/account.service";
+export { PasswordAuthService, REGISTRATION_TOKEN_TTL_SECONDS, type ConfirmRegistrationResult } from "./services/auth/password-auth.service";
+export { createPasswordHasher, PASSWORD_HASH_COST, DUMMY_PASSWORD_HASH } from "./services/auth/password-hasher";
+export type { PasswordHasherPort } from "./services/auth/password-hasher.port";
+export { buildExistingAccountMail, buildRegistrationMail, type RegistrationMail } from "./services/auth/registration-mail";
 export type { GithubEmail, GithubIdentityPort, GithubUser } from "./services/auth/github-identity.port";
 export { createGithubIdentityAdapter, type GithubAdapterDependencies } from "./services/auth/adapters/github-identity.adapter";
 export { createMemoryRateLimiter } from "./services/ratelimit/memory-rate-limiter.adapter";

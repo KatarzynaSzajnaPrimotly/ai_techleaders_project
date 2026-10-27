@@ -6,6 +6,7 @@ export interface User {
   id: string;
   email: string;
   emailVerifiedAt: Date;
+  passwordHash: string | null;
   displayName: string | null;
   role: StoredRole;
   githubId: string | null;
@@ -18,9 +19,32 @@ export interface User {
 export interface NewUser {
   email: string;
   emailVerifiedAt: Date;
+  passwordHash?: string | null;
   displayName?: string | null;
   role?: StoredRole;
   githubId?: string | null;
   githubLogin?: string | null;
   avatarUrl?: string | null;
+}
+
+export interface PasswordAuthAccount {
+  id: string;
+  role: StoredRole;
+}
+
+export interface LoginAccount extends PasswordAuthAccount {
+  passwordHash: string | null;
+}
+
+export interface ExistingAccountLookup {
+  id: string;
+  email: string;
+  githubId: string | null;
+}
+
+export interface NewPasswordAccount {
+  email: string;
+  emailVerifiedAt: Date;
+  displayName: string;
+  passwordHash: string;
 }
