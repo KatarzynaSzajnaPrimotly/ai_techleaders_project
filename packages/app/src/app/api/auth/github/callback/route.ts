@@ -6,6 +6,7 @@ import {
   NoVerifiedGithubEmailError,
   readOAuthStateCookie,
   issueSession,
+  isMockAuthEnabled,
   ServiceUnavailableError,
   UnauthorizedError,
   verifyOAuthState,
@@ -58,7 +59,12 @@ export const GET = apiHandler(
     const redirectUri = absoluteUrl(CALLBACK_PATH);
     const user = await withScope(async ({ githubIdentity, accountService }) => {
       const accessToken = await githubIdentity.exchangeCode(code, redirectUri);
-      return accountService.findOrCreateFromGithub(accessToken);
+      const account = await accountService.findOrCreateFromGithub(accessToken);
+      if (isMockAuthEnabled() && code === "mock-mentor") {
+        await accountService.grantRole(account.id, "mentor");
+        return { ...account, role: "mentor" as const };
+      }
+      return account;
     });
     const session = await issueSession(user);
     const response = redirect(state.returnTo ?? homeFor(session.session.role));

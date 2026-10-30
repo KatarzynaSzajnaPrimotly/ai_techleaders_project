@@ -19,6 +19,18 @@ describe("SignInView", () => {
       .toBe("/api/auth/github?returnTo=%2Fmentor%3Ftab%3Dupcoming");
   });
 
+  it("offers local mock role links and disables e-mail sign-in in mock mode", () => {
+    render(<SignInView mockAuth returnTo="/mentor" />);
+    expect(screen.getByRole("link", { name: "Sign in as mentee" }).getAttribute("href"))
+      .toBe("/api/auth/github?login=mock-mentee&returnTo=%2Fmentor");
+    expect(screen.getByRole("link", { name: "Sign in as mentor" }).getAttribute("href"))
+      .toBe("/api/auth/github?login=mock-mentor&returnTo=%2Fmentor");
+    expect(screen.getByRole("link", { name: "Sign in as operator" }).getAttribute("href"))
+      .toBe("/api/auth/github?login=mock-operator&returnTo=%2Fmentor");
+    expect(screen.getByText("E-mail sign-in is disabled in local mock mode.")).toBeTruthy();
+    expect(screen.queryByLabelText("E-mail")).toBeNull();
+  });
+
   it("renders cancellation and GitHub error notices", () => {
     render(<SignInView cancelled error="state" />);
     expect(screen.getByRole("status").textContent).toContain("No account was created");

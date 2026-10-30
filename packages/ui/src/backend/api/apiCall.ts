@@ -1,5 +1,9 @@
 import type { ApiErrorBody, ApiFieldErrors, ApiResult } from "./types";
 
+function navigateTo(path: string): void {
+  window.location.href = path;
+}
+
 // Same values as the server side check in @devmentor/core (ui must not import core, so the shape is duplicated).
 const CSRF_HEADER = "x-devmentor-csrf";
 const CSRF_VALUE = "1";
@@ -90,7 +94,7 @@ export async function apiCall<T>(url: string, options: ApiCallOptions = {}): Pro
   if (response.status === 401 && onUnauthorized === "redirect" && typeof window !== "undefined" && window.location.pathname !== "/sign-in") {
     const returnTo = `${window.location.pathname}${window.location.search}`;
     const query = new URLSearchParams({ error: "session-expired", returnTo });
-    window.location.assign(`/sign-in?${query.toString()}`);
+    navigateTo(`/sign-in?${query.toString()}`);
   }
   return parseEnvelope<T>(await readJsonSafe(response), response);
 }

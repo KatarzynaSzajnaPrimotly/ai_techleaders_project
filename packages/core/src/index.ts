@@ -2,7 +2,7 @@ export const APP_NAME = "DevMentor";
 
 export { FEATURED_TUTORS, SUBJECTS, type Tutor, type TutorBadge } from "./catalog";
 
-export { isInsecureHttpAllowed, parseEnv, requireConfig, requireJwtSecret, type Env } from "./config/env";
+export { isInsecureHttpAllowed, isMockAuthEnabled, parseEnv, requireConfig, requireJwtSecret, type Env } from "./config/env";
 export { createLogger, logger, REDACTED_PATHS } from "./logger";
 
 export {
@@ -60,6 +60,7 @@ export type { PasswordHasherPort } from "./services/auth/password-hasher.port";
 export { buildExistingAccountMail, buildRegistrationMail, type RegistrationMail } from "./services/auth/registration-mail";
 export type { GithubEmail, GithubIdentityPort, GithubUser } from "./services/auth/github-identity.port";
 export { createGithubIdentityAdapter, type GithubAdapterDependencies } from "./services/auth/adapters/github-identity.adapter";
+export { createMockGithubIdentityAdapter, type MockGithubLogin } from "./services/auth/adapters/mock-github-identity.adapter";
 export { createMemoryRateLimiter } from "./services/ratelimit/memory-rate-limiter.adapter";
 export { enforceRateLimit } from "./services/ratelimit/enforce-rate-limit";
 export { getTrustedClientIp } from "./services/ratelimit/client-ip";

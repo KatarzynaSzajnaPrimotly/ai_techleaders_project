@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isInsecureHttpAllowed, parseEnv, requireConfig, requireJwtSecret } from "./env";
+import { isInsecureHttpAllowed, isMockAuthEnabled, parseEnv, requireConfig, requireJwtSecret } from "./env";
 import { logger } from "../logger";
 
 afterEach(() => {
@@ -10,7 +10,9 @@ const SECRET = "a".repeat(32);
 
 describe("parseEnv", () => {
   it("applies defaults", () => {
-    expect(parseEnv({})).toEqual({ NODE_ENV: "development", LOG_LEVEL: "info", OPERATOR_EMAILS: [] });
+    expect(parseEnv({})).toEqual({
+      NODE_ENV: "development", LOG_LEVEL: "info", AUTH_IDENTITY_ADAPTER: "github", INTEGRATION_TEST_RUN: false, OPERATOR_EMAILS: [],
+    });
   });
 
   it("parses operator addresses as a trimmed, lower-case list and drops empty entries", () => {
@@ -26,6 +28,8 @@ describe("parseEnv", () => {
       NODE_ENV: "production",
       LOG_LEVEL: "warn",
       JWT_SECRET: SECRET,
+      AUTH_IDENTITY_ADAPTER: "github",
+      INTEGRATION_TEST_RUN: false,
       OPERATOR_EMAILS: [],
     });
   });
@@ -71,12 +75,38 @@ describe("parseEnv", () => {
     vi.stubEnv("LOG_LEVEL", "debug");
     expect(parseEnv().LOG_LEVEL).toBe("debug");
   });
+
+  it("allows mock auth only when both explicit flags are present outside production", () => {
+    expect(parseEnv({ NODE_ENV: "development", AUTH_IDENTITY_ADAPTER: "mock", INTEGRATION_TEST_RUN: "1" }))
+      .toMatchObject({ AUTH_IDENTITY_ADAPTER: "mock", INTEGRATION_TEST_RUN: true });
+    expect(() => parseEnv({ AUTH_IDENTITY_ADAPTER: "mock" })).toThrowError("Invalid environment variables: AUTH_IDENTITY_ADAPTER");
+    expect(() => parseEnv({ INTEGRATION_TEST_RUN: "1" })).toThrowError("Invalid environment variables: AUTH_IDENTITY_ADAPTER");
+    expect(() => parseEnv({ NODE_ENV: "production", AUTH_IDENTITY_ADAPTER: "mock", INTEGRATION_TEST_RUN: "1" }))
+      .toThrowError("Invalid environment variables: AUTH_IDENTITY_ADAPTER");
+  });
+
+  it("selects mock mode from the validated environment", () => {
+    expect(isMockAuthEnabled({ AUTH_IDENTITY_ADAPTER: "mock", INTEGRATION_TEST_RUN: "1" })).toBe(true);
+    expect(isMockAuthEnabled({})).toBe(false);
+  });
 });
 
 describe("requireJwtSecret", () => {
   it("returns the secret from the given env", () => {
     vi.stubEnv("JWT_SECRET", SECRET);
     expect(requireJwtSecret()).toBe(SECRET);
+  });
+
+  it("accepts SESSION_SECRET as an alias for existing JWT_SECRET configuration", () => {
+    vi.stubEnv("SESSION_SECRET", SECRET);
+    expect(requireJwtSecret()).toBe(SECRET);
+  });
+
+  it("reports a short SESSION_SECRET by its own variable name", () => {
+    vi.stubEnv("SESSION_SECRET", "too-short");
+    expect(() => requireJwtSecret()).toThrowError(
+      expect.objectContaining({ code: "SERVICE_UNAVAILABLE", status: 503, message: "Required configuration is invalid: SESSION_SECRET" }),
+    );
   });
 
   it("throws when the secret is missing", () => {

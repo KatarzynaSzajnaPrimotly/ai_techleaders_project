@@ -7,6 +7,8 @@ import {
   createMemoryRateLimiter,
   createPasswordHasher,
   createGithubIdentityAdapter,
+  createMockGithubIdentityAdapter,
+  parseEnv,
   selectAdapter,
   type GithubIdentityPort,
   type MailerPort,
@@ -52,12 +54,12 @@ function createConfiguredMailer(): MailerPort {
 }
 
 function createConfiguredGithubIdentity(): GithubIdentityPort {
+  const env = parseEnv();
   let adapter: GithubIdentityPort | undefined;
   const resolve = () => {
-    adapter ??= createGithubIdentityAdapter();
+    adapter ??= env.AUTH_IDENTITY_ADAPTER === "mock" ? createMockGithubIdentityAdapter() : createGithubIdentityAdapter();
     return adapter;
   };
-
   return {
     createAuthorizationUrl(state, redirectUri) {
       return resolve().createAuthorizationUrl(state, redirectUri);

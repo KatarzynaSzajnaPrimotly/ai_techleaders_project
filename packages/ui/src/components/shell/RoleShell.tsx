@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { apiCall } from "../../backend/api/apiCall";
 
 export type ShellRole = "mentee" | "mentor" | "operator";
@@ -41,6 +42,7 @@ export function RoleShell({
   wide?: boolean;
   badge?: ReactNode;
 }) {
+  const router = useRouter();
   async function signOut() {
     const result = await apiCall("/api/auth/logout", { method: "POST", onUnauthorized: "ignore" });
     if (!result.ok) return;
@@ -48,7 +50,7 @@ export function RoleShell({
       onSignedOut();
       return;
     }
-    window.location.assign("/sign-in");
+    router.push("/sign-in");
   }
 
   return (

@@ -11,7 +11,10 @@ function redactCredentialParameters(text: string): string {
 export function createLogMailerAdapter(): MailerPort {
   return {
     async send(message) {
-      logger.info({ mail: { ...message, text: redactCredentialParameters(message.text) } }, "Outgoing e-mail (log transport)");
+      const text = process.env.NODE_ENV === "development"
+        ? message.text
+        : redactCredentialParameters(message.text);
+      logger.info({ mail: { ...message, text } }, "Outgoing e-mail (log transport)");
     },
   };
 }

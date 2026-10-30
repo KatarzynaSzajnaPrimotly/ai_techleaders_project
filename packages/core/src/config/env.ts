@@ -2,7 +2,7 @@ import { logger } from "../logger";
 import { ServiceUnavailableError } from "../http/errors";
 import { parseEnv } from "./env-schema";
 
-export { parseEnv, type Env } from "./env-schema";
+export { isMockAuthEnabled, parseEnv, type Env } from "./env-schema";
 
 export function requireConfig<const Keys extends readonly string[]>(keys: Keys): Record<Keys[number], string> {
   const values: Partial<Record<Keys[number], string>> = {};
@@ -25,8 +25,12 @@ export function requireConfig<const Keys extends readonly string[]>(keys: Keys):
 }
 
 export function requireJwtSecret(): string {
-  const secret = requireConfig(["JWT_SECRET"]).JWT_SECRET;
-  if (secret.length < 32) throw new ServiceUnavailableError("Required configuration is invalid: JWT_SECRET");
+  const sessionSecret = process.env.SESSION_SECRET?.trim();
+  const secret = sessionSecret || requireConfig(["JWT_SECRET"]).JWT_SECRET;
+  if (secret.length < 32) {
+    const variable = sessionSecret ? "SESSION_SECRET" : "JWT_SECRET";
+    throw new ServiceUnavailableError(`Required configuration is invalid: ${variable}`);
+  }
   return secret;
 }
 

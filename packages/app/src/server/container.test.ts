@@ -107,6 +107,21 @@ describe("createRequestScope", () => {
     expect(scope.cradle.passwordHasher).toMatchObject({ hash: expect.any(Function), compare: expect.any(Function) });
   });
 
+  it("selects the mock identity adapter only with both local test flags", async () => {
+    vi.stubEnv("AUTH_IDENTITY_ADAPTER", "mock");
+    vi.stubEnv("INTEGRATION_TEST_RUN", "1");
+    const { orm } = createFakeOrm();
+    mocks.createOrm.mockResolvedValue(orm);
+
+    const scope = await createRequestScope();
+
+    expect(scope.cradle.githubIdentity.createAuthorizationUrl("state", "http://localhost/callback"))
+      .toBe("http://localhost/callback?state=state&code=mock-mentee");
+    await expect(scope.cradle.githubIdentity.exchangeCode("mock-mentor", "http://localhost/callback")).resolves.toBe("mock-mentor");
+    await expect(scope.cradle.githubIdentity.getUser("mock-mentor")).resolves.toMatchObject({ login: "mock-mentor" });
+    await expect(scope.cradle.githubIdentity.getEmails("mock-mentor")).resolves.toMatchObject([{ email: "mock-mentor@devmentor.test", verified: true }]);
+  });
+
   it("registers the in-memory rate limiter and selects the log mailer only explicitly", async () => {
     vi.stubEnv("MAILER_TRANSPORT", "log");
     const { orm } = createFakeOrm();

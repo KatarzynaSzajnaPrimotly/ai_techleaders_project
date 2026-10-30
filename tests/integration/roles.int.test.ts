@@ -68,6 +68,12 @@ beforeAll(clearFakeIdentity);
 afterAll(clearFakeIdentity);
 
 describe("operator access integration", () => {
+  it("refuses local mock identities in the production integration server", async () => {
+    const response = await fetch(new URL("/api/auth/github?login=mock-mentee", baseUrl), { redirect: "manual" });
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("/sign-in?error=unavailable");
+  });
+
   it("requires an operator session to create a mentor", async () => {
     const anonymous = await fetch(new URL("/api/mentors", baseUrl), {
       method: "POST",

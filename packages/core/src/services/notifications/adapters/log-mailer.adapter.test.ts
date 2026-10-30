@@ -5,10 +5,14 @@ vi.mock("../../../logger", () => ({ logger: log }));
 
 import { createLogMailerAdapter } from "./log-mailer.adapter";
 
-afterEach(() => log.info.mockReset());
+afterEach(() => {
+  log.info.mockReset();
+  vi.unstubAllEnvs();
+});
 
 describe("createLogMailerAdapter", () => {
   it("logs useful e-mail content while redacting bearer values in message links", async () => {
+    vi.stubEnv("NODE_ENV", "production");
     const adapter = createLogMailerAdapter();
     const message = {
       to: "ada@example.test",
@@ -26,5 +30,13 @@ describe("createLogMailerAdapter", () => {
     expect(JSON.stringify(log.info.mock.calls)).not.toContain("oauth-code");
     expect(JSON.stringify(log.info.mock.calls)).not.toContain("NewBearer");
     expect(JSON.stringify(log.info.mock.calls)).not.toContain("KeySecret");
+  });
+
+  it("logs full confirmation links in development so local registration can be completed", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    const adapter = createLogMailerAdapter();
+    const message = { to: "ada@example.test", subject: "Confirm", text: "Open https://example.test/register/confirm?token=LocalToken" };
+    await adapter.send(message);
+    expect(log.info).toHaveBeenCalledWith({ mail: message }, "Outgoing e-mail (log transport)");
   });
 });

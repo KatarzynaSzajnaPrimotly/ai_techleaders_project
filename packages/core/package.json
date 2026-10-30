@@ -4,7 +4,8 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./validators": "./src/validators/index.ts"
+    "./validators": "./src/validators/index.ts",
+    "./config": "./src/config/env-schema.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

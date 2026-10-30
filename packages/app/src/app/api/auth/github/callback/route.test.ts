@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
     getUser: vi.fn(),
     getEmails: vi.fn(),
   },
-  accountService: { findOrCreateFromGithub: vi.fn() },
+  accountService: { findOrCreateFromGithub: vi.fn(), grantRole: vi.fn() },
 }));
 
 vi.mock("../../../../../server/container", () => ({
@@ -47,6 +47,7 @@ const user: User = {
 beforeEach(() => {
   mocks.githubIdentity.exchangeCode.mockReset().mockResolvedValue("github-access-token");
   mocks.accountService.findOrCreateFromGithub.mockReset().mockResolvedValue(user);
+  mocks.accountService.grantRole.mockReset().mockResolvedValue(true);
   vi.stubEnv("APP_URL", APP_URL);
   vi.stubEnv("JWT_SECRET", JWT_SECRET);
   vi.stubEnv("NODE_ENV", "test");
@@ -103,6 +104,23 @@ describe("GET /api/auth/github/callback", () => {
     const response = await GET(callbackRequest(`?${query}`, cookieValue(issued.cookie)), undefined);
 
     expect(response.headers.get("location")).toBe("/mentor/home?tab=upcoming");
+  });
+
+  it("grants the deterministic mock mentor role before issuing its session", async () => {
+    vi.stubEnv("AUTH_IDENTITY_ADAPTER", "mock");
+    vi.stubEnv("INTEGRATION_TEST_RUN", "1");
+    mocks.accountService.findOrCreateFromGithub.mockResolvedValue({ ...user, role: "mentee" });
+    const issued = await createOAuthState();
+    const query = new URLSearchParams({ code: "mock-mentor", state: issued.state });
+
+    const response = await GET(callbackRequest(`?${query}`, cookieValue(issued.cookie)), undefined);
+
+    expect(mocks.githubIdentity.exchangeCode).toHaveBeenCalledWith("mock-mentor", `${APP_URL}/api/auth/github/callback`);
+    expect(mocks.accountService.grantRole).toHaveBeenCalledWith(user.id, "mentor");
+    expect(response.headers.get("location")).toBe("/mentor");
+    const sessionCookie = getCookies(response).find((cookie) => cookie.startsWith("devmentor_session="));
+    const token = sessionCookie?.split(";", 1)[0]?.slice("devmentor_session=".length);
+    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: user.id, role: "mentor" });
   });
 
   it("cancels sign-in without requiring state and clears the OAuth cookie", async () => {

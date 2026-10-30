@@ -62,6 +62,37 @@ describe("GET /api/auth/github", () => {
     expect(mocks.githubIdentity.createAuthorizationUrl).toHaveBeenCalledWith(expect.any(String), `${APP_URL}/api/auth/github/callback`);
   });
 
+  it("routes an explicitly selected local mock identity through the normal callback with signed state", async () => {
+    vi.stubEnv("AUTH_IDENTITY_ADAPTER", "mock");
+    vi.stubEnv("INTEGRATION_TEST_RUN", "1");
+    const response = await GET(new Request("http://localhost/api/auth/github?login=mock-mentor&returnTo=%2Fmentor"), undefined);
+
+    expect(response.status).toBe(303);
+    const location = new URL(response.headers.get("location") ?? "");
+    expect(location.origin + location.pathname).toBe(`${APP_URL}/api/auth/github/callback`);
+    expect(location.searchParams.get("code")).toBe("mock-mentor");
+    expect(location.searchParams.get("state")).toBeTruthy();
+    expect(response.headers.get("set-cookie")).toContain("devmentor_oauth_state=");
+    expect(mocks.githubIdentity.createAuthorizationUrl).not.toHaveBeenCalled();
+  });
+
+  it("refuses mock-login shortcuts unless mock mode is explicitly enabled", async () => {
+    const response = await GET(new Request("http://localhost/api/auth/github?login=mock-mentee"), undefined);
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("/sign-in?error=unavailable");
+    expect(mocks.githubIdentity.createAuthorizationUrl).not.toHaveBeenCalled();
+  });
+
+  it("rejects unknown mock role names", async () => {
+    vi.stubEnv("AUTH_IDENTITY_ADAPTER", "mock");
+    vi.stubEnv("INTEGRATION_TEST_RUN", "1");
+    const response = await GET(new Request("http://localhost/api/auth/github?login=mock-admin"), undefined);
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("/sign-in?error=state");
+  });
+
   it("maps an invalid returnTo to the state error without redirecting to it", async () => {
     const response = await GET(new Request("http://localhost/api/auth/github?returnTo=https%3A%2F%2Fevil.example"), undefined);
 

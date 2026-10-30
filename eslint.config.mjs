@@ -60,6 +60,8 @@ const eslintConfig = defineConfig([
     "**/.next/**",
     "**/out/**",
     "**/build/**",
+    "packages/ui/storybook-static/**",
+    "packages/ui/.storybook/public/mockServiceWorker.js",
     "coverage/**",
     "**/next-env.d.ts",
     ".ai/**",
@@ -67,6 +69,8 @@ const eslintConfig = defineConfig([
     "prototypes/**",
     "packages/ui/.storybook/public/prototypes/**",
     "**/lekcja-07/**",
+    "ai-techleaders-project-after-lesson-06/**",
+    "**/ai-techleaders-project-after-lesson-06/**",
   ]),
 ]);
 

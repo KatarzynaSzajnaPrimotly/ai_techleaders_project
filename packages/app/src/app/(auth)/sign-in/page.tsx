@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import type { Session } from "@devmentor/core";
+import { isMockAuthEnabled, type Session } from "@devmentor/core";
 import { homeFor, publicPage } from "../../../server/guards";
 import { getSignInErrorMessage, SignInView, type SignInError } from "./sign-in-view";
 
@@ -27,7 +27,7 @@ export async function SignInPageContent({
   const cancelled = firstValue(params.cancelled) === "1";
   const error = asSignInError(firstValue(params.error));
   const returnTo = firstValue(params.returnTo);
-  return <SignInView cancelled={cancelled} error={error} returnTo={returnTo} />;
+  return <SignInView cancelled={cancelled} error={error} returnTo={returnTo} mockAuth={isMockAuthEnabled()} />;
 }
 
 export default publicPage(SignInPageContent, { withSession: true });

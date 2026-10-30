@@ -88,8 +88,8 @@ npm run test:integration # Testcontainers PostgreSQL + agent-browser (needs Dock
 npm run build   # use NODE_ENV=production if your shell sets NODE_ENV=development
 ```
 
-Authentication routes are available. Configure `JWT_SECRET` and the provider settings described below to enable sign-in. API routes must declare `access` through `apiHandler` or `makeCrudRoute`; protected pages use `guardedPage`, while public pages use `publicPage`. The shared `enforceAccess` policy handles anonymous, authenticated, and role-restricted access. The mentors API and `/admin/mentors` require the operator role; configure founder addresses with `OPERATOR_EMAILS`.
-`JWT_SECRET` must be at least 32 characters. `ALLOW_INSECURE_HTTP=true` is a
+Authentication routes are available. Configure `SESSION_SECRET` (or the backwards-compatible `JWT_SECRET`) and the provider settings described below to enable sign-in. API routes must declare `access` through `apiHandler` or `makeCrudRoute`; protected pages use `guardedPage`, while public pages use `publicPage`. The shared `enforceAccess` policy handles anonymous, authenticated, and role-restricted access. The mentors API and `/admin/mentors` require the operator role; configure founder addresses with `OPERATOR_EMAILS`.
+`SESSION_SECRET` or `JWT_SECRET` must be at least 32 characters. `ALLOW_INSECURE_HTTP=true` is a
 test-only setting for plain-HTTP integration tests; do not set it when `APP_URL`
 uses HTTPS. GitHub OAuth is configured with `GITHUB_CLIENT_ID` and
 `GITHUB_CLIENT_SECRET`; `GITHUB_OAUTH_BASE_URL` and `GITHUB_API_BASE_URL` default
@@ -106,6 +106,32 @@ forwarded value as the rate-limit IP. Set `OPERATOR_EMAILS` to the founders' e-m
 addresses separated by commas; values are trimmed and lower-cased, and the default
 is empty. An allowlisted mentee signs in with the operator role; an allowlisted mentor
 keeps the mentor role and cannot be granted mentor again.
+
+For a local role walkthrough without GitHub credentials, put a 32-character
+`SESSION_SECRET`, `OPERATOR_EMAILS=mock-operator@devmentor.test`,
+`AUTH_IDENTITY_ADAPTER=mock`, and `INTEGRATION_TEST_RUN=1` in
+`packages/app/.env.local`, then restart `npm run dev`. Both mock flags are
+required and mock sign-in is refused in production. The sign-in page provides
+mentee, mentor, and operator links; the operator link uses the allowlist above.
+E-mail sign-in is disabled while mock mode is active. Remove the two mock flags
+to return to normal GitHub and e-mail sign-in.
+
+### Local role walkthrough: URLs and expected results
+
+Open these paths on the app preview (for example, Port 3000):
+
+| URL | Expected |
+|---|---|
+| `/sign-in` | Shows mentee, mentor, and operator mock sign-in links; e-mail sign-in is disabled with a note. |
+| `/api/auth/github?login=mock-mentee` | Signs in as a mentee and redirects to `/home`. |
+| `/api/auth/github?login=mock-mentor` | Signs in as a mentor and redirects to `/mentor`. |
+| `/api/auth/github?login=mock-operator` | Signs in as an allowlisted operator and redirects to `/admin/mentors`. |
+| `/admin/mentors` as a mentee | Redirects to `/home`. |
+| `/admin/mentors` as a mentor | Redirects to `/mentor`. |
+| `/sign-in` while signed in | Redirects to that user's role home. |
+| Return to a protected page after signing out | Redirects to `/sign-in`. |
+
+The operator destination is `/admin/mentors` because that is the operator page currently implemented in the app.
 
 ## Testing and CI
 

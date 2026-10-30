@@ -1,5 +1,9 @@
 import path from "node:path";
 import type { NextConfig } from "next";
+import { parseEnv } from "@devmentor/core/config";
+
+// Validate the two-signal local mock-auth gate before Next serves or builds the app.
+parseEnv();
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@devmentor/ui", "@devmentor/core", "@devmentor/db"],
