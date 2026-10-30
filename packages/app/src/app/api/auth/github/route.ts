@@ -41,10 +41,8 @@ export const GET = apiHandler(
     if (mockLogin !== null) {
       if (!isMockAuthEnabled()) throw new ForbiddenError("Local mock sign-in is disabled");
       if (!MOCK_LOGINS.has(mockLogin)) throw new ValidationError("Unknown local mock identity");
-      const callback = new URL(redirectUri);
-      callback.searchParams.set("state", state.state);
-      callback.searchParams.set("code", mockLogin);
-      return redirectWithCookie(callback.toString(), state.cookie);
+      const callbackParams = new URLSearchParams({ state: state.state, code: mockLogin });
+      return redirectWithCookie(`${CALLBACK_PATH}?${callbackParams}`, state.cookie);
     }
     const authorizationUrl = await withScope(async ({ githubIdentity }) =>
       githubIdentity.createAuthorizationUrl(state.state, redirectUri),

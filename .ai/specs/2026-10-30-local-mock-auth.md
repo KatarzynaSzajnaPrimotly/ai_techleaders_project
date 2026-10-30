@@ -13,6 +13,7 @@ Add an explicitly selected mock GitHub identity adapter and local role shortcuts
 - Default configuration keeps real GitHub OAuth and e-mail/password behavior unchanged.
 - Mock mode boots only with both explicit flags in development/test and refuses production or a missing/mismatched flag.
 - Local links sign in deterministic mentee, mentor, and operator accounts through normal callback/session code; operator access still depends on `OPERATOR_EMAILS`.
+- The local mock callback uses a relative redirect so the sandbox preview host is preserved even when `APP_URL` is `localhost`.
 - E-mail sign-in is visibly disabled in mock mode with a note.
 - Unit and integration coverage exercises configuration gates, role paths, and protected routes.
 - `.env.example` documents the safe local setup without secrets.

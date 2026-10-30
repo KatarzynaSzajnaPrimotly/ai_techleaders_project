@@ -65,11 +65,12 @@ describe("GET /api/auth/github", () => {
   it("routes an explicitly selected local mock identity through the normal callback with signed state", async () => {
     vi.stubEnv("AUTH_IDENTITY_ADAPTER", "mock");
     vi.stubEnv("INTEGRATION_TEST_RUN", "1");
-    const response = await GET(new Request("http://localhost/api/auth/github?login=mock-mentor&returnTo=%2Fmentor"), undefined);
+    const response = await GET(new Request("https://sandbox-preview.example/api/auth/github?login=mock-mentor&returnTo=%2Fmentor"), undefined);
 
     expect(response.status).toBe(303);
-    const location = new URL(response.headers.get("location") ?? "");
-    expect(location.origin + location.pathname).toBe(`${APP_URL}/api/auth/github/callback`);
+    const location = new URL(response.headers.get("location") ?? "", "https://sandbox-preview.example");
+    expect(response.headers.get("location")).toMatch(/^\/api\/auth\/github\/callback\?/);
+    expect(location.origin + location.pathname).toBe("https://sandbox-preview.example/api/auth/github/callback");
     expect(location.searchParams.get("code")).toBe("mock-mentor");
     expect(location.searchParams.get("state")).toBeTruthy();
     expect(response.headers.get("set-cookie")).toContain("devmentor_oauth_state=");

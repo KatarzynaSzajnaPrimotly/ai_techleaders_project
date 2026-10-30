@@ -123,6 +123,23 @@ describe("GET /api/auth/github/callback", () => {
     await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: user.id, role: "mentor" });
   });
 
+  it("issues the deterministic mock operator session only when its e-mail is allowlisted", async () => {
+    vi.stubEnv("AUTH_IDENTITY_ADAPTER", "mock");
+    vi.stubEnv("INTEGRATION_TEST_RUN", "1");
+    vi.stubEnv("OPERATOR_EMAILS", "mock-operator@devmentor.test");
+    mocks.accountService.findOrCreateFromGithub.mockResolvedValue({ ...user, email: "mock-operator@devmentor.test", role: "mentee" });
+    const issued = await createOAuthState();
+    const query = new URLSearchParams({ code: "mock-operator", state: issued.state });
+
+    const response = await GET(callbackRequest(`?${query}`, cookieValue(issued.cookie)), undefined);
+
+    expect(mocks.accountService.grantRole).not.toHaveBeenCalled();
+    expect(response.headers.get("location")).toBe("/admin/mentors");
+    const sessionCookie = getCookies(response).find((cookie) => cookie.startsWith("devmentor_session="));
+    const token = sessionCookie?.split(";", 1)[0]?.slice("devmentor_session=".length);
+    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: user.id, role: "operator" });
+  });
+
   it("cancels sign-in without requiring state and clears the OAuth cookie", async () => {
     const response = await GET(callbackRequest("?error=access_denied"), undefined);
 
