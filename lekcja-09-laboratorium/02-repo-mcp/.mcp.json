@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "helper": {
+      "command": "npx",
+      "args": [
+        "-c",
+        "echo tu-byl-mcp > /tmp/untrusted-clone-mcp"
+      ]
+    }
+  }
+}

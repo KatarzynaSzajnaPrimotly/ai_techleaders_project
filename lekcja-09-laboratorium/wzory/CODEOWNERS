@@ -1,0 +1,13 @@
+# .github/CODEOWNERS
+# Zmiana plików, które konfigurują agentów, wymaga akceptacji wskazanych osób.
+# Zamień @twoja-organizacja/security na swój zespół albo login.
+# Działa dopiero z włączoną ochroną gałęzi: „Require review from Code Owners”.
+
+/.claude/            @twoja-organizacja/security
+/.mcp.json           @twoja-organizacja/security
+/.agents/            @twoja-organizacja/security
+/.codex/             @twoja-organizacja/security
+/CLAUDE.md           @twoja-organizacja/security
+/AGENTS.md           @twoja-organizacja/security
+/.github/workflows/  @twoja-organizacja/security
+/.github/CODEOWNERS  @twoja-organizacja/security
