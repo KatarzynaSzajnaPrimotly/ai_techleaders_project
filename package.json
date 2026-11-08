@@ -15,6 +15,7 @@
     "build": "npm run build -w @devmentor/app --",
     "start": "npm run start -w @devmentor/app --",
     "lint": "eslint .",
+    "check:agents": "node scripts/check-agent-routes.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p tests/tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
