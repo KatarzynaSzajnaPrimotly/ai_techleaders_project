@@ -4,8 +4,10 @@ import { navFor, RoleShell } from "./RoleShell";
 
 const apiCall = vi.fn();
 vi.mock("../../backend/api/apiCall", () => ({ apiCall: (...args: unknown[]) => apiCall(...args) }));
+const push = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
-afterEach(() => { apiCall.mockReset(); vi.unstubAllGlobals(); });
+afterEach(() => { apiCall.mockReset(); push.mockReset(); vi.unstubAllGlobals(); });
 
 describe("navFor", () => {
   it.each([
@@ -48,11 +50,9 @@ describe("RoleShell", () => {
 
   it("navigates to sign-in when logout succeeds without a callback", async () => {
     apiCall.mockResolvedValue({ ok: true, status: 200, data: null });
-    const assign = vi.fn();
-    vi.stubGlobal("window", { location: { assign } });
     render(<RoleShell name="Ari" role="mentee"><p>Home</p></RoleShell>);
     fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
-    await vi.waitFor(() => expect(assign).toHaveBeenCalledWith("/sign-in"));
+    await vi.waitFor(() => expect(push).toHaveBeenCalledWith("/sign-in"));
   });
 
   it("stays on the page when logout fails", async () => {

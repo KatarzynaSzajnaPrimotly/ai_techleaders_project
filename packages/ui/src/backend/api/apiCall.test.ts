@@ -103,26 +103,29 @@ describe("apiCall", () => {
 
   it("redirects a 401 to sign-in and preserves the current path and query", async () => {
     respond({ ok: false, error: { code: "UNAUTHORIZED", message: "Sign in" } }, 401);
-    const assign = vi.fn();
-    vi.stubGlobal("window", { location: { pathname: "/mentor", search: "?tab=upcoming", assign } });
+    let destination = "";
+    const location = { pathname: "/mentor", search: "?tab=upcoming", get href() { return destination; }, set href(value: string) { destination = value; } };
+    vi.stubGlobal("window", { location });
     await apiCall("/api/mentors");
-    expect(assign).toHaveBeenCalledWith("/sign-in?error=session-expired&returnTo=%2Fmentor%3Ftab%3Dupcoming");
+    expect(destination).toBe("/sign-in?error=session-expired&returnTo=%2Fmentor%3Ftab%3Dupcoming");
   });
 
   it("does not redirect when unauthorized responses are configured to be ignored", async () => {
     respond({ ok: false, error: { code: "UNAUTHORIZED", message: "Invalid credentials" } }, 401);
-    const assign = vi.fn();
-    vi.stubGlobal("window", { location: { pathname: "/sign-in", search: "", assign } });
+    let destination = "";
+    const location = { pathname: "/sign-in", search: "", get href() { return destination; }, set href(value: string) { destination = value; } };
+    vi.stubGlobal("window", { location });
     await apiCall("/api/auth/login", { method: "POST", onUnauthorized: "ignore" });
-    expect(assign).not.toHaveBeenCalled();
+    expect(destination).toBe("");
   });
 
   it("does not redirect when already on sign-in", async () => {
     respond({ ok: false, error: { code: "UNAUTHORIZED", message: "Sign in" } }, 401);
-    const assign = vi.fn();
-    vi.stubGlobal("window", { location: { pathname: "/sign-in", search: "?returnTo=%2Fhome", assign } });
+    let destination = "";
+    const location = { pathname: "/sign-in", search: "?returnTo=%2Fhome", get href() { return destination; }, set href(value: string) { destination = value; } };
+    vi.stubGlobal("window", { location });
     await apiCall("/api/auth/session");
-    expect(assign).not.toHaveBeenCalled();
+    expect(destination).toBe("");
   });
 
   it.each([
