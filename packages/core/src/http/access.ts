@@ -4,6 +4,7 @@ import { ForbiddenError, ServiceUnavailableError, UnauthorizedError } from "./er
 import { hasSessionCookie, requireSession, type Role, type Session } from "./auth";
 
 export type Access = "public" | "authenticated" | { roles: readonly Role[] };
+export type CurrentSessionResolver = (session: Session) => Promise<Session | null>;
 
 type AccessWarningState = typeof globalThis & {
   __devmentor_warned_public_cookie_without_secret?: boolean;
@@ -11,12 +12,17 @@ type AccessWarningState = typeof globalThis & {
 
 const accessWarningState = globalThis as AccessWarningState;
 
-export async function enforceAccess(request: Request, access: Access): Promise<Session | null> {
+export async function enforceAccess(
+  request: Request,
+  access: Access,
+  resolveCurrentSession?: CurrentSessionResolver,
+): Promise<Session | null> {
   if (access === "public") {
     if (!hasSessionCookie(request)) return null;
 
     try {
-      return await requireSession(request);
+      const session = await requireSession(request);
+      return resolveCurrentSession ? await resolveCurrentSession(session) : session;
     } catch (error) {
       if (error instanceof UnauthorizedError) return null;
       if (error instanceof ServiceUnavailableError) {
@@ -30,7 +36,9 @@ export async function enforceAccess(request: Request, access: Access): Promise<S
     }
   }
 
-  const session = await requireSession(request, requireJwtSecret());
+  const verifiedSession = await requireSession(request, requireJwtSecret());
+  const session = resolveCurrentSession ? await resolveCurrentSession(verifiedSession) : verifiedSession;
+  if (!session) throw new UnauthorizedError();
   if (access === "authenticated") return session;
   if (!access.roles.includes(session.role)) throw new ForbiddenError();
   return session;

@@ -48,6 +48,7 @@ describe("createUserRepository", () => {
       emailVerifiedAt: new Date(10),
       passwordHash: null,
       role: "mentee",
+      sessionVersion: 0,
       displayName: null,
       githubId: null,
       githubLogin: null,
@@ -136,13 +137,20 @@ describe("createUserRepository", () => {
   });
 
   it("grants a stored role and reports whether the user exists", async () => {
-    const em = createEm({ nativeUpdate: vi.fn().mockResolvedValueOnce(1).mockResolvedValueOnce(0) });
+    const user = { id: "u-1", role: "mentee", sessionVersion: 0, updatedAt: new Date(0) };
+    const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(user).mockResolvedValueOnce(null), flush: vi.fn() });
     const repository = createUserRepository(asEm(em));
     await expect(repository.grantRole("u-1", "mentor")).resolves.toBe(true);
     await expect(repository.grantRole("unknown", "mentee")).resolves.toBe(false);
-    expect(em.nativeUpdate).toHaveBeenLastCalledWith("User", { id: "unknown" }, {
-      role: "mentee",
-      updatedAt: expect.any(Date),
-    });
+    expect(user).toMatchObject({ role: "mentor", sessionVersion: 1 });
+    expect(em.flush).toHaveBeenCalledOnce();
+  });
+
+  it("does not invalidate sessions when the stored role is unchanged", async () => {
+    const user = { id: "u-1", role: "mentor", sessionVersion: 2, updatedAt: new Date(0) };
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(user), flush: vi.fn() });
+    await expect(createUserRepository(asEm(em)).grantRole("u-1", "mentor")).resolves.toBe(true);
+    expect(user.sessionVersion).toBe(2);
+    expect(em.flush).not.toHaveBeenCalled();
   });
 });

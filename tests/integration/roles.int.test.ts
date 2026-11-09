@@ -77,7 +77,8 @@ describe("operator access integration", () => {
     expect(anonymous.status).toBe(401);
 
     for (const role of ["mentee", "mentor"] as const) {
-      const token = await mintSessionCookie({ userId: `${role}-${unique}`, role }, jwtSecret);
+      const account = await createUser({ email: `denied-${role}-${unique}@example.test`, role }, databaseUrl);
+      const token = await mintSessionCookie({ userId: account.id, role }, jwtSecret);
       const denied = await fetch(new URL("/api/mentors", baseUrl), {
         method: "POST",
         headers: { ...CSRF_HEADERS, cookie: `${SESSION_COOKIE}=${token}` },
@@ -139,7 +140,7 @@ describe("operator access integration", () => {
 
     const sessionCookie = firstCookie(response, `${SESSION_COOKIE}=`);
     const token = sessionCookie.slice(`${SESSION_COOKIE}=`.length);
-    await expect(verifySession(token, jwtSecret)).resolves.toEqual({ userId: user.id, role: "mentor" });
+    await expect(verifySession(token, jwtSecret)).resolves.toEqual({ userId: user.id, role: "mentor", sessionVersion: 0 });
     const operatorPage = await fetch(new URL("/admin/mentors", baseUrl), { headers: { cookie: sessionCookie }, redirect: "manual" });
     expect(operatorPage.status).toBe(307);
     expect(operatorPage.headers.get("location")).toBe("/mentor");

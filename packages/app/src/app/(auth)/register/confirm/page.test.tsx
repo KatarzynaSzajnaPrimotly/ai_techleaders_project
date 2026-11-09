@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-const state = vi.hoisted(() => ({ session: null as { userId: string; role: "mentee" | "mentor" | "operator" } | null, destination: "", preview: null as { email: string; status: "ready" | "used" } | null, inspected: "" }));
+const state = vi.hoisted(() => ({ session: null as { userId: string; role: "mentee" | "mentor" | "operator"; sessionVersion: number } | null, destination: "", preview: null as { email: string; status: "ready" | "used" } | null, inspected: "" }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { state.destination = path; throw new Error("NEXT_REDIRECT"); } }));
 vi.mock("../../../../server/container", () => ({ withScope: (run: (scope: unknown) => unknown) => run({ passwordAuthService: { inspectRegistrationToken: async (token: string) => { state.inspected = token; return state.preview; } } }) }));
 import { ConfirmPageContent } from "./page";
@@ -23,7 +23,7 @@ describe("ConfirmPageContent", () => {
   });
 
   it.each([["mentee", "/home"], ["mentor", "/mentor"], ["operator", "/admin/mentors"]] as const)("redirects signed-in %s", async (role, target) => {
-    await expect(ConfirmPageContent({ searchParams: Promise.resolve({}), session: { userId: "u1", role } })).rejects.toThrow("NEXT_REDIRECT");
+    await expect(ConfirmPageContent({ searchParams: Promise.resolve({}), session: { userId: "u1", role, sessionVersion: 0 } })).rejects.toThrow("NEXT_REDIRECT");
     expect(state.destination).toBe(target);
   });
 });

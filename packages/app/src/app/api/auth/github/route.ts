@@ -6,6 +6,7 @@ import {
   type AppError,
 } from "@devmentor/core";
 import { withScope } from "../../../../server/container";
+import { resolveCurrentSession } from "../../../../server/current-session";
 
 export const dynamic = "force-dynamic";
 
@@ -38,5 +39,5 @@ export const GET = apiHandler(
     );
     return redirectWithCookie(authorizationUrl, state.cookie);
   },
-  { access: "public", navigation: startNavigation },
+  { access: "public", navigation: startNavigation, resolveCurrentSession },
 );

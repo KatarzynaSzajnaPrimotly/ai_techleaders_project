@@ -37,7 +37,7 @@ beforeEach(() => {
 describe("makeCrudRoute", () => {
   it("lists through GET and passes the session in CRUD context", async () => {
     list.mockResolvedValue([{ id: "1" }]);
-    const session = { userId: "user-1", role: "mentee" as const };
+    const session = { userId: "user-1", role: "mentee" as const, sessionVersion: 0 };
     const token = await signSession(session, "s".repeat(32));
     const request = new Request("http://x/api", { headers: { cookie: `${SESSION_COOKIE}=${token}` } });
     const response = await buildRoute().GET(request, { params: "p" });
@@ -47,7 +47,7 @@ describe("makeCrudRoute", () => {
   });
 
   it("passes the verified session to guarded CRUD callbacks", async () => {
-    const session = { userId: "user-2", role: "mentor" as const };
+    const session = { userId: "user-2", role: "mentor" as const, sessionVersion: 0 };
     const token = await signSession(session, "s".repeat(32));
     const request = new Request("http://x/api", { headers: { cookie: `${SESSION_COOKIE}=${token}` } });
     list.mockResolvedValue([]);

@@ -31,20 +31,20 @@ beforeEach(() => {
 
 describe("integration identity helpers", () => {
   it("mints a session token accepted by the shared session verifier", async () => {
-    const session: Session = { userId: "u-1", role: "mentor" };
+    const session: Session = { userId: "u-1", role: "mentor", sessionVersion: 0 };
     const token = await mintSessionCookie(session);
     await expect(verifySession(token, secret)).resolves.toEqual(session);
   });
 
   it("rejects token creation when JWT_SECRET is not configured", async () => {
     vi.stubEnv("JWT_SECRET", "");
-    await expect(mintSessionCookie({ userId: "u-1", role: "mentee" })).rejects.toThrow("JWT_SECRET must be set");
+    await expect(mintSessionCookie({ userId: "u-1", role: "mentee", sessionVersion: 0 })).rejects.toThrow("JWT_SECRET must be set");
   });
 
   it("inserts a normalized user with the supplied test database URL", async () => {
     const inserted = {
       id: "u-1", email: "ada@example.test", email_verified_at: new Date(), display_name: "Ada",
-      role: "mentor", github_id: "123", github_login: "ada", avatar_url: "https://example.test/ada.png",
+      role: "mentor", github_id: "123", github_login: "ada", avatar_url: "https://example.test/ada.png", session_version: 0,
     };
     pgMock.query.mockResolvedValue({ rows: [inserted] });
 

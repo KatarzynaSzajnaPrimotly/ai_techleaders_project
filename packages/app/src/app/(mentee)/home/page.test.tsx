@@ -8,10 +8,13 @@ const state = vi.hoisted(() => ({
 }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => state.token ? { value: state.token } : undefined }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { state.destination = path; throw new Error("NEXT_REDIRECT"); } }));
-vi.mock("../../../server/container", () => ({ withScope: (run: (cradle: unknown) => unknown) => run({ accountService: { findForRoleHome: async () => state.profile } }) }));
+vi.mock("../../../server/container", () => ({ withScope: (run: (cradle: unknown) => unknown) => run({
+  accountService: { findForRoleHome: async () => state.profile },
+  userRepository: { findById: async () => ({ id: "u-1", email: "mentee@example.test", role: "mentee", sessionVersion: 0 }) },
+}) }));
 vi.mock("@devmentor/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@devmentor/core")>();
-  return { ...actual, requireJwtSecret: () => "a-test-secret-with-at-least-32-characters", verifySession: async () => ({ userId: "u-1", role: state.role }) };
+  return { ...actual, requireJwtSecret: () => "a-test-secret-with-at-least-32-characters", verifySession: async () => ({ userId: "u-1", role: state.role, sessionVersion: 0 }) };
 });
 
 import MenteePage from "./page";

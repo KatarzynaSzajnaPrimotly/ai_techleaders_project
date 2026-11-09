@@ -23,13 +23,17 @@ export interface CreatedUser {
   github_id: string | null;
   github_login: string | null;
   avatar_url: string | null;
+  session_version: number;
 }
 
 const DEFAULT_STORED_ROLE: StoredRole = "mentee";
 
-export async function mintSessionCookie(session: Session, secret = process.env.JWT_SECRET): Promise<string> {
+export async function mintSessionCookie(
+  session: Omit<Session, "sessionVersion"> & Partial<Pick<Session, "sessionVersion">>,
+  secret = process.env.JWT_SECRET,
+): Promise<string> {
   if (!secret) throw new Error("JWT_SECRET must be set to mint an integration session");
-  return signSession(session, secret);
+  return signSession({ ...session, sessionVersion: session.sessionVersion ?? 0 }, secret);
 }
 
 export async function createUser(
@@ -43,7 +47,7 @@ export async function createUser(
     const result = await client.query<CreatedUser>(
       `INSERT INTO users (id, email, email_verified_at, display_name, role, github_id, github_login, avatar_url)
        VALUES (COALESCE($1::uuid, gen_random_uuid()), lower($2), $3, $4, $5, $6, $7, $8)
-       RETURNING id, email, email_verified_at, display_name, role, github_id, github_login, avatar_url`,
+       RETURNING id, email, email_verified_at, display_name, role, github_id, github_login, avatar_url, session_version`,
       [
         input.id ?? null,
         input.email,

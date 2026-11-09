@@ -29,7 +29,7 @@ describe("purpose tokens", () => {
 
   it("rejects a purpose token as a session and a session as a purpose token", async () => {
     const purposeToken = await signPurposeToken("oauth-state", { nonce: "n-1" }, 600, SECRET);
-    const sessionToken = await signSession({ userId: "u-1", role: "mentee" }, SECRET);
+    const sessionToken = await signSession({ userId: "u-1", role: "mentee", sessionVersion: 0 }, SECRET);
     await expect(verifySession(purposeToken, SECRET)).rejects.toMatchObject({ status: 401 });
     await expect(verifyPurposeToken(sessionToken, "oauth-state", SECRET)).rejects.toMatchObject({ status: 401 });
   });

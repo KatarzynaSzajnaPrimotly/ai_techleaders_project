@@ -1,4 +1,5 @@
 import { apiHandler, clearSessionCookie, isInsecureHttpAllowed, ok } from "@devmentor/core";
+import { resolveCurrentSession } from "../../../../server/current-session";
 
 export const dynamic = "force-dynamic";
 
@@ -9,5 +10,5 @@ export const POST = apiHandler(
     response.headers.append("set-cookie", clearSessionCookie(secure));
     return response;
   },
-  { access: "public" },
+  { access: "public", resolveCurrentSession },
 );

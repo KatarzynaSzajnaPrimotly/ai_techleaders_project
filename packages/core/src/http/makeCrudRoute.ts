@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { Access } from "./access";
+import type { Access, CurrentSessionResolver } from "./access";
 import { apiHandler, appErrorResponse, created } from "./apiHandler";
 import type { Session } from "./auth";
 import { MethodNotAllowedError } from "./errors";
@@ -15,6 +15,7 @@ export interface CrudContext<C = unknown, A extends Access = "public"> {
 
 export interface CrudConfig<TCreate, TUpdate, C, A extends Access = Access> {
   access: A;
+  resolveCurrentSession?: CurrentSessionResolver;
   list?: (ctx: CrudContext<C, A>) => Promise<unknown>;
   create?: { schema: z.ZodType<TCreate>; run: (input: TCreate, ctx: CrudContext<C, A>) => Promise<unknown> };
   update?: { schema: z.ZodType<TUpdate>; run: (input: TUpdate, ctx: CrudContext<C, A>) => Promise<unknown> };
@@ -31,7 +32,7 @@ export function makeCrudRoute<TCreate = never, TUpdate = never, C = unknown, A e
 
     return apiHandler<C, A>(
       async (request, context, session) => run({ request, context, session }),
-      { access: config.access },
+      { access: config.access, resolveCurrentSession: config.resolveCurrentSession },
     );
   };
 

@@ -6,7 +6,7 @@ import type { User } from "./user.types";
 export interface IssuedSession {
   token: string;
   cookie: string;
-  session: { userId: string; role: Role };
+  session: { userId: string; role: Role; sessionVersion: number };
 }
 
 export function effectiveRole(user: Pick<User, "email" | "role">, operatorEmails: readonly string[] = parseEnv().OPERATOR_EMAILS): Role {
@@ -14,9 +14,9 @@ export function effectiveRole(user: Pick<User, "email" | "role">, operatorEmails
   return user.role;
 }
 
-export async function issueSession(user: Pick<User, "id" | "email" | "role">): Promise<IssuedSession> {
+export async function issueSession(user: Pick<User, "id" | "email" | "role" | "sessionVersion">): Promise<IssuedSession> {
   const secret = requireJwtSecret();
-  const session = { userId: user.id, role: effectiveRole(user) };
+  const session = { userId: user.id, role: effectiveRole(user), sessionVersion: user.sessionVersion };
   const token = await signSession(session, secret);
   const secure = process.env.NODE_ENV === "production" && !isInsecureHttpAllowed();
   return {

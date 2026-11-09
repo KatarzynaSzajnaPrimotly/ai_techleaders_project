@@ -5,7 +5,9 @@ import type { User } from "./user.types";
 import { effectiveRole, issueSession } from "./session-issuer";
 
 const SECRET = "session-issuer-test-secret-that-is-at-least-32-characters";
-const user: Pick<User, "id" | "email" | "role"> = { id: "user-1", email: "mentor@example.test", role: "mentor" };
+const user: Pick<User, "id" | "email" | "role" | "sessionVersion"> = {
+  id: "user-1", email: "mentor@example.test", role: "mentor", sessionVersion: 0,
+};
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -22,8 +24,8 @@ describe("session issuer", () => {
   it("uses OPERATOR_EMAILS when issuing a session and preserves a listed mentor role", async () => {
     vi.stubEnv("JWT_SECRET", SECRET);
     vi.stubEnv("OPERATOR_EMAILS", " FOUNDER@example.test ");
-    const operator = await issueSession({ id: "founder", email: "founder@example.test", role: "mentee" });
-    const mentor = await issueSession({ id: "mentor", email: "founder@example.test", role: "mentor" });
+    const operator = await issueSession({ id: "founder", email: "founder@example.test", role: "mentee", sessionVersion: 0 });
+    const mentor = await issueSession({ id: "mentor", email: "founder@example.test", role: "mentor", sessionVersion: 0 });
     expect(operator.session.role).toBe("operator");
     expect(mentor.session.role).toBe("mentor");
   });
@@ -34,8 +36,8 @@ describe("session issuer", () => {
     vi.stubEnv("ALLOW_INSECURE_HTTP", "false");
     const issued = await issueSession(user);
 
-    await expect(verifySession(issued.token, SECRET)).resolves.toEqual({ userId: "user-1", role: "mentor" });
-    expect(issued.session).toEqual({ userId: "user-1", role: "mentor" });
+    await expect(verifySession(issued.token, SECRET)).resolves.toEqual({ userId: "user-1", role: "mentor", sessionVersion: 0 });
+    expect(issued.session).toEqual({ userId: "user-1", role: "mentor", sessionVersion: 0 });
     expect(issued.cookie).toContain("devmentor_session=");
     expect(issued.cookie).toContain("HttpOnly");
     expect(issued.cookie).toContain("SameSite=Lax");

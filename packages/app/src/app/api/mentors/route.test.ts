@@ -10,6 +10,7 @@ vi.mock("../../../server/container", () => ({
   withScope: (run: (cradle: unknown) => Promise<unknown>) =>
     run({ mentorService: { list: mocks.list, register: mocks.register } }),
 }));
+vi.mock("../../../server/current-session", () => ({ resolveCurrentSession: async (session: unknown) => session }));
 
 import { ConflictError, SESSION_COOKIE, signSession, type Role } from "@devmentor/core";
 import { dynamic, GET, POST } from "./route";
@@ -32,9 +33,9 @@ function post(body: unknown, headers: Record<string, string> = authHeaders("oper
 
 beforeEach(async () => {
   vi.stubEnv("JWT_SECRET", JWT_SECRET);
-  sessions.mentee = await signSession({ userId: "mentee-1", role: "mentee" }, JWT_SECRET);
-  sessions.mentor = await signSession({ userId: "mentor-1", role: "mentor" }, JWT_SECRET);
-  sessions.operator = await signSession({ userId: "operator-1", role: "operator" }, JWT_SECRET);
+  sessions.mentee = await signSession({ userId: "mentee-1", role: "mentee", sessionVersion: 0 }, JWT_SECRET);
+  sessions.mentor = await signSession({ userId: "mentor-1", role: "mentor", sessionVersion: 0 }, JWT_SECRET);
+  sessions.operator = await signSession({ userId: "operator-1", role: "operator", sessionVersion: 0 }, JWT_SECRET);
   mocks.list.mockReset();
   mocks.register.mockReset();
 });

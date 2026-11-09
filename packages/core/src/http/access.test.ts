@@ -10,8 +10,8 @@ afterEach(() => {
 });
 
 const SECRET = "s".repeat(32);
-const mentee: Session = { userId: "mentee-1", role: "mentee" };
-const mentor: Session = { userId: "mentor-1", role: "mentor" };
+const mentee: Session = { userId: "mentee-1", role: "mentee", sessionVersion: 0 };
+const mentor: Session = { userId: "mentor-1", role: "mentor", sessionVersion: 0 };
 const request = (cookie?: string) =>
   new Request("http://devmentor.test/api/example", { headers: cookie === undefined ? {} : { cookie } });
 
@@ -73,6 +73,24 @@ describe("enforceAccess", () => {
     const token = await signSession(mentee, SECRET);
 
     await expect(enforceAccess(request(`${SESSION_COOKIE}=${token}`), "authenticated")).resolves.toEqual(mentee);
+  });
+
+  it("uses the current account session and rejects a deleted or invalidated account", async () => {
+    vi.stubEnv("JWT_SECRET", SECRET);
+    const token = await signSession(mentee, SECRET);
+    const cookie = request(`${SESSION_COOKIE}=${token}`);
+    const current = vi.fn(async (session: Session) => session);
+    await expect(enforceAccess(cookie, { roles: ["mentee"] }, current)).resolves.toEqual(mentee);
+    expect(current).toHaveBeenCalledWith(mentee);
+    await expect(enforceAccess(cookie, "authenticated", async () => null)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("treats an invalidated optional public session as anonymous", async () => {
+    vi.stubEnv("JWT_SECRET", SECRET);
+    const token = await signSession(mentee, SECRET);
+    await expect(
+      enforceAccess(request(`${SESSION_COOKIE}=${token}`), "public", async () => null),
+    ).resolves.toBeNull();
   });
 
   it("requires configuration before deciding whether guarded access is anonymous", async () => {

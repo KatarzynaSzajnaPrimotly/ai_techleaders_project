@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 
-const state = vi.hoisted(() => ({ token: undefined as string | undefined, session: null as { userId: string; role: "mentee" | "mentor" | "operator" } | null, failure: false, destination: "" }));
+const state = vi.hoisted(() => ({ token: undefined as string | undefined, session: null as { userId: string; role: "mentee" | "mentor" | "operator"; sessionVersion: number } | null, failure: false, destination: "" }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => state.token ? { value: state.token } : undefined }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { state.destination = path; throw new Error("NEXT_REDIRECT"); } }));
+vi.mock("./current-session", () => ({ resolveCurrentSession: async (session: typeof state.session) => state.failure ? null : session }));
 vi.mock("@devmentor/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@devmentor/core")>();
   return { ...actual, requireJwtSecret: () => "a-test-secret-with-at-least-32-characters", verifySession: async () => {
@@ -16,7 +17,7 @@ import { guardedPage, publicPage, readSession } from "./guards";
 
 beforeEach(() => {
   state.token = undefined;
-  state.session = { userId: "u-1", role: "mentee" };
+  state.session = { userId: "u-1", role: "mentee", sessionVersion: 0 };
   state.failure = false;
   state.destination = "";
 });
@@ -25,7 +26,7 @@ describe("readSession", () => {
   it("returns null without a session cookie", async () => expect(readSession()).resolves.toBeNull());
   it("verifies a present session cookie", async () => {
     state.token = "token";
-    await expect(readSession()).resolves.toEqual({ userId: "u-1", role: "mentee" });
+    await expect(readSession()).resolves.toEqual({ userId: "u-1", role: "mentee", sessionVersion: 0 });
   });
   it("fails closed for an invalid or expired cookie", async () => {
     state.token = "bad";
@@ -42,7 +43,7 @@ describe("guardedPage", () => {
   });
   it("redirects a wrong role to its own home", async () => {
     state.token = "token";
-    state.session = { userId: "u-1", role: "mentor" };
+    state.session = { userId: "u-1", role: "mentor", sessionVersion: 0 };
     const page = guardedPage({ path: "/home", access: { roles: ["mentee"] } }, () => "rendered");
     await expect(page({})).rejects.toThrow("NEXT_REDIRECT");
     expect(state.destination).toBe("/mentor");
@@ -66,12 +67,12 @@ describe("publicPage", () => {
   });
   it("optionally reads and supplies the session", async () => {
     state.token = "token";
-    const component = ({ session }: { session: { userId: string; role: "mentee" | "mentor" | "operator" } | null }) => createElement("span", null, session?.role);
+    const component = ({ session }: { session: { userId: string; role: "mentee" | "mentor" | "operator"; sessionVersion: number } | null }) => createElement("span", null, session?.role);
     const page = publicPage(component, { withSession: true });
-    await expect(page({})).resolves.toMatchObject({ props: { session: { userId: "u-1", role: "mentee" } } });
+    await expect(page({})).resolves.toMatchObject({ props: { session: { userId: "u-1", role: "mentee", sessionVersion: 0 } } });
   });
   it("supplies null to a public page without a session", async () => {
-    const component = ({ session }: { session: { userId: string; role: "mentee" | "mentor" | "operator" } | null }) => createElement("span", null, session?.role);
+    const component = ({ session }: { session: { userId: string; role: "mentee" | "mentor" | "operator"; sessionVersion: number } | null }) => createElement("span", null, session?.role);
     const page = publicPage(component, { withSession: true });
     await expect(page({})).resolves.toMatchObject({ props: { session: null } });
   });

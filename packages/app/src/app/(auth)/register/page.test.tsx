@@ -18,7 +18,7 @@ describe("RegisterPageContent", () => {
   });
 
   it.each([["mentee", "/home"], ["mentor", "/mentor"], ["operator", "/admin/mentors"]] as const)("redirects a signed-in %s", async (role, target) => {
-    await expect(RegisterPageContent({ searchParams: Promise.resolve({}), session: { userId: "u1", role } })).rejects.toThrow("NEXT_REDIRECT");
+    await expect(RegisterPageContent({ searchParams: Promise.resolve({}), session: { userId: "u1", role, sessionVersion: 0 } })).rejects.toThrow("NEXT_REDIRECT");
     expect(redirected.path).toBe(target);
   });
 });

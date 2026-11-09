@@ -25,7 +25,7 @@ function request(body: unknown, headers: Record<string, string> = {}): Request {
 }
 
 beforeEach(() => {
-  mocks.passwordAuthService.authenticate.mockReset().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentee" });
+  mocks.passwordAuthService.authenticate.mockReset().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentee", sessionVersion: 0 });
   mocks.rateLimiter.hit.mockReset().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
   vi.stubEnv("APP_URL", APP_URL);
   vi.stubEnv("JWT_SECRET", JWT_SECRET);
@@ -50,7 +50,7 @@ describe("POST /api/auth/login", () => {
     await expect(response.json()).resolves.toMatchObject({ ok: true, data: { redirectTo: "/mentor/sessions" } });
     const cookie = response.headers.get("set-cookie") ?? "";
     const token = cookie.split(";", 1)[0]?.slice(`${SESSION_COOKIE}=`.length);
-    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: "user-1", role: "mentee" });
+    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: "user-1", role: "mentee", sessionVersion: 0 });
   });
 
   it("ignores an unsafe returnTo and falls back to the user's role home", async () => {

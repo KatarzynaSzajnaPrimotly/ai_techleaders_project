@@ -12,6 +12,7 @@ import {
   type AppError,
 } from "@devmentor/core";
 import { withScope } from "../../../../../server/container";
+import { resolveCurrentSession } from "../../../../../server/current-session";
 import { homeFor } from "../../../../../server/guards";
 
 export const dynamic = "force-dynamic";
@@ -66,5 +67,5 @@ export const GET = apiHandler(
     response.headers.append("set-cookie", session.cookie);
     return response;
   },
-  { access: "public", navigation },
+  { access: "public", navigation, resolveCurrentSession },
 );

@@ -17,12 +17,13 @@ export const SESSION_TTL_SECONDS = 24 * 60 * 60;
 export interface Session {
   userId: string;
   role: Role;
+  sessionVersion: number;
 }
 
 const encodeSecret = (secret: string) => new TextEncoder().encode(secret);
 
 export function signSession(session: Session, secret: string, ttlSeconds = SESSION_TTL_SECONDS): Promise<string> {
-  return new SignJWT({ role: session.role })
+  return new SignJWT({ role: session.role, sv: session.sessionVersion })
     .setProtectedHeader({ alg: ALGORITHM })
     .setSubject(session.userId)
     .setIssuedAt()
@@ -33,10 +34,16 @@ export function signSession(session: Session, secret: string, ttlSeconds = SESSI
 export async function verifySession(token: string, secret: string): Promise<Session> {
   try {
     const { payload } = await jwtVerify(token, encodeSecret(secret), { algorithms: [ALGORITHM] });
-    if (typeof payload.sub !== "string" || !isRole(payload.role) || "purpose" in payload) {
+    if (
+      typeof payload.sub !== "string" ||
+      !isRole(payload.role) ||
+      !Number.isSafeInteger(payload.sv) ||
+      (payload.sv as number) < 0 ||
+      "purpose" in payload
+    ) {
       throw new Error("Malformed claims");
     }
-    return { userId: payload.sub, role: payload.role };
+    return { userId: payload.sub, role: payload.role, sessionVersion: payload.sv as number };
   } catch {
     throw new UnauthorizedError("Invalid or expired session");
   }

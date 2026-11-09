@@ -8,6 +8,7 @@ import {
 import { registerSchema } from "@devmentor/core/validators";
 import { clientIpForRequest } from "../../../../server/client-ip";
 import { withScope } from "../../../../server/container";
+import { resolveCurrentSession } from "../../../../server/current-session";
 
 export const dynamic = "force-dynamic";
 
@@ -32,4 +33,4 @@ export const POST = apiHandler(async (request) => {
   });
 
   return REGISTRATION_RESPONSE;
-}, { access: "public" });
+}, { access: "public", resolveCurrentSession });

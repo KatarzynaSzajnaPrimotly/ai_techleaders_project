@@ -25,7 +25,7 @@ function request(body: unknown, headers: Record<string, string> = {}): Request {
 }
 
 beforeEach(() => {
-  mocks.passwordAuthService.confirmRegistration.mockReset().mockResolvedValue({ account: { id: "user-1", email: "ada@example.test", role: "mentee" }, returnTo: "/mentor/sessions" });
+  mocks.passwordAuthService.confirmRegistration.mockReset().mockResolvedValue({ account: { id: "user-1", email: "ada@example.test", role: "mentee", sessionVersion: 0 }, returnTo: "/mentor/sessions" });
   mocks.rateLimiter.hit.mockReset().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
   vi.stubEnv("APP_URL", APP_URL);
   vi.stubEnv("JWT_SECRET", JWT_SECRET);
@@ -54,11 +54,11 @@ describe("POST /api/auth/register/confirm", () => {
     expect(mocks.passwordAuthService.confirmRegistration).toHaveBeenCalledWith("registration-token", "a long enough password");
     const cookie = response.headers.get("set-cookie") ?? "";
     const token = cookie.split(";", 1)[0]?.slice(`${SESSION_COOKIE}=`.length);
-    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: "user-1", role: "mentee" });
+    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: "user-1", role: "mentee", sessionVersion: 0 });
   });
 
   it("uses the role home when the confirmed registration has no returnTo", async () => {
-    mocks.passwordAuthService.confirmRegistration.mockResolvedValue({ account: { id: "user-2", email: "mentor@example.test", role: "mentor" } });
+    mocks.passwordAuthService.confirmRegistration.mockResolvedValue({ account: { id: "user-2", email: "mentor@example.test", role: "mentor", sessionVersion: 0 } });
     const response = await POST(request({ token: "registration-token", password: "a long enough password" }), undefined);
     await expect(response.json()).resolves.toMatchObject({ ok: true, data: { redirectTo: "/mentor" } });
   });

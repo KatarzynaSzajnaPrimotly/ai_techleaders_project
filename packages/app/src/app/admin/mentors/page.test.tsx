@@ -9,12 +9,21 @@ const state = vi.hoisted(() => ({
 
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => state.token ? { value: state.token } : undefined }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { state.destination = path; throw new Error("NEXT_REDIRECT"); } }));
+vi.mock("../../../server/container", () => ({ withScope: (run: (cradle: unknown) => unknown) => run({
+  userRepository: { findById: async () => ({
+    id: "u-1",
+    email: state.role === "operator" ? "founder@example.test" : "user@example.test",
+    role: state.role === "operator" ? "mentee" : state.role,
+    sessionVersion: 0,
+  }) },
+}) }));
+vi.mock("../../../server/current-session", () => ({ resolveCurrentSession: async (session: unknown) => session }));
 vi.mock("@devmentor/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@devmentor/core")>();
   return {
     ...actual,
     requireJwtSecret: () => "a-test-secret-with-at-least-32-characters",
-    verifySession: async () => ({ userId: "u-1", role: state.role }),
+    verifySession: async () => ({ userId: "u-1", role: state.role, sessionVersion: 0 }),
   };
 });
 
@@ -23,6 +32,7 @@ vi.mock("./admin-mentors", () => ({ AdminMentors: () => <div data-testid="admin-
 import AdminMentorsPage, { metadata } from "./page";
 
 beforeEach(() => {
+  vi.stubEnv("OPERATOR_EMAILS", "founder@example.test");
   state.token = "signed-cookie";
   state.role = "operator";
   state.destination = "";

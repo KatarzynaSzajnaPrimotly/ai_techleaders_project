@@ -61,13 +61,13 @@ export class AccountService {
 
   async createPasswordAccount(input: NewPasswordAccount): Promise<PasswordAuthAccount> {
     const user = await this.userRepository.create({ ...input, role: "mentee" });
-    return { id: user.id, email: user.email, role: user.role };
+    return { id: user.id, email: user.email, role: user.role, sessionVersion: user.sessionVersion };
   }
 
   async findForLogin(email: string): Promise<LoginAccount | null> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) return null;
-    return { id: user.id, email: user.email, role: user.role, passwordHash: user.passwordHash };
+    return { id: user.id, email: user.email, role: user.role, sessionVersion: user.sessionVersion, passwordHash: user.passwordHash };
   }
 
   async grantRole(userId: string, role: StoredRole): Promise<boolean> {

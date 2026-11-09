@@ -136,7 +136,7 @@ describe("apiHandler", () => {
   it("passes the verified optional session to a public handler", async () => {
     const secret = "s".repeat(32);
     vi.stubEnv("JWT_SECRET", secret);
-    const session = { userId: "user-1", role: "mentee" as const };
+    const session = { userId: "user-1", role: "mentee" as const, sessionVersion: 0 };
     const token = await signSession(session, secret);
     const handler = vi.fn(async (_request: Request, _context: undefined, currentSession: Session | null) => currentSession);
     const request = new Request("http://x/api", { headers: { cookie: `${SESSION_COOKIE}=${token}` } });

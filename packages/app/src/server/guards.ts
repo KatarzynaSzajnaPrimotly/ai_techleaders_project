@@ -3,6 +3,7 @@ import { requireJwtSecret, SESSION_COOKIE, verifySession, type Access, type Sess
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createElement, type ComponentType, type ReactNode } from "react";
+import { resolveCurrentSession } from "./current-session";
 
 /** The default landing page for each single-role account type. */
 export function homeFor(role: Role): string {
@@ -20,7 +21,8 @@ export async function readSession(): Promise<Session | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
   try {
-    return await verifySession(token, requireJwtSecret());
+    const session = await verifySession(token, requireJwtSecret());
+    return resolveCurrentSession(session);
   } catch {
     return null;
   }

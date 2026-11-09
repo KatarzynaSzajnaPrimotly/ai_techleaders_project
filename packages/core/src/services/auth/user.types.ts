@@ -9,6 +9,7 @@ export interface User {
   passwordHash: string | null;
   displayName: string | null;
   role: StoredRole;
+  sessionVersion: number;
   githubId: string | null;
   githubLogin: string | null;
   avatarUrl: string | null;
@@ -31,6 +32,7 @@ export interface PasswordAuthAccount {
   id: string;
   email: string;
   role: StoredRole;
+  sessionVersion: number;
 }
 
 export interface LoginAccount extends PasswordAuthAccount {

@@ -22,7 +22,7 @@ export { parseWithSchema, readJsonBody } from "./http/validate";
 export { signPurposeToken, verifyPurposeToken, type PurposeToken } from "./http/tokens";
 export { absoluteUrl } from "./config/absolute-url";
 export { getGithubConfig, type GithubConfig } from "./config/github";
-export { enforceAccess, type Access } from "./http/access";
+export { enforceAccess, type Access, type CurrentSessionResolver } from "./http/access";
 export {
   apiHandler,
   created,
@@ -30,6 +30,7 @@ export {
   CSRF_HEADER,
   CSRF_VALUE,
   type ApiFailure,
+  type ApiHandlerOptions,
   type ApiSuccess,
   type RouteHandler,
 } from "./http/apiHandler";

@@ -1,5 +1,5 @@
 import { logger } from "../logger";
-import { enforceAccess, type Access } from "./access";
+import { enforceAccess, type Access, type CurrentSessionResolver } from "./access";
 import type { Session } from "./auth";
 import { AppError, ForbiddenError, TooManyRequestsError, type FieldErrors } from "./errors";
 
@@ -29,6 +29,7 @@ export interface ApiHandlerOptions<A extends Access> {
   access: A;
   csrf?: boolean;
   navigation?: (error: AppError) => Response;
+  resolveCurrentSession?: CurrentSessionResolver;
 }
 
 export function ok<T>(data: T, status = 200): Response {
@@ -68,7 +69,7 @@ export function apiHandler<C = unknown, A extends Access = Access>(
       if (csrf && !SAFE_METHODS.has(request.method) && request.headers.get(CSRF_HEADER) !== CSRF_VALUE) {
         throw new ForbiddenError("Missing CSRF header");
       }
-      const session = await enforceAccess(request, options.access);
+      const session = await enforceAccess(request, options.access, options.resolveCurrentSession);
       const result = await handler(request, context, session as SessionForAccess<A>);
       return result instanceof Response ? result : ok(result);
     } catch (error) {

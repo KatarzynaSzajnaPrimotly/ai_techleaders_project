@@ -11,6 +11,7 @@ import {
 import { confirmSchema, safeReturnTo } from "@devmentor/core/validators";
 import { clientIpForRequest } from "../../../../../server/client-ip";
 import { withScope } from "../../../../../server/container";
+import { resolveCurrentSession } from "../../../../../server/current-session";
 import { homeFor } from "../../../../../server/guards";
 
 export const dynamic = "force-dynamic";
@@ -37,4 +38,4 @@ export const POST = apiHandler(async (request) => {
   const response = ok({ redirectTo: safeReturn ?? homeFor(session.session.role) });
   response.headers.append("set-cookie", session.cookie);
   return response;
-}, { access: "public" });
+}, { access: "public", resolveCurrentSession });

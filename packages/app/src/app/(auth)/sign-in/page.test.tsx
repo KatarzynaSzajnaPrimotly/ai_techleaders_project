@@ -37,9 +37,9 @@ describe("SignInPageContent", () => {
   });
 
   it.each([
-    [{ userId: "m-1", role: "mentee" }, "/home"],
-    [{ userId: "t-1", role: "mentor" }, "/mentor"],
-    [{ userId: "o-1", role: "operator" }, "/admin/mentors"],
+    [{ userId: "m-1", role: "mentee", sessionVersion: 0 }, "/home"],
+    [{ userId: "t-1", role: "mentor", sessionVersion: 0 }, "/mentor"],
+    [{ userId: "o-1", role: "operator", sessionVersion: 0 }, "/admin/mentors"],
   ] as const)("redirects signed-in %s to its home", async (session, home) => {
     await expect(SignInPageContent({ searchParams: Promise.resolve({}), session }))
       .rejects.toThrow("NEXT_REDIRECT");

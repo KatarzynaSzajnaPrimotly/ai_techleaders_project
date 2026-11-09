@@ -8,6 +8,7 @@ const baseUrl = inject("baseUrl");
 const databaseUrl = inject("databaseUrl");
 const fakeServerUrl = inject("fakeServerUrl");
 const jwtSecret = inject("jwtSecret");
+const operatorEmail = inject("operatorEmail");
 const unique = randomUUID().replaceAll("-", "");
 
 interface Identity {
@@ -95,7 +96,8 @@ describe("GitHub OAuth callback integration", () => {
     const ownResponse = await fetch(new URL(ownPath, baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${ownCookie}` }, redirect: "manual" });
     expect(ownResponse.status).toBe(200);
 
-    const wrongCookie = await mintSessionCookie({ userId: `page-${wrongRole}-${unique}`, role: wrongRole }, jwtSecret);
+    const wrongAccount = await createUser({ email: `wrong-page-${wrongRole}-${unique}@example.test`, role: wrongRole }, databaseUrl);
+    const wrongCookie = await mintSessionCookie({ userId: wrongAccount.id, role: wrongRole }, jwtSecret);
     const wrongResponse = await fetch(new URL(ownPath, baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${wrongCookie}` }, redirect: "manual" });
     expect(wrongResponse.status).toBe(307);
     expect(wrongResponse.headers.get("location")).toBe(wrongHome);
@@ -106,7 +108,10 @@ describe("GitHub OAuth callback integration", () => {
     ["mentor", "/mentor"],
     ["operator", "/admin/mentors"],
   ] as const)("redirects a signed-in %s away from sign-in to %s", async (role, home) => {
-    const token = await mintSessionCookie({ userId: `signin-${role}-${unique}`, role }, jwtSecret);
+    const account = role === "operator"
+      ? await createUser({ email: operatorEmail }, databaseUrl)
+      : await createUser({ email: `signin-${role}-${unique}@example.test`, role }, databaseUrl);
+    const token = await mintSessionCookie({ userId: account.id, role }, jwtSecret);
     const response = await fetch(new URL("/sign-in", baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${token}` }, redirect: "manual" });
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe(home);

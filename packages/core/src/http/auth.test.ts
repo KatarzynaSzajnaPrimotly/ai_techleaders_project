@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 const SECRET = "s".repeat(32);
-const session = { userId: "user-1", role: "mentor" as const };
+const session = { userId: "user-1", role: "mentor" as const, sessionVersion: 0 };
 const withCookie = (cookie?: string) =>
   new Request("http://x", { headers: cookie === undefined ? {} : { cookie } });
 
@@ -43,8 +43,8 @@ describe("signSession / verifySession", () => {
 
   it("rejects tokens without the expected claims", async () => {
     const key = new TextEncoder().encode(SECRET);
-    const noRole = await new SignJWT({}).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
-    const noSubject = await new SignJWT({ role: "mentor" }).setProtectedHeader({ alg: "HS256" }).sign(key);
+    const noRole = await new SignJWT({ sv: 0 }).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
+    const noSubject = await new SignJWT({ role: "mentor", sv: 0 }).setProtectedHeader({ alg: "HS256" }).sign(key);
     await expect(verifySession(noRole, SECRET)).rejects.toMatchObject({ status: 401 });
     await expect(verifySession(noSubject, SECRET)).rejects.toMatchObject({ status: 401 });
   });
@@ -61,6 +61,14 @@ describe("signSession / verifySession", () => {
       .sign(key);
     await expect(verifySession(unknownRole, SECRET)).rejects.toMatchObject({ status: 401 });
     await expect(verifySession(purposeToken, SECRET)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("rejects sessions without a valid session version", async () => {
+    const key = new TextEncoder().encode(SECRET);
+    const missing = await new SignJWT({ role: "mentor" }).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
+    const negative = await new SignJWT({ role: "mentor", sv: -1 }).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
+    await expect(verifySession(missing, SECRET)).rejects.toMatchObject({ status: 401 });
+    await expect(verifySession(negative, SECRET)).rejects.toMatchObject({ status: 401 });
   });
 
   it("rejects an unsigned token (alg none)", async () => {

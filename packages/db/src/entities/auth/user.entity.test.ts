@@ -10,13 +10,14 @@ describe("UserSchema", () => {
   it("declares the expected columns, constraints, and defaults", () => {
     const properties = UserSchema.meta.properties;
     expect(Object.keys(properties).sort()).toEqual([
-      "avatarUrl", "createdAt", "displayName", "email", "emailVerifiedAt", "githubId", "githubLogin", "id", "passwordHash", "role", "updatedAt",
+      "avatarUrl", "createdAt", "displayName", "email", "emailVerifiedAt", "githubId", "githubLogin", "id", "passwordHash", "role", "sessionVersion", "updatedAt",
     ]);
     expect(properties.id.primary).toBe(true);
     expect(properties.email.unique).toBe(true);
     expect(properties.email.type).toBe("string");
     expect(properties.emailVerifiedAt.nullable).not.toBe(true);
     expect(properties.role.default).toBe("mentee");
+    expect(properties.sessionVersion.default).toBe(0);
     expect((properties.role as unknown as { check?: string }).check).toBe("role in ('mentee', 'mentor')");
     expect(properties.githubId.unique).toBe(true);
     expect(properties.githubId.nullable).toBe(true);

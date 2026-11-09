@@ -6,6 +6,7 @@ import { createUser, mintSessionCookie } from "./helpers/identity";
 const baseUrl = inject("baseUrl");
 const databaseUrl = inject("databaseUrl");
 const jwtSecret = inject("jwtSecret");
+const operatorEmail = inject("operatorEmail");
 const browser = createBrowser();
 const unique = Date.now().toString(36);
 const mentor = { name: `Ada ${unique}`, email: `ada-${unique}@example.com` };
@@ -28,7 +29,7 @@ interface Envelope<T> {
 }
 
 beforeAll(async () => {
-  const operator = await createUser({ email: `mentor-admin-${unique}@example.test` }, databaseUrl);
+  const operator = await createUser({ email: operatorEmail }, databaseUrl);
   const token = await mintSessionCookie({ userId: operator.id, role: "operator" }, jwtSecret);
   operatorCookie = `${SESSION_COOKIE}=${token}`;
   browser.setCookie(SESSION_COOKIE, token, baseUrl);

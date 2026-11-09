@@ -25,6 +25,7 @@ function user(overrides: Partial<User> = {}): User {
     passwordHash: null,
     displayName: "Ada",
     role: "mentee",
+    sessionVersion: 0,
     githubId: null,
     githubLogin: null,
     avatarUrl: null,
@@ -291,7 +292,7 @@ describe("AccountService password account lookups", () => {
       emailVerifiedAt: created.emailVerifiedAt,
       displayName: created.displayName ?? "Ada",
       passwordHash: created.passwordHash ?? "hash",
-    })).resolves.toEqual({ id: created.id, email: created.email, role: created.role });
+    })).resolves.toEqual({ id: created.id, email: created.email, role: created.role, sessionVersion: created.sessionVersion });
     expect(userRepository.create).toHaveBeenCalledWith({
       email: created.email,
       emailVerifiedAt: created.emailVerifiedAt,
@@ -310,6 +311,7 @@ describe("AccountService password account lookups", () => {
       id: existing.id,
       email: existing.email,
       role: existing.role,
+      sessionVersion: existing.sessionVersion,
       passwordHash: existing.passwordHash,
     });
   });
