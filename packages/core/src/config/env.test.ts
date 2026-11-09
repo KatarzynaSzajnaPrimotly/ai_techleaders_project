@@ -10,7 +10,13 @@ const SECRET = "a".repeat(32);
 
 describe("parseEnv", () => {
   it("applies defaults", () => {
-    expect(parseEnv({})).toEqual({ NODE_ENV: "development", LOG_LEVEL: "info", OPERATOR_EMAILS: [] });
+    expect(parseEnv({})).toEqual({
+      NODE_ENV: "development",
+      LOG_LEVEL: "info",
+      INVITATION_TTL_DAYS: 14,
+      MENTOR_PUBLISH_WINDOW_DAYS: 14,
+      OPERATOR_EMAILS: [],
+    });
   });
 
   it("parses operator addresses as a trimmed, lower-case list and drops empty entries", () => {
@@ -26,9 +32,30 @@ describe("parseEnv", () => {
       NODE_ENV: "production",
       LOG_LEVEL: "warn",
       JWT_SECRET: SECRET,
+      INVITATION_TTL_DAYS: 14,
+      MENTOR_PUBLISH_WINDOW_DAYS: 14,
       OPERATOR_EMAILS: [],
     });
   });
+
+  it("parses positive invitation and publish-window settings", () => {
+    expect(parseEnv({ INVITATION_TTL_DAYS: "21", MENTOR_PUBLISH_WINDOW_DAYS: "10" })).toMatchObject({
+      INVITATION_TTL_DAYS: 21,
+      MENTOR_PUBLISH_WINDOW_DAYS: 10,
+    });
+  });
+
+  it.each(["0", "-1", "1.5", "1e2", " 1", "01", "abc", "9".repeat(400)])(
+    "rejects invalid invitation durations %s",
+    (value) => {
+      expect(() => parseEnv({ INVITATION_TTL_DAYS: value })).toThrowError(
+        "Invalid environment variables: INVITATION_TTL_DAYS",
+      );
+      expect(() => parseEnv({ MENTOR_PUBLISH_WINDOW_DAYS: value })).toThrowError(
+        "Invalid environment variables: MENTOR_PUBLISH_WINDOW_DAYS",
+      );
+    },
+  );
 
   it("accepts optional GitHub credentials and URL overrides without making them required", () => {
     expect(parseEnv({})).not.toHaveProperty("GITHUB_CLIENT_ID");
