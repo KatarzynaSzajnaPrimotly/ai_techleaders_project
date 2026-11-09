@@ -2,6 +2,12 @@ import { jwtVerify, SignJWT } from "jose";
 import { requireJwtSecret } from "../config/env";
 import { ForbiddenError, UnauthorizedError } from "./errors";
 
+export type Role = "mentee" | "mentor" | "operator";
+
+export function isRole(value: unknown): value is Role {
+  return value === "mentee" || value === "mentor" || value === "operator";
+}
+
 const ALGORITHM = "HS256";
 
 export const SESSION_COOKIE = "devmentor_session";
@@ -10,7 +16,7 @@ export const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 export interface Session {
   userId: string;
-  role: string;
+  role: Role;
 }
 
 const encodeSecret = (secret: string) => new TextEncoder().encode(secret);
@@ -27,7 +33,9 @@ export function signSession(session: Session, secret: string, ttlSeconds = SESSI
 export async function verifySession(token: string, secret: string): Promise<Session> {
   try {
     const { payload } = await jwtVerify(token, encodeSecret(secret), { algorithms: [ALGORITHM] });
-    if (typeof payload.sub !== "string" || typeof payload.role !== "string") throw new Error("Malformed claims");
+    if (typeof payload.sub !== "string" || !isRole(payload.role) || "purpose" in payload) {
+      throw new Error("Malformed claims");
+    }
     return { userId: payload.sub, role: payload.role };
   } catch {
     throw new UnauthorizedError("Invalid or expired session");
