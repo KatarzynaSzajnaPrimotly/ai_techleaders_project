@@ -15,7 +15,7 @@ Source spec: `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 1); story:
 | 1 | 1.5 | Local-time deadline display primitive | inline | done | 3218b2e |
 | 1 | 1.6 | Invitation and onboarding API routes | inline | done | 072f516 |
 | 1 | 1.7 | Invitation acceptance and mentor home | inline | done | b59bc60 |
-| 1 | 1.8 | Operator invitation script and docs | inline | todo | — |
+| 1 | 1.8 | Operator invitation script and docs | inline | done | db0fe2a |
 | 1 | 1.9 | Invitation integration coverage | inline | todo | — |
 
 ## Goal
