@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { describe, expect, inject, it } from "vitest";
-import { SESSION_COOKIE, verifySession } from "../../packages/core/src/http/auth";
+import { ConflictError, InvitationService, SESSION_COOKIE, verifySession } from "@devmentor/core";
+import { createInvitationRepository, createOrm } from "@devmentor/db";
 import { createUser, mintSessionCookie, seedPendingInvitation } from "./helpers/identity";
 import { runConcurrently } from "./helpers/concurrency";
 
@@ -26,6 +27,53 @@ async function readAccountRolesAndProfile(userId: string) {
     return { user: users.rows[0], profile: profiles.rows[0] };
   } finally {
     await client.end();
+  }
+}
+
+async function createInvitationServices() {
+  const orm = await createOrm({ url: databaseUrl, pool: { min: 1, max: 4 } });
+  return {
+    makeService: () => new InvitationService({
+      invitationRepository: createInvitationRepository(orm.em.fork()),
+      invitationEvents: { async publishInvitationAccepted() { return undefined; } },
+    }),
+    close: () => orm.close(true),
+  };
+}
+
+async function readInvitationState(invitationId: string) {
+  const client = new Client({ connectionString: databaseUrl });
+  await client.connect();
+  try {
+    const result = await client.query<{ accepted_at: Date | null; revoked_at: Date | null; token_hash: string }>(
+      "SELECT accepted_at, revoked_at, token_hash FROM invitations WHERE id = $1",
+      [invitationId],
+    );
+    return result.rows[0];
+  } finally {
+    await client.end();
+  }
+}
+
+async function countUnresolvedInvitations(email: string) {
+  const client = new Client({ connectionString: databaseUrl });
+  await client.connect();
+  try {
+    const result = await client.query<{ count: string }>(
+      "SELECT count(*)::text AS count FROM invitations WHERE email = $1 AND accepted_at IS NULL AND revoked_at IS NULL",
+      [email],
+    );
+    return Number(result.rows[0]?.count ?? 0);
+  } finally {
+    await client.end();
+  }
+}
+
+async function settle<T>(operation: () => Promise<T>): Promise<{ status: "fulfilled"; value: T } | { status: "rejected"; reason: unknown }> {
+  try {
+    return { status: "fulfilled", value: await operation() };
+  } catch (reason) {
+    return { status: "rejected", reason };
   }
 }
 
@@ -92,5 +140,107 @@ describe("invitation acceptance integration", () => {
     const persisted = await readAccountRolesAndProfile(account.id);
     expect(persisted.user).toMatchObject({ roles: ["mentee", "mentor"], session_version: 1 });
     expect(persisted.profile).toBeDefined();
+  });
+
+  it("keeps one unresolved invitation when create commands race for a normalized e-mail", async () => {
+    const email = "duplicate-create-" + unique + "@example.test";
+    const harness = await createInvitationServices();
+    try {
+      const services = [harness.makeService(), harness.makeService()];
+      const outcomes = await runConcurrently(2, async (index) => {
+        try {
+          return { status: "fulfilled" as const, value: await services[index]!.create({
+            email: index === 0 ? " " + email.toUpperCase() + " " : email,
+            stackTags: ["TypeScript"],
+          }) };
+        } catch (reason) {
+          return { status: "rejected" as const, reason };
+        }
+      });
+      expect(outcomes.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+      const failures = outcomes.filter((result) => result.status === "rejected");
+      expect(failures).toHaveLength(1);
+      expect(failures[0]?.status === "rejected" ? failures[0].reason : null).toBeInstanceOf(ConflictError);
+      expect(await countUnresolvedInvitations(email)).toBe(1);
+    } finally {
+      await harness.close();
+    }
+  });
+
+  it("serializes acceptance against revocation without partial role or profile changes", async () => {
+    const email = "accept-revoke-" + unique + "@example.test";
+    const account = await createUser({ email }, databaseUrl);
+    const harness = await createInvitationServices();
+    try {
+      const invitation = await harness.makeService().create({ email, stackTags: ["TypeScript"] });
+      const [acceptService, revokeService] = [harness.makeService(), harness.makeService()];
+      const outcomes = await runConcurrently(2, async (index) => {
+        try {
+          const value = index === 0
+            ? await acceptService.accept(invitation.token, account.id)
+            : await revokeService.revoke(invitation.invitation.id);
+          return { status: "fulfilled" as const, value };
+        } catch (reason) {
+          return { status: "rejected" as const, reason };
+        }
+      });
+      expect(outcomes.filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+      expect(outcomes.filter(({ status }) => status === "rejected")).toHaveLength(1);
+
+      const persisted = await readAccountRolesAndProfile(account.id);
+      const state = await readInvitationState(invitation.invitation.id);
+      if (outcomes[0]?.status === "fulfilled") {
+        expect(state?.accepted_at).not.toBeNull();
+        expect(state?.revoked_at).toBeNull();
+        expect(persisted.user).toMatchObject({ roles: ["mentee", "mentor"], session_version: 1 });
+        expect(persisted.profile).toBeDefined();
+      } else {
+        expect(state?.accepted_at).toBeNull();
+        expect(state?.revoked_at).not.toBeNull();
+        expect(persisted.user).toMatchObject({ roles: ["mentee"], session_version: 0 });
+        expect(persisted.profile).toBeUndefined();
+      }
+    } finally {
+      await harness.close();
+    }
+  });
+
+  it("serializes acceptance against resend so either acceptance or token rotation wins atomically", async () => {
+    const email = "accept-resend-" + unique + "@example.test";
+    const account = await createUser({ email }, databaseUrl);
+    const harness = await createInvitationServices();
+    try {
+      const invitation = await harness.makeService().create({ email, stackTags: ["TypeScript"] });
+      const [acceptService, resendService] = [harness.makeService(), harness.makeService()];
+      let releaseStart: () => void = () => undefined;
+      const start = new Promise<void>((resolve) => { releaseStart = resolve; });
+      const acceptOperation = (async () => { await start; return settle(() => acceptService.accept(invitation.token, account.id)); })();
+      const resendOperation = (async () => { await start; return settle(() => resendService.resend(invitation.invitation.id)); })();
+      releaseStart();
+      const [acceptOutcome, resendOutcome] = await Promise.all([acceptOperation, resendOperation]);
+      expect([acceptOutcome, resendOutcome].filter(({ status }) => status === "fulfilled")).toHaveLength(1);
+      expect([acceptOutcome, resendOutcome].filter(({ status }) => status === "rejected")).toHaveLength(1);
+
+      const persisted = await readAccountRolesAndProfile(account.id);
+      const state = await readInvitationState(invitation.invitation.id);
+      await expect(acceptService.lookup(invitation.token)).rejects.toMatchObject({ status: 404 });
+      if (acceptOutcome.status === "fulfilled") {
+        expect(state?.accepted_at).not.toBeNull();
+        expect(state?.token_hash).toBe(invitation.invitation.tokenHash);
+        expect(persisted.user).toMatchObject({ roles: ["mentee", "mentor"], session_version: 1 });
+        expect(persisted.profile).toBeDefined();
+      } else {
+        expect(resendOutcome.status).toBe("fulfilled");
+        if (resendOutcome.status !== "fulfilled") throw new Error("Expected resend to win the invitation lock");
+        expect(state?.accepted_at).toBeNull();
+        expect(state?.token_hash).toBe(resendOutcome.value.invitation.tokenHash);
+        expect(state?.token_hash).not.toBe(invitation.invitation.tokenHash);
+        await expect(acceptService.lookup(resendOutcome.value.token)).resolves.toMatchObject({ email });
+        expect(persisted.user).toMatchObject({ roles: ["mentee"], session_version: 0 });
+        expect(persisted.profile).toBeUndefined();
+      }
+    } finally {
+      await harness.close();
+    }
   });
 });
