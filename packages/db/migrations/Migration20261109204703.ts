@@ -14,7 +14,8 @@ export class Migration20261109204703 extends Migration {
   override down(): void | Promise<void> {
     this.addSql(`alter table "users" drop constraint if exists "users_roles_check";`);
     this.addSql(`alter table "users" drop column "roles";`);
-    this.addSql(`alter table "users" alter column "email_verified_at" set not null;`);
+    // A nullable value records an unverified account. Reverting must not make
+    // rollback fail or falsely mark that account as verified.
   }
 
 }
