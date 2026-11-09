@@ -1,27 +1,26 @@
 # Handoff — 2026-11-09-e02-s01-invitations
 
-**Last updated:** 2026-11-09T20:30:17Z
+**Last updated:** 2026-11-09T21:48:00Z
 **Branch:** `feat/e02-s01-invitations`
-**PR:** not yet opened
-**Current phase/step:** Phase 1 Step 1.4
-**Last commit:** `0288e62` — feat(invitations): configure invitation time windows
+**PR:** #60 draft (https://github.com/KatarzynaSzajnaPrimotly/ai_techleaders_project/pull/60)
+**Current phase/step:** Phase 1 complete; final review/QA pending
+**Last commit:** `f267229` — docs(runs): mark additive role fixtures complete
 
 ## What just happened
-- Created the isolated E02-S01 branch on the reviewed E01 implementation head.
-- Claimed #30, #39 and #40 and posted initial progress comments.
-- Independent review approved the final E01 security fix; E02 will remain a separate PR stacked on that branch.
-- Storybook is absent; existing tested forms, feedback and auth views are the reusable UI source.
-- Steps 1.1 and 1.2 are done: token utilities and invitation/profile persistence are pushed to PR #60.
-- Persistence migration passed up/down/up and PostgreSQL probes for unique unresolved email, stack vocabulary, acceptance consistency, and profile ownership.
-- Full unit coverage passed: 751 tests, 100% statements/branches/functions/lines; typecheck and lint passed (two existing warnings).
-- Step 1.3 adds validated 14-day defaults for both windows to the shared environment schema, `.env.example`, README, CI integration job and actual integration harness path. Existing package has only one Zod environment schema and the harness is under `helpers/`; both gaps are recorded in PLAN.
-- Validation after step 1.3: 760 unit tests pass at 100% coverage; typecheck passes; lint passes with two pre-existing warnings.
+- Implemented all ten Phase 1 steps on `feat/e02-s01-invitations`, each with a plan-tracked commit. PR #60 is an implementation PR stacked on E01 PR #59; S02 #40 remains separate.
+- The invitation service binds acceptance to the persisted verified normalized e-mail, locks user then invitation, grants mentor additively, creates the profile/deadline atomically, and returns a renewed session from the acceptance route.
+- Added public invitation lookup/accept UI, mentor-only onboarding API, `/mentor` deadline display, operator `invite create|revoke|resend` CLI with token-free audit lines, and PostgreSQL/browser integration coverage.
+- Storybook is absent; existing tested components were reused. No spec files, local environment files, or generated snapshots were committed.
+- Full local gate on the current source: lint passes with two pre-existing warnings; typecheck passes; 854 tests pass at 100% statement/branch/function/line coverage; production build passes.
+- Full integration suite passed on a fresh local PostgreSQL database: 7 files / 53 tests. Integration fixtures now populate additive role grants and reuse the shared allowlisted operator identity safely across parallel suites.
+- Migration up/down/up and PostgreSQL constraint probes passed earlier in the run. Detailed final-gate evidence is in `checkpoint-1-checks.md`.
+- The most recent E01 re-review child had no structured verdict; an earlier independent Luna re-review approved the E01 session-revocation fix.
 
 ## Next concrete action
-- Implement Step 1.4: build the transactional invitation lifecycle service with normalized identities, token-state transitions, concurrency rules, mentor role grant and first deadline creation.
+- Push the validated commits to the existing PR #60, post the final progress update to #30/#39, run the PR review workflow, then run browser QA and attach screenshots. Promote the PR from draft only after both review and QA are resolved; do not merge into main.
 
 ## Blockers / open questions
-- None. E01 PR #59 remains a separate draft base and must be approved/merged before the stacked E02 PRs can merge.
+- The code review and screenshot QA for E02 PR #60 are still pending. Do not mark the PR ready or merge until those gates are complete.
 
 ## Environment caveats
 - Dev runtime runnable: yes (local PostgreSQL can be started for integration checks).
