@@ -76,7 +76,7 @@ Three other competitors (ADPList, Topmate, Preply) have checks in the research f
 
 | Term | Meaning | Owned by | Visible to |
 |---|---|---|---|
-| Mentee | the paying developer; the code currently calls the role `student` (naming open, Q22) | mentee | mentee and the mentor they booked |
+| Mentee | the paying developer; the role is named `mentee` in code (Q22 closed) | mentee | mentee and the mentor they booked |
 | Mentor | an invited senior engineer who publishes slots and prices (D08, D09) | mentor | public mentor page |
 | Operator | the two founders; they invite mentors, set price bounds and the fee, and resolve disputes (D19) | founders | operator screens |
 | Slot | a time a mentor publishes; bookable when it starts at least two hours later (D22) | mentor | mentees |
@@ -185,7 +185,7 @@ None: no synthetic walkthrough was run.
 | Q19 | How are first-iteration mentors paid before Stripe Connect? | no longer | founder A with founder B | closed: by hand by the operator (D28); the money flow is to be verified with a lawyer or Stripe before the first payout |
 | Q20 | Is a signed-in mentee's visit to a mentor page without booking recorded? The invitation check needs those developers | yes: before the fourth-week check on 2026-11-28 | founder A with founder B | open |
 | Q21 | Which decision holds the "median booking-to-start under 48 hours in the first four weeks" target the reference backlog attributes to D22? | no: decide before E03-S03 | founder A | open |
-| Q22 | Mentee or `student`: the brief says mentee, the code's `Role` says `student` | no: decide once in E01-S01 | founder A | open |
+| Q22 | Mentee or `student`: the brief says mentee and the code uses `mentee` | no: non-blocking | founder A | closed: the role is `mentee` |
 | Q23 | Are the cited decisions D06, D12, D14, D15, D17, D23, D25 and D26 part of 1.0, and what do they say? | no: supply or confirm they do not exist | founder A | open |
 | Q24 | What are the initial values of the operator's price bounds and the first prices, in EUR? | no: blocking before QA of E02-S04 | founder A | open |
 | Q25 | What does a late-cancelled, forfeited booking pay the mentor, and is the platform fee taken? D10 says only that the mentee's fee is forfeited | yes: before E03-S05 and E03-S06 are implemented (1.1) | founder A | open |

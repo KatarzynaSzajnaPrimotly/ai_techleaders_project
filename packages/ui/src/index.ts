@@ -11,6 +11,7 @@ export { MentorCard, type MentorCardProps } from "./components/mentors/mentor-ca
 export type { ApiErrorBody, ApiFieldErrors, ApiResult } from "./backend/api/types";
 export { apiCall, apiCallOrThrow, ApiError, readJsonSafe, type ApiCallOptions } from "./backend/api/apiCall";
 export { CrudForm, type CrudField, type CrudFormProps } from "./backend/forms/CrudForm";
+export { PublicForm, type PublicField, type PublicFieldType, type PublicFormProps } from "./frontend/forms/PublicForm";
 export {
   DataTable,
   type DataTableColumn,
@@ -20,6 +21,7 @@ export {
 export { EmptyState, type EmptyStateProps } from "./backend/feedback/EmptyState";
 export { ErrorMessage, type ErrorMessageProps } from "./backend/feedback/ErrorMessage";
 export { LoadingMessage } from "./backend/feedback/LoadingMessage";
+export { RoleShell, navFor, type RoleNavigationItem } from "./components/shell/RoleShell";
 
 export { SiteHeader, type NavLink, type SiteHeaderProps } from "./site-header";
 export { SiteFooter, type SiteFooterProps } from "./site-footer";

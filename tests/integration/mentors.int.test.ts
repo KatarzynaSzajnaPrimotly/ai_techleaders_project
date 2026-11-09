@@ -1,14 +1,20 @@
 import { afterAll, beforeAll, describe, expect, inject, it } from "vitest";
+import { SESSION_COOKIE } from "../../packages/core/src/http/auth";
 import { createBrowser } from "./helpers/browser";
+import { createUser, mintSessionCookie } from "./helpers/identity";
 
 const baseUrl = inject("baseUrl");
+const databaseUrl = inject("databaseUrl");
+const jwtSecret = inject("jwtSecret");
+const operatorEmail = inject("operatorEmail");
 const browser = createBrowser();
 const unique = Date.now().toString(36);
 const mentor = { name: `Ada ${unique}`, email: `ada-${unique}@example.com` };
 
 const CSRF = { "x-devmentor-csrf": "1" };
+let operatorCookie = "";
 
-function postMentor(body: unknown, headers: Record<string, string> = CSRF) {
+function postMentor(body: unknown, headers: Record<string, string> = { ...CSRF, cookie: operatorCookie }) {
   return fetch(`${baseUrl}/api/mentors`, {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
@@ -22,6 +28,13 @@ interface Envelope<T> {
   error?: { code: string; message: string; fieldErrors?: Record<string, string[]> };
 }
 
+beforeAll(async () => {
+  const operator = await createUser({ email: operatorEmail }, databaseUrl);
+  const token = await mintSessionCookie({ userId: operator.id, role: "operator" }, jwtSecret);
+  operatorCookie = `${SESSION_COOKIE}=${token}`;
+  browser.setCookie(SESSION_COOKIE, token, baseUrl);
+});
+
 afterAll(() => {
   browser.close();
 });
@@ -34,7 +47,7 @@ describe("mentors API against a real PostgreSQL", () => {
   });
 
   it("refuses a state-changing request without the CSRF header", async () => {
-    const response = await postMentor({ name: "No Csrf", email: `csrf-${unique}@example.com` }, {});
+    const response = await postMentor({ name: "No Csrf", email: `csrf-${unique}@example.com` }, { cookie: operatorCookie });
     expect(response.status).toBe(403);
     expect(((await response.json()) as Envelope<never>).error?.code).toBe("FORBIDDEN");
   });
@@ -58,7 +71,7 @@ describe("mentors API against a real PostgreSQL", () => {
   });
 
   it("lists the stored mentor", async () => {
-    const body = (await (await fetch(`${baseUrl}/api/mentors`)).json()) as Envelope<Array<{ email: string }>>;
+    const body = (await (await fetch(`${baseUrl}/api/mentors`, { headers: { cookie: operatorCookie } })).json()) as Envelope<Array<{ email: string }>>;
     expect(body.ok).toBe(true);
     expect(body.data?.map((item) => item.email)).toContain(mentor.email);
   });

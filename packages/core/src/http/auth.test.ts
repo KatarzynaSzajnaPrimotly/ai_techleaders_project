@@ -4,10 +4,10 @@ import {
   assertOwns,
   buildSessionCookie,
   clearSessionCookie,
-  requireRole,
   requireSession,
   SESSION_COOKIE,
   SESSION_TTL_SECONDS,
+  isRole,
   signSession,
   verifySession,
 } from "./auth";
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 const SECRET = "s".repeat(32);
-const session = { userId: "user-1", role: "mentor" };
+const session = { userId: "user-1", role: "mentor" as const, sessionVersion: 0 };
 const withCookie = (cookie?: string) =>
   new Request("http://x", { headers: cookie === undefined ? {} : { cookie } });
 
@@ -43,10 +43,32 @@ describe("signSession / verifySession", () => {
 
   it("rejects tokens without the expected claims", async () => {
     const key = new TextEncoder().encode(SECRET);
-    const noRole = await new SignJWT({}).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
-    const noSubject = await new SignJWT({ role: "mentor" }).setProtectedHeader({ alg: "HS256" }).sign(key);
+    const noRole = await new SignJWT({ sv: 0 }).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
+    const noSubject = await new SignJWT({ role: "mentor", sv: 0 }).setProtectedHeader({ alg: "HS256" }).sign(key);
     await expect(verifySession(noRole, SECRET)).rejects.toMatchObject({ status: 401 });
     await expect(verifySession(noSubject, SECRET)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("rejects tokens with an unknown role or a purpose claim", async () => {
+    const key = new TextEncoder().encode(SECRET);
+    const unknownRole = await new SignJWT({ role: "admin" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setSubject("u")
+      .sign(key);
+    const purposeToken = await new SignJWT({ role: "mentor", purpose: "oauth-state" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setSubject("u")
+      .sign(key);
+    await expect(verifySession(unknownRole, SECRET)).rejects.toMatchObject({ status: 401 });
+    await expect(verifySession(purposeToken, SECRET)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("rejects sessions without a valid session version", async () => {
+    const key = new TextEncoder().encode(SECRET);
+    const missing = await new SignJWT({ role: "mentor" }).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
+    const negative = await new SignJWT({ role: "mentor", sv: -1 }).setProtectedHeader({ alg: "HS256" }).setSubject("u").sign(key);
+    await expect(verifySession(missing, SECRET)).rejects.toMatchObject({ status: 401 });
+    await expect(verifySession(negative, SECRET)).rejects.toMatchObject({ status: 401 });
   });
 
   it("rejects an unsigned token (alg none)", async () => {
@@ -87,9 +109,12 @@ describe("requireSession", () => {
 });
 
 describe("authorization helpers", () => {
-  it("requireRole allows a matching role and denies another", () => {
-    expect(() => requireRole(session, "mentor")).not.toThrow();
-    expect(() => requireRole(session, "admin")).toThrowError(expect.objectContaining({ status: 403 }));
+  it("recognizes only the three supported roles", () => {
+    expect(isRole("mentee")).toBe(true);
+    expect(isRole("mentor")).toBe(true);
+    expect(isRole("operator")).toBe(true);
+    expect(isRole("admin")).toBe(false);
+    expect(isRole(undefined)).toBe(false);
   });
 
   it("assertOwns allows only the owner and fails closed otherwise", () => {

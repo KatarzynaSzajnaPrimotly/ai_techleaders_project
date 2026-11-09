@@ -5,6 +5,8 @@ import {
   ForbiddenError,
   MethodNotAllowedError,
   NotFoundError,
+  ServiceUnavailableError,
+  TooManyRequestsError,
   UnauthorizedError,
   ValidationError,
 } from "./errors";
@@ -16,6 +18,7 @@ describe("AppError hierarchy", () => {
     [NotFoundError, "NOT_FOUND", 404, "Not found"],
     [MethodNotAllowedError, "METHOD_NOT_ALLOWED", 405, "Method not allowed"],
     [ConflictError, "CONFLICT", 409, "Conflict"],
+    [ServiceUnavailableError, "SERVICE_UNAVAILABLE", 503, "Service temporarily unavailable"],
     [ValidationError, "VALIDATION_ERROR", 400, "Validation failed"],
   ] as const)("%o maps to a code, status and default message", (ErrorClass, code, status, message) => {
     const error = new ErrorClass();
@@ -29,6 +32,13 @@ describe("AppError hierarchy", () => {
 
   it("accepts a custom message", () => {
     expect(new NotFoundError("Mentor 7 not found").message).toBe("Mentor 7 not found");
+  });
+
+  it("includes the retry delay on rate limit errors", () => {
+    const error = new TooManyRequestsError(19);
+    expect(error).toBeInstanceOf(AppError);
+    expect(error).toMatchObject({ name: "TooManyRequestsError", code: "RATE_LIMITED", status: 429, retryAfterSeconds: 19 });
+    expect(error.message).toBe("Too many requests");
   });
 
   it("carries field errors on validation errors", () => {

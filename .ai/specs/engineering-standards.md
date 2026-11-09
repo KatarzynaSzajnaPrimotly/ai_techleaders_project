@@ -33,7 +33,7 @@ marketplace booking flow). Decisions below were confirmed with the project owner
 | Page | `<segment>/page.tsx`, default export `<Segment>Page` | `sessions/page.tsx` → `SessionsPage` |
 | UI component | PascalCase; shadcn primitives in `components/ui/`, concept-specific shared components in `components/<concept>/`, generic panel primitives in `backend/<category>/` | `MentorCard`, `CrudForm` |
 | Domain error | PascalCase + `Error` suffix, extends `AppError`, file in `core/src/http/errors.ts` | `NotFoundError`, `ValidationError` |
-| API route handler builder | `makeCrudRoute` (straightforward CRUD) or `apiHandler` (custom workflow), both from `core/src/http` | `export const { GET, POST } = makeCrudRoute({ ... })` |
+| API route handler builder | `makeCrudRoute` (straightforward CRUD) or `apiHandler` (custom workflow), both from `core/src/http`; every route declares `access` | `export const { GET, POST } = makeCrudRoute({ access, ... })` |
 | Client fetch helper | `apiCall`/`apiCallOrThrow` from `ui/src/backend/api`, never raw `fetch` | `const res = await apiCall<Booking[]>('/api/bookings')` |
 
 ### Reusable API & UI Layer (no duplicated fetch / validation / auth / CRUD code)
@@ -61,9 +61,12 @@ genuinely new pattern appears, never re-implement an existing one inline:**
   becomes configuration, not logic. Workflow endpoints that don't fit CRUD (booking,
   reschedule, payment) use `apiHandler` directly and call one or more service methods
   inside — they don't force-fit `makeCrudRoute`.
-- `auth.ts` — `requireSession(req)` (throws `UnauthorizedError`), `requireRole(session,
-  role)` and ownership assertions (e.g. `assertOwnsBooking`) (throw `ForbiddenError`).
-  Every route that isn't public calls one of these first, before touching a service.
+- `access.ts` — `Access` and `enforceAccess(request, access)` are the single role/session gate.
+  Every API route declares `access` in `apiHandler(handler, { access })` or
+  `makeCrudRoute({ access, ... })`; the verified session is passed to the handler.
+  Use `"public"`, `"authenticated"`, or `{ roles: [...] }`. `requireSession` is an
+  internal helper; `requireRole` is removed. `assertOwns` remains for record ownership.
+  Pages use `guardedPage({ path, access }, render)` or `publicPage(...)`.
 
 **Client side — `packages/ui/src/backend/`:**
 
@@ -78,7 +81,7 @@ genuinely new pattern appears, never re-implement an existing one inline:**
   when the UX genuinely isn't a form-over-schema (e.g. the calendar slot picker).
 - `tables/DataTable.tsx` — column-config-driven list rendering with built-in
   loading/empty/error states, pagination, and row actions. Use it for every list
-  screen (search results, sessions, students, reviews) instead of hand-rolling a
+  screen (search results, sessions, mentees, reviews) instead of hand-rolling a
   `<table>`/`.map()` per page.
 - `feedback/{LoadingMessage,ErrorMessage,EmptyState}.tsx` — the only sanctioned
   loading/error/empty renderers; a page composes these instead of writing its own
@@ -193,9 +196,11 @@ explicit**, not the one that looks more "enterprise."
   `env.ts` (zod-validated) — never hardcoded, never committed. Short expiry (e.g. 24h);
   there is no refresh-token flow in MVP scope — document that as a known limitation,
   don't silently extend the token lifetime to compensate.
-- **Cookies:** `httpOnly`, `secure` in production, `sameSite=lax` (or `strict` for
-  auth-only routes), scoped `path`. Never put the JWT in `localStorage` or a
-  non-HttpOnly cookie.
+- **Cookies:** `httpOnly`, `secure` in production except when the test-only
+  `ALLOW_INSECURE_HTTP=true` switch is set for plain-HTTP test runs; never set that
+  switch with an HTTPS `APP_URL`. Use `sameSite=lax` (or `strict` for auth-only
+  routes) and a scoped `path`. Never put the JWT in `localStorage` or a non-HttpOnly
+  cookie.
 - **CSRF:** because auth relies on a cookie, every state-changing route needs a CSRF
   defense — `sameSite` cookies plus a check that the request carries a custom header
   (`apiCall` always sets one; a plain HTML form post won't) is the minimum bar.
@@ -203,10 +208,11 @@ explicit**, not the one that looks more "enterprise."
   a brute-force control — a simple per-IP+email attempt counter with a cooldown is
   enough for MVP; note it explicitly as needing a stronger backend before real
   production traffic.
-- **Ownership over role.** This product has no RBAC (explicitly out of scope), but
-  every mutation still needs an ownership check: a student can only reschedule/cancel
-  *their own* booking, a mentor can only edit *their own* profile/availability. Treat
-  a missing ownership check exactly like a missing auth check — both are blockers.
+- **Access and ownership.** The product has a small fixed role vocabulary, not a
+  general-purpose RBAC system. Declare role access at each protected route/page, and
+  still check record ownership in services: a mentee can only reschedule/cancel
+  *their own* booking, and a mentor can only edit *their own* profile/availability.
+  Treat a missing ownership check exactly like a missing access check — both block review.
 - **Mass assignment:** a route never spreads the raw request body into `em.create()`;
   it always goes through the Zod schema's parsed, explicitly-typed output, so a client
   can't smuggle in fields like `id`, `status`, or `mentorId` on someone else's record.
@@ -231,9 +237,10 @@ explicit**, not the one that looks more "enterprise."
 - Self-documenting code; a comment only for a non-obvious *why*.
 - Three similar lines are fine; a copy-pasted block with branching logic is not —
   extract it (see DRY above).
-- No feature you don't need yet (no RBAC, no multi-tenant, no queue) — the product
-  scope explicitly excludes these; don't smuggle them back in "for later" (see YAGNI
-  above).
+- No feature you don't need yet (no configurable permission matrix, no multi-tenant,
+  no queue) — the product scope excludes these; don't smuggle them back in "for later"
+  (see YAGNI above). The fixed `mentee`, `mentor`, and `operator` roles are part of the
+  approved accounts-and-roles spec.
 - Every function does one thing at one level of abstraction; flatten deep nesting
   with early returns rather than nested `if`s.
 - Error and empty/null paths are handled where they occur, not woven through the
@@ -265,12 +272,12 @@ explicit**, not the one that looks more "enterprise."
   review.
 
 **Security fundamentals** (adapted from Open Mercato's shared review checklist —
-kept to what actually applies to a project with no RBAC/multi-tenancy):
+kept to what applies to a project with fixed roles and no multi-tenancy):
 
 - [ ] Auth is enforced **server-side** on every route that isn't explicitly public —
   "the button is hidden in the UI" is not enforcement. (blocker)
 - [ ] Authorization checks **the specific record**, not just "is logged in" — can this
-  student cancel *this* booking, can this mentor edit *this* profile (no insecure
+  mentee cancel *this* booking, can this mentor edit *this* profile (no insecure
   direct object references). (blocker)
 - [ ] Any check-then-act sequence on a shared resource — slot availability, booking
   status — is protected by a DB transaction and/or a unique constraint, not a
@@ -295,7 +302,7 @@ kept to what actually applies to a project with no RBAC/multi-tenancy):
 - Race-condition-sensitive flows (booking, reschedule) are covered by an integration
   test that simulates the concurrent case, not just the happy path.
 - Server-side revalidation exists for anything client-supplied that affects money or
-  ownership (price, mentor ID, student ID).
+  ownership (price, mentor ID, mentee ID).
 - A behavior change ships with a test that fails on the pre-change code; a bug fix
   ships a regression test reproducing the original bug.
 
@@ -315,14 +322,14 @@ When asked to scaffold a new domain concept (e.g., "add reviews"):
    `concept.entity.action` naming and emit from the service after a successful
    mutation.
 5. Add the HTTP surface in `packages/app/src/app/api/<concept>/route.ts`:
-   - Plain CRUD resource → `export const { GET, POST, PUT, DELETE } = makeCrudRoute({ schema, service })`.
-   - Custom workflow (booking, payment, reschedule) → wrap the handler in `apiHandler`,
-     call `requireSession`/ownership assertions from `core/src/http/auth.ts`, then one
-     or more service methods through `withScope`.
+   - Plain CRUD resource → `export const { GET, POST, PUT, DELETE } = makeCrudRoute({ access, list, create, update, remove })`.
+   - Custom workflow (booking, payment, reschedule) → wrap the handler in `apiHandler`
+     with an explicit `access` policy; use `assertOwns` for record-level ownership,
+     then call service methods through `withScope`. Access runs before the handler.
    - Never write a bare `try/catch` + manual `NextResponse.json` — that's what
      `apiHandler`/`makeCrudRoute` exist to remove.
 6. Add the page(s) under the matching persona route group
-   (`(student)/`, `(mentor)/`, `(auth)/`, `(marketing)/`):
+   (`(mentee)/`, `(mentor)/`, `(auth)/`, `(marketing)/`):
    - Fetch through `apiCall`/`apiCallOrThrow` — never a raw `fetch`.
    - Create/edit UI → `CrudForm` bound to the same schema from step 3.
    - List UI → `DataTable`.
@@ -368,10 +375,10 @@ Every route and every page reuses two shared layers instead of re-implementing
 fetch/validation/auth/error-handling per feature:
 
 - `packages/core/src/http/` — `errors.ts` (typed `AppError` hierarchy),
-  `apiHandler.ts` (wraps a route: catches `AppError`s, maps to status + JSON
-  envelope, logs unexpected failures), `makeCrudRoute.ts` (schema + service in,
-  `{ GET, POST, PUT, DELETE }` out, for plain CRUD resources), `auth.ts`
-  (`requireSession`, `requireRole`, ownership assertions).
+  `apiHandler.ts` (wraps a route, enforces declared access, catches `AppError`s, maps
+  to status + JSON envelope, logs unexpected failures), `makeCrudRoute.ts` (access +
+  schema + service in, `{ GET, POST, PUT, DELETE }` out, for plain CRUD resources),
+  `access.ts` (`Access`, `enforceAccess`), and `auth.ts` (session helpers, `assertOwns`).
 - `packages/ui/src/backend/` — `api/apiCall.ts` (the only sanctioned `fetch()` call
   site), `forms/CrudForm.tsx`, `tables/DataTable.tsx`,
   `feedback/{LoadingMessage,ErrorMessage,EmptyState}.tsx`.
@@ -412,7 +419,7 @@ packages/
       (auth)/
         login/page.tsx                             # S04
         register/page.tsx
-      (student)/
+      (mentee)/
         book/[mentorId]/page.tsx                   # S05 booking flow
         checkout/[bookingId]/page.tsx               # S06 checkout
         dashboard/page.tsx                          # S07
@@ -426,7 +433,7 @@ packages/
         mentor/availability/page.tsx                # M02
         mentor/sessions/page.tsx                    # M03
         mentor/profile/page.tsx                     # M04
-        mentor/students/page.tsx                    # M05 (stretch)
+        mentor/mentees/page.tsx                     # M05 (stretch)
         mentor/reviews/page.tsx                     # M06
       api/
         auth/route.ts
@@ -453,7 +460,8 @@ packages/
         errors.ts                                   # AppError hierarchy
         apiHandler.ts                                # try/catch + envelope, once
         makeCrudRoute.ts                             # config-driven CRUD routes
-        auth.ts                                      # requireSession/requireRole/ownership
+        access.ts                                   # Access + enforceAccess policy
+        auth.ts                                      # session helpers + ownership
       events/
         event-bus.ts                                # typed emitter, in-process only
         event-map.ts                                # `concept.entity.action` registry
@@ -592,9 +600,9 @@ written against a different bootstrap, so these are the differences to keep in m
   schemas without pulling `pino` and `jose` into the browser bundle.
 - Not built yet, by the document's own YAGNI and step order: `core/src/events`, concept folders for
   `availability`, `bookings`, `payments`, `messages`, `favorites`, `reviews`, persona route groups
-  (`(marketing)`, `(student)`, ...), password hashing, rate limiting and the login flow. `docs/product-scope.md` does not
+  (`(marketing)`, `(mentee)`, ...), password hashing, rate limiting and the login flow. `docs/product-scope.md` does not
   exist in this repository, so section 3's last paragraph does not apply.
 - **Open blocker against the security checklist:** `POST /api/mentors` and `/admin/*` are unauthenticated because the
-  owner deferred authentication. They must be protected (`requireSession`, ownership) as soon as the auth concept exists.
+  authentication used to be deferred. Until E01-S03, the mentors API and admin mentors page are named exceptions in the source-based access contract; new protected surfaces must declare `access` / use `guardedPage` and check ownership where applicable.
 - Enforced by tooling: package boundaries, `no-explicit-any`, `no-empty`, `no-console`, no raw `fetch` outside
   `apiCall` (ESLint), 100% unit coverage and the integration suite (CI).

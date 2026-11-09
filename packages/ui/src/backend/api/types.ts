@@ -8,4 +8,4 @@ export interface ApiErrorBody {
 
 export type ApiResult<T> =
   | { ok: true; status: number; data: T }
-  | { ok: false; status: number; error: ApiErrorBody };
+  | { ok: false; status: number; error: ApiErrorBody; retryAfterSeconds?: number };

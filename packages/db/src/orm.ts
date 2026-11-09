@@ -1,12 +1,12 @@
 import { defineConfig, MikroORM } from "@mikro-orm/postgresql";
 import { getDatabaseConfig, type DatabaseConfig } from "./config";
-import { MentorSchema } from "./entities";
+import { MentorSchema, UserSchema } from "./entities";
 
 export function getOrmOptions(config: DatabaseConfig = getDatabaseConfig()) {
   return defineConfig({
     clientUrl: config.url,
     pool: config.pool,
-    entities: [MentorSchema],
+    entities: [MentorSchema, UserSchema],
   });
 }
 

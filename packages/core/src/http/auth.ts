@@ -2,6 +2,12 @@ import { jwtVerify, SignJWT } from "jose";
 import { requireJwtSecret } from "../config/env";
 import { ForbiddenError, UnauthorizedError } from "./errors";
 
+export type Role = "mentee" | "mentor" | "operator";
+
+export function isRole(value: unknown): value is Role {
+  return value === "mentee" || value === "mentor" || value === "operator";
+}
+
 const ALGORITHM = "HS256";
 
 export const SESSION_COOKIE = "devmentor_session";
@@ -10,13 +16,14 @@ export const SESSION_TTL_SECONDS = 24 * 60 * 60;
 
 export interface Session {
   userId: string;
-  role: string;
+  role: Role;
+  sessionVersion: number;
 }
 
 const encodeSecret = (secret: string) => new TextEncoder().encode(secret);
 
 export function signSession(session: Session, secret: string, ttlSeconds = SESSION_TTL_SECONDS): Promise<string> {
-  return new SignJWT({ role: session.role })
+  return new SignJWT({ role: session.role, sv: session.sessionVersion })
     .setProtectedHeader({ alg: ALGORITHM })
     .setSubject(session.userId)
     .setIssuedAt()
@@ -27,8 +34,16 @@ export function signSession(session: Session, secret: string, ttlSeconds = SESSI
 export async function verifySession(token: string, secret: string): Promise<Session> {
   try {
     const { payload } = await jwtVerify(token, encodeSecret(secret), { algorithms: [ALGORITHM] });
-    if (typeof payload.sub !== "string" || typeof payload.role !== "string") throw new Error("Malformed claims");
-    return { userId: payload.sub, role: payload.role };
+    if (
+      typeof payload.sub !== "string" ||
+      !isRole(payload.role) ||
+      !Number.isSafeInteger(payload.sv) ||
+      (payload.sv as number) < 0 ||
+      "purpose" in payload
+    ) {
+      throw new Error("Malformed claims");
+    }
+    return { userId: payload.sub, role: payload.role, sessionVersion: payload.sv as number };
   } catch {
     throw new UnauthorizedError("Invalid or expired session");
   }
@@ -48,8 +63,8 @@ export async function requireSession(request: Request, secret: string = requireJ
   return verifySession(token, secret);
 }
 
-export function requireRole(session: Session, role: string): void {
-  if (session.role !== role) throw new ForbiddenError();
+export function hasSessionCookie(request: Request): boolean {
+  return readCookie(request.headers.get("cookie"), SESSION_COOKIE) !== undefined;
 }
 
 // Fails closed: a missing or different owner id is a denial, never a best-effort allow.

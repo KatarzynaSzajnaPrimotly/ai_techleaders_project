@@ -9,6 +9,8 @@ See `AGENTS.md` for the full `.ai/` workflow this file is part of.
 - YYYY-MM-DD — One-line summary. [details](lessons/YYYY-MM-DD-slug.md)
 -->
 
+- 2026-10-27 — Keep the config schema/parser independent from logger setup to avoid an ESM initialization cycle when config helpers need to log. [details](lessons/2026-10-27-config-logger-import-cycle.md)
+
 - 2026-10-20 — Read `git diff --cached --name-only` before every commit: an unrelated archive was in the index; stacked PRs need the right base. [details](lessons/2026-10-20-check-the-index-before-committing.md)
 - 2026-10-20 — Sandbox: `git push` needs `-c credential.helper='!gh auth git-credential'`; no `jq`; `gh` 2.65 is below the descriptor's minimum, so use REST. [details](lessons/2026-10-20-git-push-and-gh-in-sandbox.md)
 - 2026-10-19 — No Tailwind preflight: links, one-sided dashed borders, headings and lists need explicit resets. [details](lessons/2026-10-19-tailwind-without-preflight.md)

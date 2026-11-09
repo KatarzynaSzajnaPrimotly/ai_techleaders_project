@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.hoisted(() => {
   process.env.LOG_LEVEL = "silent";
@@ -10,13 +10,20 @@ vi.mock("../../../server/container", () => ({
   withScope: (run: (cradle: unknown) => Promise<unknown>) =>
     run({ mentorService: { list: mocks.list, register: mocks.register } }),
 }));
+vi.mock("../../../server/current-session", () => ({ resolveCurrentSession: async (session: unknown) => session }));
 
-import { ConflictError } from "@devmentor/core";
+import { ConflictError, SESSION_COOKIE, signSession, type Role } from "@devmentor/core";
 import { dynamic, GET, POST } from "./route";
 
 const CSRF = { "x-devmentor-csrf": "1" };
+const JWT_SECRET = "mentors-route-test-secret-long-enough-for-hs256";
+const sessions: Record<Role, string> = { mentee: "", mentor: "", operator: "" };
 
-function post(body: unknown, headers: Record<string, string> = CSRF, raw = false) {
+function authHeaders(role: Role): Record<string, string> {
+  return { ...CSRF, cookie: `${SESSION_COOKIE}=${sessions[role]}` };
+}
+
+function post(body: unknown, headers: Record<string, string> = authHeaders("operator"), raw = false) {
   return new Request("http://localhost/api/mentors", {
     method: "POST",
     headers: { "content-type": "application/json", ...headers },
@@ -24,10 +31,16 @@ function post(body: unknown, headers: Record<string, string> = CSRF, raw = false
   });
 }
 
-beforeEach(() => {
+beforeEach(async () => {
+  vi.stubEnv("JWT_SECRET", JWT_SECRET);
+  sessions.mentee = await signSession({ userId: "mentee-1", role: "mentee", sessionVersion: 0 }, JWT_SECRET);
+  sessions.mentor = await signSession({ userId: "mentor-1", role: "mentor", sessionVersion: 0 }, JWT_SECRET);
+  sessions.operator = await signSession({ userId: "operator-1", role: "operator", sessionVersion: 0 }, JWT_SECRET);
   mocks.list.mockReset();
   mocks.register.mockReset();
 });
+
+afterEach(() => vi.unstubAllEnvs());
 
 describe("/api/mentors", () => {
   it("is rendered on demand", () => {
@@ -37,13 +50,30 @@ describe("/api/mentors", () => {
   describe("GET", () => {
     it("lists mentors inside the success envelope", async () => {
       mocks.list.mockResolvedValue([{ id: "1", name: "Ada" }]);
-      const response = await GET(new Request("http://localhost/api/mentors"), undefined);
+      const response = await GET(new Request("http://localhost/api/mentors", { headers: authHeaders("operator") }), undefined);
       expect(response.status).toBe(200);
       await expect(response.json()).resolves.toEqual({ ok: true, data: [{ id: "1", name: "Ada" }] });
+    });
+
+    it("requires an operator session", async () => {
+      const anonymous = await GET(new Request("http://localhost/api/mentors"), undefined);
+      const mentee = await GET(new Request("http://localhost/api/mentors", { headers: { cookie: `${SESSION_COOKIE}=${sessions.mentee}` } }), undefined);
+      const mentor = await GET(new Request("http://localhost/api/mentors", { headers: { cookie: `${SESSION_COOKIE}=${sessions.mentor}` } }), undefined);
+      expect(anonymous.status).toBe(401);
+      expect(mentee.status).toBe(403);
+      expect(mentor.status).toBe(403);
+      expect(mocks.list).not.toHaveBeenCalled();
     });
   });
 
   describe("POST", () => {
+    it.each(["anonymous", "mentee", "mentor"] as const)("rejects %s", async (identity) => {
+      const headers = identity === "anonymous" ? CSRF : authHeaders(identity);
+      const response = await POST(post({ name: "Ada", email: "a@b.co" }, headers), undefined);
+      expect(response.status).toBe(identity === "anonymous" ? 401 : 403);
+      expect(mocks.register).not.toHaveBeenCalled();
+    });
+
     it("creates a mentor from the validated, normalised input and answers 201", async () => {
       mocks.register.mockResolvedValue({ id: "1", name: "Ada", email: "ada@example.com" });
       const response = await POST(post({ name: "  Ada ", email: " ADA@Example.com ", id: "evil", status: "x" }), undefined);
@@ -72,7 +102,7 @@ describe("/api/mentors", () => {
     });
 
     it("rejects a body that is not valid JSON", async () => {
-      const response = await POST(post("not json", CSRF, true), undefined);
+      const response = await POST(post("not json", authHeaders("operator"), true), undefined);
       expect(response.status).toBe(400);
       await expect(response.json()).resolves.toMatchObject({ error: { message: "Request body must be valid JSON" } });
     });

@@ -22,7 +22,7 @@ Applied automatically by `om-code-review` and `om-auto-review-pr`. The binding s
 - Every route is wrapped by `apiHandler` (or built with `makeCrudRoute`); no route-level `try/catch`; responses use the `{ ok, data }` / `{ ok: false, error }` envelope; state-changing requests require the `x-devmentor-csrf: 1` header.
 - Services and repositories throw only typed `AppError` subclasses; `db` translates driver errors (23505 -> `ConflictError`); no database messages or stack traces reach responses.
 - Request bodies are parsed through a shared Zod schema (`parseWithSchema`/`readJsonBody`) before use; never spread a request body into `em.create()`. Schemas used by client code are exported through `@devmentor/core/validators`.
-- Auth is enforced server-side on every non-public route (`requireSession`/`requireRole`) and checks the specific record (`assertOwns`); fail closed. Missing auth on a new non-public route is a **blocker**. (`POST /api/mentors` and `/admin/*` are a known, documented gap.)
+- Auth is enforced server-side on every non-public route with `access` or `guardedPage`, and checks the specific record with `assertOwns`; fail closed. Missing auth on a new non-public route is a **blocker**. `/api/mentors` and `/admin/mentors` require the operator role.
 - Prices and totals are recomputed server-side. No secrets, tokens or full JWTs in logs or responses. Passwords use bcrypt cost >= 12; JWT HS256, secret >= 32 chars from env, 24h expiry, HttpOnly/Secure/SameSite=Lax cookie, never `localStorage`; login/register are rate limited with generic error messages.
 
 ### Data

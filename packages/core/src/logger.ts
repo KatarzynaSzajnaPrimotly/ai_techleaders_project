@@ -1,5 +1,5 @@
 import pino, { type DestinationStream } from "pino";
-import { parseEnv, type Env } from "./config/env";
+import { parseEnv, type Env } from "./config/env-schema";
 
 const SENSITIVE_KEYS = ["password", "token", "jwt", "authorization", "cookie"];
 

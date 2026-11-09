@@ -7,7 +7,7 @@ vi.mock("@mikro-orm/postgresql", () => ({
   MikroORM: { init },
 }));
 
-import { MentorSchema } from "./entities";
+import { MentorSchema, UserSchema } from "./entities";
 import { createOrm, getOrmOptions } from "./orm";
 
 beforeEach(() => {
@@ -20,13 +20,13 @@ describe("getOrmOptions", () => {
     expect(options).toEqual({
       clientUrl: "postgresql://x/y",
       pool: { min: 1, max: 3 },
-      entities: [MentorSchema],
+      entities: [MentorSchema, UserSchema],
     });
   });
 
   it("defaults to the environment based config", () => {
     const options = getOrmOptions();
-    expect(options).toMatchObject({ entities: [MentorSchema], pool: { min: expect.any(Number), max: expect.any(Number) } });
+    expect(options).toMatchObject({ entities: [MentorSchema, UserSchema], pool: { min: expect.any(Number), max: expect.any(Number) } });
   });
 });
 
