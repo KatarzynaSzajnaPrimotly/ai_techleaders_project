@@ -8,7 +8,7 @@ Source spec: `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 1); story:
 
 | Phase | Step | Title | Exec | Status | Commit |
 |-------|------|-------|------|--------|--------|
-| 1 | 1.1 | Opaque invitation token utilities | dispatch:cheap | todo | — |
+| 1 | 1.1 | Opaque invitation token utilities | dispatch:cheap | done | 9a51d7e |
 | 1 | 1.2 | Invitation and onboarding persistence | inline | todo | — |
 | 1 | 1.3 | Invitation policy configuration | inline | todo | — |
 | 1 | 1.4 | Invitation lifecycle service | inline | todo | — |
