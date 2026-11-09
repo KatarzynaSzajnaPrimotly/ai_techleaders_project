@@ -9,7 +9,7 @@ Source spec: `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 1); story:
 | Phase | Step | Title | Exec | Status | Commit |
 |-------|------|-------|------|--------|--------|
 | 1 | 1.1 | Opaque invitation token utilities | dispatch:cheap | done | 9a51d7e |
-| 1 | 1.2 | Invitation and onboarding persistence | inline | todo | — |
+| 1 | 1.2 | Invitation and onboarding persistence | inline | done | 686b95c |
 | 1 | 1.3 | Invitation policy configuration | inline | todo | — |
 | 1 | 1.4 | Invitation lifecycle service | inline | todo | — |
 | 1 | 1.5 | Local-time deadline display primitive | inline | todo | — |
@@ -41,6 +41,7 @@ Implement E02-S01 (#39): an operator can create, revoke, and resend invitations;
 
 - Role grant is security-sensitive (`risk-high`): acceptance must bind to the persisted, verified, normalized email, hold the specified locks, grant the role and profile atomically, and issue a fresh JWT with the incremented `sessionVersion`.
 - The partial unique index and concurrent accept/revoke/resend paths require PostgreSQL integration tests; migration tests must cover both `up` and `down`.
+- The epic spec names a `defineSingletonEntity`/property-builder pattern that is absent from this branch; the existing DB layer uses MikroORM `EntitySchema`, so Slice 1 follows that tested local convention and expresses partial indexes/checks in its migration.
 - This slice changes user-facing auth/onboarding screens and needs manual QA by a second reviewer before merge.
 
 ## External References
