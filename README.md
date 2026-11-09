@@ -106,6 +106,22 @@ forwarded value as the rate-limit IP. Set `OPERATOR_EMAILS` to the founders' e-m
 addresses separated by commas; values are trimmed and lower-cased, and the default
 is empty. An allowlisted mentee signs in with the operator role; an allowlisted mentor
 keeps the mentor role and cannot be granted mentor again.
+Invitations expire after `INVITATION_TTL_DAYS` (default `14`), snapshotted when
+the invitation is created. The first mentor publication deadline uses
+`MENTOR_PUBLISH_WINDOW_DAYS` (default `14`), snapshotted when the invitation is
+accepted; changing it affects later acceptances, not existing deadlines.
+
+Operators can manage invitations from the repository root. Set `APP_URL` and
+`DEVMENTOR_DATABASE_URL`, then provide an operator label so each action can be
+copied into the shared audit note. The invitation link is printed only after a
+successful create or resend; keep it private and share it only with the invited
+person.
+
+```bash
+npm run invite -- create --email mentor@example.com --stack-tags TypeScript,React --operator "Founder A" --batch "October"
+npm run invite -- resend --id <invitation-id> --operator "Founder A"
+npm run invite -- revoke --id <invitation-id> --operator "Founder A"
+```
 
 ## Testing and CI
 

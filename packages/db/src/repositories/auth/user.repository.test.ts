@@ -48,6 +48,7 @@ describe("createUserRepository", () => {
       emailVerifiedAt: new Date(10),
       passwordHash: null,
       role: "mentee",
+      roles: ["mentee"],
       sessionVersion: 0,
       displayName: null,
       githubId: null,
@@ -137,17 +138,28 @@ describe("createUserRepository", () => {
   });
 
   it("grants a stored role and reports whether the user exists", async () => {
-    const user = { id: "u-1", role: "mentee", sessionVersion: 0, updatedAt: new Date(0) };
-    const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(user).mockResolvedValueOnce(null), flush: vi.fn() });
+    const user = { id: "u-1", role: "mentee", roles: ["mentee"], sessionVersion: 0, updatedAt: new Date(0) };
+    const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(user).mockResolvedValueOnce(user).mockResolvedValueOnce(null), flush: vi.fn() });
     const repository = createUserRepository(asEm(em));
     await expect(repository.grantRole("u-1", "mentor")).resolves.toBe(true);
+    const versionAfterGrant = user.sessionVersion;
+    await expect(repository.grantRole("u-1", "mentor")).resolves.toBe(true);
+    expect(user.sessionVersion).toBe(versionAfterGrant);
     await expect(repository.grantRole("unknown", "mentee")).resolves.toBe(false);
-    expect(user).toMatchObject({ role: "mentor", sessionVersion: 1 });
+    expect(user).toMatchObject({ role: "mentee", roles: ["mentee", "mentor"], sessionVersion: 1 });
     expect(em.flush).toHaveBeenCalledOnce();
   });
 
+  it("seeds grants from the legacy primary role when the roles array is absent", async () => {
+    const user = { id: "u-legacy", role: "mentee", sessionVersion: 0, updatedAt: new Date(0) };
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(user), flush: vi.fn() });
+    const repository = createUserRepository(asEm(em));
+    await expect(repository.grantRole("u-legacy", "mentor")).resolves.toBe(true);
+    expect(user).toMatchObject({ roles: ["mentee", "mentor"], sessionVersion: 1 });
+  });
+
   it("does not invalidate sessions when the stored role is unchanged", async () => {
-    const user = { id: "u-1", role: "mentor", sessionVersion: 2, updatedAt: new Date(0) };
+    const user = { id: "u-1", role: "mentee", roles: ["mentee", "mentor"], sessionVersion: 2, updatedAt: new Date(0) };
     const em = createEm({ findOne: vi.fn().mockResolvedValue(user), flush: vi.fn() });
     await expect(createUserRepository(asEm(em)).grantRole("u-1", "mentor")).resolves.toBe(true);
     expect(user.sessionVersion).toBe(2);

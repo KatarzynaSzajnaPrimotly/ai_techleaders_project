@@ -21,6 +21,8 @@ export {
 export { EmptyState, type EmptyStateProps } from "./backend/feedback/EmptyState";
 export { ErrorMessage, type ErrorMessageProps } from "./backend/feedback/ErrorMessage";
 export { LoadingMessage } from "./backend/feedback/LoadingMessage";
+export { LocalTime, type LocalTimeProps } from "./frontend/time/LocalTime";
+export { formatInstant } from "./frontend/time/format-instant";
 export { RoleShell, navFor, type RoleNavigationItem } from "./components/shell/RoleShell";
 
 export { SiteHeader, type NavLink, type SiteHeaderProps } from "./site-header";

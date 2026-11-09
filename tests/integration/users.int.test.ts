@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { Client } from "pg";
 import { afterAll, describe, expect, inject, it } from "vitest";
 import { ConflictError } from "@devmentor/core";
 import { createOrm, createUserRepository } from "@devmentor/db";
@@ -16,8 +17,32 @@ afterAll(async () => {
 });
 
 describe("users persistence in an isolated PostgreSQL", () => {
-  it("runs the complete migration up/down/up cycle against the harness database", () => {
+  it("preserves unverified accounts during the migration up/down/up cycle", async () => {
+    const email = `unverified-${userTag}@example.test`;
+    const client = new Client({ connectionString: databaseUrl });
+    await client.connect();
+    try {
+      await client.query(
+        "INSERT INTO users (email, email_verified_at, display_name, role, roles) VALUES ($1, NULL, 'Unverified', 'mentee', ARRAY['mentee']::text[])",
+        [email],
+      );
+    } finally {
+      await client.end();
+    }
+
     runMigrationCycle(databaseUrl);
+
+    const verify = new Client({ connectionString: databaseUrl });
+    await verify.connect();
+    try {
+      const result = await verify.query<{ email_verified_at: Date | null }>(
+        "SELECT email_verified_at FROM users WHERE email = $1",
+        [email],
+      );
+      expect(result.rows[0]?.email_verified_at).toBeNull();
+    } finally {
+      await verify.end();
+    }
   });
 
   it("creates and finds normalized user identities", async () => {
@@ -72,7 +97,7 @@ describe("users persistence in an isolated PostgreSQL", () => {
     const user = await repository.create({ email: `role-${userTag}@example.test`, emailVerifiedAt: now });
 
     await expect(repository.grantRole(user.id, "mentor")).resolves.toBe(true);
-    await expect(repository.findByEmail(user.email)).resolves.toMatchObject({ role: "mentor" });
+    await expect(repository.findByEmail(user.email)).resolves.toMatchObject({ role: "mentee", roles: ["mentee", "mentor"] });
     await expect(repository.grantRole(randomUUID(), "mentee")).resolves.toBe(false);
   });
 });

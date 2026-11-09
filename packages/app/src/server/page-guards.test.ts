@@ -69,11 +69,11 @@ describe("publicPage", () => {
     state.token = "token";
     const component = ({ session }: { session: { userId: string; role: "mentee" | "mentor" | "operator"; sessionVersion: number } | null }) => createElement("span", null, session?.role);
     const page = publicPage(component, { withSession: true });
-    await expect(page({})).resolves.toMatchObject({ props: { session: { userId: "u-1", role: "mentee", sessionVersion: 0 } } });
+    await expect(page({ session: null })).resolves.toMatchObject({ props: { session: { userId: "u-1", role: "mentee", sessionVersion: 0 } } });
   });
   it("supplies null to a public page without a session", async () => {
     const component = ({ session }: { session: { userId: string; role: "mentee" | "mentor" | "operator"; sessionVersion: number } | null }) => createElement("span", null, session?.role);
     const page = publicPage(component, { withSession: true });
-    await expect(page({})).resolves.toMatchObject({ props: { session: null } });
+    await expect(page({ session: null })).resolves.toMatchObject({ props: { session: null } });
   });
 });

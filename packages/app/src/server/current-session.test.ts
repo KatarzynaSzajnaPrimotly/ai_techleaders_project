@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Session } from "@devmentor/core";
 
-const state = vi.hoisted(() => ({ user: null as null | { id: string; email: string; role: "mentee" | "mentor"; sessionVersion: number } }));
+const state = vi.hoisted(() => ({ user: null as null | { id: string; email: string; role: "mentee" | "mentor"; roles?: ("mentee" | "mentor")[]; sessionVersion: number } }));
 vi.mock("./container", () => ({
   withScope: (run: (cradle: unknown) => Promise<unknown>) =>
     run({ userRepository: { findById: async () => state.user } }),
@@ -37,6 +37,13 @@ describe("resolveCurrentSession", () => {
     await expect(resolveCurrentSession(session)).resolves.toEqual(session);
   });
 
+  it("accepts a current additive role set and rejects stale role grants", async () => {
+    state.user = { ...state.user!, role: "mentee", roles: ["mentee", "mentor"] };
+    const current: Session = { ...session, role: "mentor", roles: ["mentee", "mentor"], sessionVersion: 0 };
+    await expect(resolveCurrentSession(current)).resolves.toEqual(current);
+    await expect(resolveCurrentSession({ ...current, roles: ["mentee"] })).resolves.toBeNull();
+  });
+
   it("rejects an operator token after its e-mail is removed from the allowlist", async () => {
     await expect(resolveCurrentSession({ ...session, role: "operator" })).resolves.toBeNull();
   });
@@ -44,5 +51,6 @@ describe("resolveCurrentSession", () => {
   it("preserves an operator role only while the account remains allowlisted", async () => {
     vi.stubEnv("OPERATOR_EMAILS", " ADA@example.test ");
     await expect(resolveCurrentSession({ ...session, role: "operator" })).resolves.toEqual({ ...session, role: "operator" });
+    await expect(resolveCurrentSession({ ...session, role: "operator", roles: ["mentee", "operator"] })).resolves.toEqual({ ...session, role: "operator", roles: ["mentee", "operator"] });
   });
 });

@@ -24,6 +24,8 @@ describe("integration harness environment", () => {
       GITHUB_API_BASE_URL: "http://127.0.0.1:4234",
       MAILER_TRANSPORT: "log",
       TRUST_PROXY_HOPS: "1",
+      INVITATION_TTL_DAYS: "14",
+      MENTOR_PUBLISH_WINDOW_DAYS: "14",
       OPERATOR_EMAILS: "operator@example.test,mentor@example.test",
       ALLOW_INSECURE_HTTP: "true",
     });

@@ -5,10 +5,13 @@ describe("@devmentor/db public API", () => {
   it("exposes config, schema, orm and repository helpers", () => {
     expect(typeof db.getDatabaseConfig).toBe("function");
     expect(db.MentorSchema).toBeDefined();
+    expect(db.MentorProfileSchema).toBeDefined();
+    expect(db.InvitationSchema).toBeDefined();
     expect(db.UserSchema).toBeDefined();
     expect(typeof db.createOrm).toBe("function");
     expect(typeof db.getOrmOptions).toBe("function");
     expect(typeof db.createMentorRepository).toBe("function");
     expect(typeof db.createUserRepository).toBe("function");
+    expect(typeof db.createInvitationRepository).toBe("function");
   });
 });

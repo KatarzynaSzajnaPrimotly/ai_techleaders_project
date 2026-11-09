@@ -1,16 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AccountService, MentorService, PasswordAuthService, ServiceUnavailableError, UnauthorizedError, ValidationError } from "@devmentor/core";
+import { AccountService, InvitationService, logger, MentorService, PasswordAuthService, ServiceUnavailableError, UnauthorizedError, ValidationError } from "@devmentor/core";
 
 const mocks = vi.hoisted(() => ({
   createOrm: vi.fn(),
   createMentorRepository: vi.fn(),
   createUserRepository: vi.fn(),
+  createInvitationRepository: vi.fn(),
 }));
 
 vi.mock("@devmentor/db", () => ({
   createOrm: mocks.createOrm,
   createMentorRepository: mocks.createMentorRepository,
   createUserRepository: mocks.createUserRepository,
+  createInvitationRepository: mocks.createInvitationRepository,
 }));
 
 import { createRequestScope, withScope } from "./container";
@@ -27,6 +29,7 @@ beforeEach(() => {
   mocks.createOrm.mockReset();
   mocks.createMentorRepository.mockReset();
   mocks.createUserRepository.mockReset();
+  mocks.createInvitationRepository.mockReset();
 });
 
 afterEach(() => vi.unstubAllEnvs());
@@ -105,6 +108,25 @@ describe("createRequestScope", () => {
     expect(scope.cradle.accountService).toBeInstanceOf(AccountService);
     expect(scope.cradle.passwordAuthService).toBeInstanceOf(PasswordAuthService);
     expect(scope.cradle.passwordHasher).toMatchObject({ hash: expect.any(Function), compare: expect.any(Function) });
+  });
+
+  it("wires the invitation service to its repository and request-scoped clock", async () => {
+    const log = vi.spyOn(logger, "info").mockImplementation(() => logger);
+    const { orm } = createFakeOrm();
+    const repository = { transaction: vi.fn(), findByTokenHash: vi.fn(), findInitialPublishDueAt: vi.fn() };
+    mocks.createOrm.mockResolvedValue(orm);
+    mocks.createInvitationRepository.mockReturnValue(repository);
+
+    const scope = await createRequestScope();
+
+    expect(scope.cradle.invitationRepository).toBe(repository);
+    expect(mocks.createInvitationRepository).toHaveBeenCalledWith(scope.cradle.em);
+    expect(scope.cradle.invitationService).toBeInstanceOf(InvitationService);
+    expect(scope.cradle.now()).toBeInstanceOf(Date);
+    expect(typeof scope.cradle.invitationEvents.publishInvitationAccepted).toBe("function");
+    const event = { type: "invitations.invitation.accepted", invitationId: "inv-1", userId: "u-1", publishDueAt: new Date(1) } as const;
+    await scope.cradle.invitationEvents.publishInvitationAccepted(event);
+    expect(log).toHaveBeenCalledWith({ invitationId: event.invitationId, userId: event.userId, publishDueAt: event.publishDueAt }, event.type);
   });
 
   it("registers the in-memory rate limiter and selects the log mailer only explicitly", async () => {

@@ -67,6 +67,8 @@ jobs:
     timeout-minutes: 25
     env:
       AGENT_BROWSER_ARGS: --no-sandbox
+      INVITATION_TTL_DAYS: "14"
+      MENTOR_PUBLISH_WINDOW_DAYS: "14"
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

@@ -17,13 +17,15 @@ export const SESSION_TTL_SECONDS = 24 * 60 * 60;
 export interface Session {
   userId: string;
   role: Role;
+  /** Role grants carried by new sessions; absent only on legacy tokens. */
+  roles?: Role[];
   sessionVersion: number;
 }
 
 const encodeSecret = (secret: string) => new TextEncoder().encode(secret);
 
 export function signSession(session: Session, secret: string, ttlSeconds = SESSION_TTL_SECONDS): Promise<string> {
-  return new SignJWT({ role: session.role, sv: session.sessionVersion })
+  return new SignJWT({ role: session.role, ...(session.roles ? { roles: session.roles } : {}), sv: session.sessionVersion })
     .setProtectedHeader({ alg: ALGORITHM })
     .setSubject(session.userId)
     .setIssuedAt()
@@ -37,13 +39,25 @@ export async function verifySession(token: string, secret: string): Promise<Sess
     if (
       typeof payload.sub !== "string" ||
       !isRole(payload.role) ||
+      (payload.roles !== undefined && (
+        !Array.isArray(payload.roles) ||
+        payload.roles.length === 0 ||
+        !payload.roles.every(isRole) ||
+        new Set(payload.roles).size !== payload.roles.length ||
+        !payload.roles.includes(payload.role)
+      )) ||
       !Number.isSafeInteger(payload.sv) ||
       (payload.sv as number) < 0 ||
       "purpose" in payload
     ) {
       throw new Error("Malformed claims");
     }
-    return { userId: payload.sub, role: payload.role, sessionVersion: payload.sv as number };
+    return {
+      userId: payload.sub,
+      role: payload.role,
+      ...(Array.isArray(payload.roles) ? { roles: payload.roles as Role[] } : {}),
+      sessionVersion: payload.sv as number,
+    };
   } catch {
     throw new UnauthorizedError("Invalid or expired session");
   }

@@ -138,4 +138,11 @@ describe("enforceAccess", () => {
       status: 403,
     });
   });
+
+  it("authorizes a granted mentor capability while retaining the mentee role", async () => {
+    vi.stubEnv("JWT_SECRET", SECRET);
+    const multiRoleSession: Session = { userId: "mentee-1", role: "mentee", roles: ["mentee", "mentor"], sessionVersion: 1 };
+    const token = await signSession(multiRoleSession, SECRET);
+    await expect(enforceAccess(request(`${SESSION_COOKIE}=${token}`), { roles: ["mentor"] }, async (current) => current)).resolves.toEqual(multiRoleSession);
+  });
 });

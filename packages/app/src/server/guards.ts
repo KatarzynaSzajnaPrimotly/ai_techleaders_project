@@ -36,7 +36,7 @@ export function guardedPage<P extends object>(
     const session = await readSession();
     if (!session) redirect(`/sign-in?returnTo=${encodeURIComponent(options.path)}`);
     if (options.access === "authenticated") return render(props, session);
-    if (!options.access.roles.includes(session.role)) redirect(homeFor(session.role));
+    if (!options.access.roles.some((role) => (session.roles ?? [session.role]).includes(role))) redirect(homeFor(session.role));
     return render(props, session);
   };
 }

@@ -10,6 +10,7 @@ import {
   isRole,
   signSession,
   verifySession,
+  type Session,
 } from "./auth";
 
 afterEach(() => {
@@ -25,6 +26,12 @@ describe("signSession / verifySession", () => {
   it("round-trips the session", async () => {
     const token = await signSession(session, SECRET);
     await expect(verifySession(token, SECRET)).resolves.toEqual(session);
+  });
+
+  it("round-trips an additive set of stored roles", async () => {
+    const multiRoleSession: Session = { ...session, role: "mentor", roles: ["mentee", "mentor"] };
+    const token = await signSession(multiRoleSession, SECRET);
+    await expect(verifySession(token, SECRET)).resolves.toEqual(multiRoleSession);
   });
 
   it("rejects a token signed with another secret", async () => {

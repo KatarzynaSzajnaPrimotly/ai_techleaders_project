@@ -143,7 +143,7 @@ describe("operator access integration", () => {
 
     const sessionCookie = firstCookie(response, `${SESSION_COOKIE}=`);
     const token = sessionCookie.slice(`${SESSION_COOKIE}=`.length);
-    await expect(verifySession(token, jwtSecret)).resolves.toEqual({ userId: user.id, role: "mentor", sessionVersion: 0 });
+    await expect(verifySession(token, jwtSecret)).resolves.toEqual({ userId: user.id, role: "mentor", roles: ["mentor"], sessionVersion: 0 });
     const operatorPage = await fetch(new URL("/admin/mentors", baseUrl), { headers: { cookie: sessionCookie }, redirect: "manual" });
     expect(operatorPage.status).toBe(307);
     expect(operatorPage.headers.get("location")).toBe("/mentor");

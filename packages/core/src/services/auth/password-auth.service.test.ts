@@ -197,11 +197,18 @@ describe("PasswordAuthService.confirmRegistration", () => {
 describe("PasswordAuthService.authenticate", () => {
   it("normalizes the e-mail and returns only the account session fields on success", async () => {
     const { service, accountService, passwordHasher } = setup();
-    accountService.findForLogin = vi.fn().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentor", passwordHash: "$2b$12$stored" }) as typeof accountService.findForLogin;
+    accountService.findForLogin = vi.fn().mockResolvedValue({ id: "user-1", email: "ada@example.test", role: "mentor", roles: ["mentee", "mentor"], passwordHash: "$2b$12$stored" }) as typeof accountService.findForLogin;
     (passwordHasher.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);
-    await expect(service.authenticate(" ADA@Example.Test ", "correct password")).resolves.toEqual({ id: "user-1", email: "ada@example.test", role: "mentor" });
+    await expect(service.authenticate(" ADA@Example.Test ", "correct password")).resolves.toEqual({ id: "user-1", email: "ada@example.test", role: "mentor", roles: ["mentee", "mentor"] });
     expect(accountService.findForLogin).toHaveBeenCalledWith("ada@example.test");
     expect(passwordHasher.compare).toHaveBeenCalledWith("correct password", "$2b$12$stored");
+  });
+
+  it("keeps legacy accounts without an additive roles claim working", async () => {
+    const { service, accountService, passwordHasher } = setup();
+    accountService.findForLogin = vi.fn().mockResolvedValue({ id: "legacy-user", email: "ada@example.test", role: "mentee", passwordHash: "stored" }) as typeof accountService.findForLogin;
+    (passwordHasher.compare as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+    await expect(service.authenticate("ada@example.test", "password")).resolves.toEqual({ id: "legacy-user", email: "ada@example.test", role: "mentee" });
   });
 
   it.each([

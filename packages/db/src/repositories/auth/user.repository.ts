@@ -31,6 +31,7 @@ export function createUserRepository(em: EntityManager): UserRepositoryPort {
         email: input.email.trim().toLowerCase(),
         passwordHash: input.passwordHash ?? null,
         role: input.role ?? "mentee",
+        roles: input.roles ?? [input.role ?? "mentee"],
         sessionVersion: 0,
         displayName: input.displayName ?? null,
         githubId: input.githubId ?? null,
@@ -59,8 +60,10 @@ export function createUserRepository(em: EntityManager): UserRepositoryPort {
     async grantRole(userId: string, role: StoredRole): Promise<boolean> {
       const user = await em.findOne<User>(USER, { id: userId });
       if (!user) return false;
-      if (user.role === role) return true;
-      user.role = role;
+      const roles = new Set(user.roles ?? [user.role]);
+      if (roles.has(role)) return true;
+      roles.add(role);
+      user.roles = [...roles];
       user.sessionVersion += 1;
       user.updatedAt = new Date();
       await em.flush();

@@ -5,11 +5,13 @@ const state = vi.hoisted(() => ({
   role: "mentor" as "mentee" | "mentor" | "operator",
   destination: "",
   profile: null as { displayName: string | null; githubLogin: string | null } | null,
+  deadline: new Date("2026-11-23T12:00:00Z") as Date | null,
 }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => state.token ? { value: state.token } : undefined }) }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { state.destination = path; throw new Error("NEXT_REDIRECT"); } }));
 vi.mock("../../../server/container", () => ({ withScope: (run: (cradle: unknown) => unknown) => run({
   accountService: { findForRoleHome: async () => state.profile },
+  invitationService: { onboardingStatus: async () => ({ initialPublishDueAt: state.deadline }) },
   userRepository: { findById: async () => ({ id: "u-2", email: "mentor@example.test", role: "mentor", sessionVersion: 0 }) },
 }) }));
 vi.mock("@devmentor/core", async (importOriginal) => {
@@ -24,6 +26,7 @@ beforeEach(() => {
   state.role = "mentor";
   state.destination = "";
   state.profile = { displayName: "Mentor Name", githubLogin: "mentor-login" };
+  state.deadline = new Date("2026-11-23T12:00:00Z");
 });
 
 describe("MentorPage", () => {
@@ -31,6 +34,7 @@ describe("MentorPage", () => {
     state.token = "signed-cookie";
     const content = await MentorPage({});
     expect(content).toMatchObject({ props: { name: "Mentor Name" } });
+    expect(content).toMatchObject({ props: { initialPublishDueAt: state.deadline } });
   });
 
   it("uses the guarded page wrapper for anonymous visits", async () => {
