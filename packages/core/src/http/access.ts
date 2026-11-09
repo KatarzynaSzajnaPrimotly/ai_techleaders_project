@@ -36,8 +36,11 @@ export async function enforceAccess(
     }
   }
 
+  if (!resolveCurrentSession) {
+    throw new ServiceUnavailableError("Current account verification is not configured");
+  }
   const verifiedSession = await requireSession(request, requireJwtSecret());
-  const session = resolveCurrentSession ? await resolveCurrentSession(verifiedSession) : verifiedSession;
+  const session = await resolveCurrentSession(verifiedSession);
   if (!session) throw new UnauthorizedError();
   if (access === "authenticated") return session;
   if (!access.roles.includes(session.role)) throw new ForbiddenError();

@@ -14,6 +14,7 @@ const mentee: Session = { userId: "mentee-1", role: "mentee", sessionVersion: 0 
 const mentor: Session = { userId: "mentor-1", role: "mentor", sessionVersion: 0 };
 const request = (cookie?: string) =>
   new Request("http://devmentor.test/api/example", { headers: cookie === undefined ? {} : { cookie } });
+const currentSession = async (session: Session) => session;
 
 describe("enforceAccess", () => {
   it("does not read the JWT secret for public requests without a session cookie", async () => {
@@ -72,7 +73,7 @@ describe("enforceAccess", () => {
     vi.stubEnv("JWT_SECRET", SECRET);
     const token = await signSession(mentee, SECRET);
 
-    await expect(enforceAccess(request(`${SESSION_COOKIE}=${token}`), "authenticated")).resolves.toEqual(mentee);
+    await expect(enforceAccess(request(`${SESSION_COOKIE}=${token}`), "authenticated", currentSession)).resolves.toEqual(mentee);
   });
 
   it("uses the current account session and rejects a deleted or invalidated account", async () => {
@@ -96,11 +97,21 @@ describe("enforceAccess", () => {
   it("requires configuration before deciding whether guarded access is anonymous", async () => {
     vi.stubEnv("JWT_SECRET", "");
 
-    await expect(enforceAccess(request(), "authenticated")).rejects.toMatchObject({
+    await expect(enforceAccess(request(), "authenticated", currentSession)).rejects.toMatchObject({
       code: "SERVICE_UNAVAILABLE",
       status: 503,
     });
-    await expect(enforceAccess(request(), { roles: ["mentor"] })).rejects.toMatchObject({
+    await expect(enforceAccess(request(), { roles: ["mentor"] }, currentSession)).rejects.toMatchObject({
+      code: "SERVICE_UNAVAILABLE",
+      status: 503,
+    });
+  });
+
+  it("fails closed when guarded access has no current-session resolver", async () => {
+    vi.stubEnv("JWT_SECRET", SECRET);
+    const token = await signSession(mentee, SECRET);
+
+    await expect(enforceAccess(request(`${SESSION_COOKIE}=${token}`), "authenticated")).rejects.toMatchObject({
       code: "SERVICE_UNAVAILABLE",
       status: 503,
     });
@@ -109,8 +120,8 @@ describe("enforceAccess", () => {
   it("requires a session for guarded access", async () => {
     vi.stubEnv("JWT_SECRET", SECRET);
 
-    await expect(enforceAccess(request(), "authenticated")).rejects.toMatchObject({ status: 401 });
-    await expect(enforceAccess(request(`${SESSION_COOKIE}=invalid`), { roles: ["mentor"] })).rejects.toMatchObject({
+    await expect(enforceAccess(request(), "authenticated", currentSession)).rejects.toMatchObject({ status: 401 });
+    await expect(enforceAccess(request(`${SESSION_COOKIE}=invalid`), { roles: ["mentor"] }, currentSession)).rejects.toMatchObject({
       status: 401,
     });
   });
@@ -121,9 +132,9 @@ describe("enforceAccess", () => {
     const menteeToken = await signSession(mentee, SECRET);
 
     await expect(
-      enforceAccess(request(`${SESSION_COOKIE}=${mentorToken}`), { roles: ["mentor", "operator"] }),
+      enforceAccess(request(`${SESSION_COOKIE}=${mentorToken}`), { roles: ["mentor", "operator"] }, currentSession),
     ).resolves.toEqual(mentor);
-    await expect(enforceAccess(request(`${SESSION_COOKIE}=${menteeToken}`), { roles: ["mentor"] })).rejects.toMatchObject({
+    await expect(enforceAccess(request(`${SESSION_COOKIE}=${menteeToken}`), { roles: ["mentor"] }, currentSession)).rejects.toMatchObject({
       status: 403,
     });
   });

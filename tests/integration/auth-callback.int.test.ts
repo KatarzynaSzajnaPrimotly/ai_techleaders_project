@@ -8,7 +8,6 @@ const baseUrl = inject("baseUrl");
 const databaseUrl = inject("databaseUrl");
 const fakeServerUrl = inject("fakeServerUrl");
 const jwtSecret = inject("jwtSecret");
-const operatorEmail = inject("operatorEmail");
 const unique = randomUUID().replaceAll("-", "");
 
 interface Identity {
@@ -106,11 +105,8 @@ describe("GitHub OAuth callback integration", () => {
   it.each([
     ["mentee", "/home"],
     ["mentor", "/mentor"],
-    ["operator", "/admin/mentors"],
   ] as const)("redirects a signed-in %s away from sign-in to %s", async (role, home) => {
-    const account = role === "operator"
-      ? await createUser({ email: operatorEmail }, databaseUrl)
-      : await createUser({ email: `signin-${role}-${unique}@example.test`, role }, databaseUrl);
+    const account = await createUser({ email: `signin-${role}-${unique}@example.test`, role }, databaseUrl);
     const token = await mintSessionCookie({ userId: account.id, role }, jwtSecret);
     const response = await fetch(new URL("/sign-in", baseUrl), { headers: { cookie: `${SESSION_COOKIE}=${token}` }, redirect: "manual" });
     expect(response.status).toBe(307);

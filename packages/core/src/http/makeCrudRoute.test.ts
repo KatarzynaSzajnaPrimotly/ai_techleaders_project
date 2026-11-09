@@ -21,6 +21,7 @@ const remove = vi.fn();
 function buildRoute(access: "public" | "authenticated" = "public") {
   return makeCrudRoute({
     access,
+    resolveCurrentSession: async (session) => session,
     list,
     create: { schema, run: create },
     update: { schema, run: update },

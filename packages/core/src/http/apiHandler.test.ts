@@ -151,7 +151,7 @@ describe("apiHandler", () => {
   it("requires a session for guarded handlers", async () => {
     vi.stubEnv("JWT_SECRET", "s".repeat(32));
     const handler = vi.fn(async () => "unreachable");
-    const response = await apiHandler(handler, { access: "authenticated" })(get(), undefined);
+    const response = await apiHandler(handler, { access: "authenticated", resolveCurrentSession: async (session) => session })(get(), undefined);
 
     expect(response.status).toBe(401);
     expect(handler).not.toHaveBeenCalled();
@@ -159,7 +159,10 @@ describe("apiHandler", () => {
 
   it("checks CSRF before access for guarded state-changing routes", async () => {
     vi.stubEnv("JWT_SECRET", "");
-    const response = await apiHandler(async () => "unreachable", { access: "authenticated" })(post(), undefined);
+    const response = await apiHandler(async () => "unreachable", {
+      access: "authenticated",
+      resolveCurrentSession: async (session) => session,
+    })(post(), undefined);
 
     expect(response.status).toBe(403);
     await expect(response.json()).resolves.toMatchObject({ error: { message: "Missing CSRF header" } });
@@ -173,6 +176,7 @@ describe("apiHandler", () => {
     const response = await apiHandler(async () => "unreachable", {
       access: "authenticated",
       navigation,
+      resolveCurrentSession: async (session) => session,
     })(get(), undefined);
 
     expect(response.status).toBe(307);

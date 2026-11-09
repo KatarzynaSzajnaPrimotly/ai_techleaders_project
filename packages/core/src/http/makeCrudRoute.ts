@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import type { Access, CurrentSessionResolver } from "./access";
-import { apiHandler, appErrorResponse, created } from "./apiHandler";
+import { apiHandler, appErrorResponse, created, type ApiHandlerOptions } from "./apiHandler";
 import type { Session } from "./auth";
 import { MethodNotAllowedError } from "./errors";
 import { parseWithSchema, readJsonBody } from "./validate";
@@ -13,14 +13,16 @@ export interface CrudContext<C = unknown, A extends Access = "public"> {
   session: A extends "public" ? Session | null : Session;
 }
 
-export interface CrudConfig<TCreate, TUpdate, C, A extends Access = Access> {
-  access: A;
-  resolveCurrentSession?: CurrentSessionResolver;
+export type CrudConfig<TCreate, TUpdate, C, A extends Access = Access> = {
   list?: (ctx: CrudContext<C, A>) => Promise<unknown>;
   create?: { schema: z.ZodType<TCreate>; run: (input: TCreate, ctx: CrudContext<C, A>) => Promise<unknown> };
   update?: { schema: z.ZodType<TUpdate>; run: (input: TUpdate, ctx: CrudContext<C, A>) => Promise<unknown> };
   remove?: (ctx: CrudContext<C, A>) => Promise<unknown>;
-}
+} & (
+  A extends "public"
+    ? { access: A; resolveCurrentSession?: CurrentSessionResolver }
+    : { access: A; resolveCurrentSession: CurrentSessionResolver }
+);
 
 export function makeCrudRoute<TCreate = never, TUpdate = never, C = unknown, A extends Access = Access>(
   config: CrudConfig<TCreate, TUpdate, C, A>,
@@ -30,9 +32,13 @@ export function makeCrudRoute<TCreate = never, TUpdate = never, C = unknown, A e
   const route = (run: ((ctx: CrudContext<C, A>) => Promise<unknown>) | undefined) => {
     if (!run) return methodNotAllowed;
 
+    const options = {
+      access: config.access,
+      resolveCurrentSession: config.resolveCurrentSession,
+    } as ApiHandlerOptions<A>;
     return apiHandler<C, A>(
       async (request, context, session) => run({ request, context, session }),
-      { access: config.access, resolveCurrentSession: config.resolveCurrentSession },
+      options,
     );
   };
 

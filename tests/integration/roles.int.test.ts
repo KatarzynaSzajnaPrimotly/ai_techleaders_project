@@ -120,6 +120,9 @@ describe("operator access integration", () => {
 
     const page = await fetch(new URL("/admin/mentors", baseUrl), { headers: { cookie: sessionCookie }, redirect: "manual" });
     expect(page.status).toBe(200);
+    const signIn = await fetch(new URL("/sign-in", baseUrl), { headers: { cookie: sessionCookie }, redirect: "manual" });
+    expect(signIn.status).toBe(307);
+    expect(signIn.headers.get("location")).toBe("/admin/mentors");
     const created = await fetch(new URL("/api/mentors", baseUrl), {
       method: "POST",
       headers: { ...CSRF_HEADERS, cookie: sessionCookie },

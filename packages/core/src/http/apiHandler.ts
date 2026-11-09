@@ -25,12 +25,16 @@ export type RouteHandler<C = unknown, A extends Access = "public"> = (
   session: SessionForAccess<A>,
 ) => Promise<unknown>;
 
-export interface ApiHandlerOptions<A extends Access> {
-  access: A;
+type ApiHandlerOptionValues = {
   csrf?: boolean;
   navigation?: (error: AppError) => Response;
-  resolveCurrentSession?: CurrentSessionResolver;
-}
+};
+
+export type ApiHandlerOptions<A extends Access> = ApiHandlerOptionValues & (
+  A extends "public"
+    ? { access: A; resolveCurrentSession?: CurrentSessionResolver }
+    : { access: A; resolveCurrentSession: CurrentSessionResolver }
+);
 
 export function ok<T>(data: T, status = 200): Response {
   return Response.json({ ok: true, data } satisfies ApiSuccess<T>, { status });
