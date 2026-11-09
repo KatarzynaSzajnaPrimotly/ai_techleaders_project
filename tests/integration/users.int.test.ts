@@ -72,7 +72,7 @@ describe("users persistence in an isolated PostgreSQL", () => {
     const user = await repository.create({ email: `role-${userTag}@example.test`, emailVerifiedAt: now });
 
     await expect(repository.grantRole(user.id, "mentor")).resolves.toBe(true);
-    await expect(repository.findByEmail(user.email)).resolves.toMatchObject({ role: "mentor" });
+    await expect(repository.findByEmail(user.email)).resolves.toMatchObject({ role: "mentee", roles: ["mentee", "mentor"] });
     await expect(repository.grantRole(randomUUID(), "mentee")).resolves.toBe(false);
   });
 });

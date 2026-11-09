@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, inject, it } from "vitest";
 import { SESSION_COOKIE } from "../../packages/core/src/http/auth";
 import { createBrowser } from "./helpers/browser";
-import { createUser, mintSessionCookie } from "./helpers/identity";
+import { createOrReuseUser, mintSessionCookie } from "./helpers/identity";
 
 const baseUrl = inject("baseUrl");
 const databaseUrl = inject("databaseUrl");
@@ -29,7 +29,7 @@ interface Envelope<T> {
 }
 
 beforeAll(async () => {
-  const operator = await createUser({ email: operatorEmail }, databaseUrl);
+  const operator = await createOrReuseUser({ email: operatorEmail }, databaseUrl);
   const token = await mintSessionCookie({ userId: operator.id, role: "operator" }, jwtSecret);
   operatorCookie = `${SESSION_COOKIE}=${token}`;
   browser.setCookie(SESSION_COOKIE, token, baseUrl);

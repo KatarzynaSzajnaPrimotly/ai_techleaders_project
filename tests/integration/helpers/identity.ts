@@ -21,6 +21,7 @@ export interface CreatedUser {
   email_verified_at: Date;
   display_name: string | null;
   role: StoredRole;
+  roles: StoredRole[];
   github_id: string | null;
   github_login: string | null;
   avatar_url: string | null;
@@ -43,22 +44,49 @@ export async function createUser(
 ): Promise<CreatedUser> {
   if (!databaseUrl) throw new Error("DEVMENTOR_DATABASE_URL must be set to create an integration user");
   const client = new Client({ connectionString: databaseUrl });
+  const role = input.role ?? DEFAULT_STORED_ROLE;
   await client.connect();
   try {
     const result = await client.query<CreatedUser>(
-      `INSERT INTO users (id, email, email_verified_at, display_name, role, github_id, github_login, avatar_url)
-       VALUES (COALESCE($1::uuid, gen_random_uuid()), lower($2), $3, $4, $5, $6, $7, $8)
-       RETURNING id, email, email_verified_at, display_name, role, github_id, github_login, avatar_url, session_version`,
+      `INSERT INTO users (id, email, email_verified_at, display_name, role, roles, github_id, github_login, avatar_url)
+       VALUES (COALESCE($1::uuid, gen_random_uuid()), lower($2), $3, $4, $5, $6::text[], $7, $8, $9)
+       RETURNING id, email, email_verified_at, display_name, role, roles, github_id, github_login, avatar_url, session_version`,
       [
         input.id ?? null,
         input.email,
         input.emailVerifiedAt ?? new Date(),
         input.displayName ?? null,
-        input.role ?? DEFAULT_STORED_ROLE,
+        role,
+        [role],
         input.githubId ?? null,
         input.githubLogin ?? null,
         input.avatarUrl ?? null,
       ],
+    );
+    const user = result.rows[0];
+    if (!user) throw new Error("The integration user insert returned no row");
+    return user;
+  } finally {
+    await client.end();
+  }
+}
+
+/** Reuses the one shared allowlisted operator identity used by parallel integration suites. */
+export async function createOrReuseUser(
+  input: CreateUserInput,
+  databaseUrl = process.env.DEVMENTOR_DATABASE_URL,
+): Promise<CreatedUser> {
+  if (!databaseUrl) throw new Error("DEVMENTOR_DATABASE_URL must be set to create an integration user");
+  const client = new Client({ connectionString: databaseUrl });
+  const role = input.role ?? DEFAULT_STORED_ROLE;
+  await client.connect();
+  try {
+    const result = await client.query<CreatedUser>(
+      `INSERT INTO users (id, email, email_verified_at, display_name, role, roles, github_id, github_login, avatar_url)
+       VALUES (COALESCE($1::uuid, gen_random_uuid()), lower($2), $3, $4, $5, $6::text[], $7, $8, $9)
+       ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+       RETURNING id, email, email_verified_at, display_name, role, roles, github_id, github_login, avatar_url, session_version`,
+      [input.id ?? null, input.email, input.emailVerifiedAt ?? new Date(), input.displayName ?? null, role, [role], input.githubId ?? null, input.githubLogin ?? null, input.avatarUrl ?? null],
     );
     const user = result.rows[0];
     if (!user) throw new Error("The integration user insert returned no row");
