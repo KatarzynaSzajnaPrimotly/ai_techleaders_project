@@ -92,4 +92,3 @@ export async function verifyOAuthState(
     ...(typeof claims.returnTo === "string" ? { returnTo: claims.returnTo } : {}),
   };
 }
-

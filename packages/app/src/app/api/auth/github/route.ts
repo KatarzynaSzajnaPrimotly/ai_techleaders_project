@@ -40,4 +40,3 @@ export const GET = apiHandler(
   },
   { access: "public", navigation: startNavigation },
 );
-
