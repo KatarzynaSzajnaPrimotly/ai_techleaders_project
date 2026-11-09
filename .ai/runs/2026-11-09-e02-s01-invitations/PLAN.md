@@ -18,6 +18,7 @@ Source spec: `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 1); story:
 | 1 | 1.8 | Operator invitation script and docs | inline | done | db0fe2a |
 | 1 | 1.9 | Invitation integration coverage | inline | done | 633e2ad |
 | 1 | 1.10 | Align integration fixtures with additive roles | inline | done | b1567d9 |
+| 1 | 1.11 | Preserve unverified accounts on migration rollback | inline | done | da9bc33 |
 
 ## Goal
 
