@@ -23,3 +23,9 @@
 - Focused users integration: 6/6 passed. Full suite on fresh DB `devmentor_e02_review_20261109d`: 7 files, 53/53 passed.
 - Lint, typecheck, 854-test 100% coverage gate pass; production build passes with the documented `NODE_ENV=production` override (plain command inherits sandbox `NODE_ENV=development` and fails prerendering).
 - The earlier Cez review task used the wrong root branch and supplied no verdict. Fresh re-review and screenshot QA remain pending.
+
+## 2026-11-09T22:06:00Z — added PostgreSQL lifecycle race coverage
+- Commit `6ec6776` adds integration tests for duplicate normalized-email create and acceptance racing revoke or resend.
+- `npm run lint`, `npm run typecheck`, `npm run test:coverage` (854 tests, 100%), and `NODE_ENV=production npm run build` pass.
+- Fresh full integration suite on `devmentor_e02_race_20261109e`: 7 files / 56 tests passed.
+- Final independent review and screenshot QA remain before PR #60 can be promoted.

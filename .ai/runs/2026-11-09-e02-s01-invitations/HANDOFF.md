@@ -1,12 +1,13 @@
 # Handoff — 2026-11-09-e02-s01-invitations
 
-**Last updated:** 2026-11-09T21:57:01Z
+**Last updated:** 2026-11-09T22:06:00Z
 **Branch:** `feat/e02-s01-invitations`
 **PR:** #60 draft (https://github.com/KatarzynaSzajnaPrimotly/ai_techleaders_project/pull/60)
-**Current phase/step:** Phase 1 complete; re-review and QA pending
-**Last commit:** `da9bc33` — fix(db): preserve unverified accounts on rollback
+**Current phase/step:** Phase 1 complete; final re-review and QA pending
+**Last commit:** `6ec6776` — test(invitations): cover concurrent lifecycle operations
 
 ## What just happened
+- 2026-11-09T22:06:00Z — added PostgreSQL integration coverage for duplicate create, accept-vs-revoke, and accept-vs-resend; typecheck, lint, coverage (854/100%), production build and fresh full integration (56/56) pass.
 - 2026-11-09T21:57:01Z — fixed independent review finding: rollback now preserves nullable unverified-account state; regression migration test passes; all validation commands pass with documented `NODE_ENV=production` build override; full integration passes 53/53 on fresh DB `devmentor_e02_review_20261109d`.
 - 2026-11-09T21:49:55Z — committed and pushed final validation checkpoint `f4829ad`; posted implementation/validation progress to #30 and #39; dispatched independent read-only Luna review of PR #60 (pending).
 - Implemented all ten Phase 1 steps on `feat/e02-s01-invitations`, each with a plan-tracked commit. PR #60 is an implementation PR stacked on E01 PR #59; S02 #40 remains separate.
@@ -19,10 +20,10 @@
 - The most recent E01 re-review child had no structured verdict; an earlier independent Luna re-review approved the E01 session-revocation fix.
 
 ## Next concrete action
-- Push commits `da9bc33` and the review checkpoint docs to PR #60; progress-update #30/#39. Then obtain a fresh review of the correct E02 worktree/head and run configured `om-prepare-test-env` followed by screenshot QA if review permits.
+- Push commits `6ec6776` and the updated validation checkpoint to PR #60; update #30/#39; obtain fresh review of the exact final E02 head. Then run configured `om-prepare-test-env` and screenshot QA if review permits.
 
 ## Blockers / open questions
-- The first Cez E02 review task forked the wrong root branch and returned no verdict; it is not evidence for PR #60. A fresh Luna review of the correct worktree found the rollback issue, now fixed. Re-review and screenshot QA are still pending. Do not mark PR ready or merge until those gates are complete.
+- The first Cez E02 review task forked the wrong root branch and returned no verdict; it is not evidence for PR #60. A fresh Luna review found and helped fix two findings: nullable verification rollback and missing DB race tests. Final re-review and screenshot QA are still pending. Do not mark PR ready or merge until those gates are complete.
 
 ## Environment caveats
 - Dev runtime runnable: yes (local PostgreSQL can be started for integration checks).
