@@ -49,6 +49,8 @@ export {
 } from "./http/auth";
 
 export type { Mentor, NewMentor } from "./services/mentors/mentor.types";
+export type { MentorProfile } from "./services/mentors/mentor-profile.types";
+export type { Invitation } from "./services/invitations/invitation.types";
 export type { MentorRepositoryPort } from "./services/mentors/mentor-repository.port";
 export { MentorService } from "./services/mentors/mentor.service";
 export type { User, NewUser, StoredRole, PasswordAuthAccount, LoginAccount, ExistingAccountLookup, NewPasswordAccount } from "./services/auth/user.types";
