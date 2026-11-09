@@ -17,6 +17,7 @@ Source spec: `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 1); story:
 | 1 | 1.7 | Invitation acceptance and mentor home | inline | done | b59bc60 |
 | 1 | 1.8 | Operator invitation script and docs | inline | done | db0fe2a |
 | 1 | 1.9 | Invitation integration coverage | inline | done | 633e2ad |
+| 1 | 1.10 | Align integration fixtures with additive roles | inline | todo | — |
 
 ## Goal
 
@@ -62,3 +63,4 @@ Implement E02-S01 (#39): an operator can create, revoke, and resend invitations;
 7. **Invitation acceptance and mentor home** — add `/invitation/[token]` states and `/mentor` publish-by ask, using existing UI/Storybook components and accessible feedback.
 8. **Operator invitation script and docs** — add `invite create|revoke|resend`, safe token-free audit output, raw link only on successful create/resend, npm script and README guidance.
 9. **Invitation integration coverage** — exercise acceptance-to-mentor-home while still signed in, invalid-link indistinguishability, and absence of an open mentor-registration path; add `seedPendingInvitation` for future tests.
+10. **Integration fixture compatibility** — raw SQL identity fixtures initialize `roles` from the requested primary role; persisted `role` remains the legacy primary role after an additive mentor grant.
