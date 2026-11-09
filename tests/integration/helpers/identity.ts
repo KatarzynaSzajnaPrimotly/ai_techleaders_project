@@ -1,5 +1,6 @@
 import { Client } from "pg";
 import { signSession, type Role, type Session } from "../../../packages/core/src/http/auth";
+import { hashToken, mintOpaqueToken } from "../../../packages/core/src/services/invitations/token.service";
 
 export type StoredRole = Extract<Role, "mentee" | "mentor">;
 
@@ -62,6 +63,30 @@ export async function createUser(
     const user = result.rows[0];
     if (!user) throw new Error("The integration user insert returned no row");
     return user;
+  } finally {
+    await client.end();
+  }
+}
+
+export async function seedPendingInvitation(
+  input: { email: string; stackTags?: string[]; expiresAt?: Date; batch?: string | null },
+  databaseUrl = process.env.DEVMENTOR_DATABASE_URL,
+): Promise<{ id: string; email: string; token: string; expiresAt: Date }> {
+  if (!databaseUrl) throw new Error("DEVMENTOR_DATABASE_URL must be set to seed an integration invitation");
+  const token = mintOpaqueToken();
+  const expiresAt = input.expiresAt ?? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+  const client = new Client({ connectionString: databaseUrl });
+  await client.connect();
+  try {
+    const result = await client.query<{ id: string; email: string; expires_at: Date }>(
+      `INSERT INTO invitations (email, token_hash, stack_tags, expires_at, batch)
+       VALUES (lower($1), $2, $3::text[], $4, $5)
+       RETURNING id, email, expires_at`,
+      [input.email, hashToken(token), input.stackTags ?? ["TypeScript"], expiresAt, input.batch ?? null],
+    );
+    const invitation = result.rows[0];
+    if (!invitation) throw new Error("The integration invitation insert returned no row");
+    return { id: invitation.id, email: invitation.email, token, expiresAt: invitation.expires_at };
   } finally {
     await client.end();
   }
