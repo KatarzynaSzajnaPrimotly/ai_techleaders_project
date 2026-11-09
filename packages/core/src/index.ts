@@ -68,6 +68,7 @@ export { loginRateLimitKeys } from "./services/ratelimit/rate-limit-keys";
 export type { RateLimiterPort, RateLimitPolicy, RateLimitResult } from "./services/ratelimit/rate-limiter.port";
 export { createLogMailerAdapter } from "./services/notifications/adapters/log-mailer.adapter";
 export type { MailerPort, MailMessage } from "./services/notifications/mailer.port";
+export { hashToken, mintOpaqueToken } from "./services/invitations/token.service";
 export { selectAdapter } from "./services/shared/select-adapter";
 export {
   clearOAuthStateCookie,
