@@ -13,7 +13,7 @@ Source spec: `.ai/specs/2026-09-08-mentors-become-bookable.md` (Slice 1); story:
 | 1 | 1.3 | Invitation policy configuration | inline | done | 0288e62 |
 | 1 | 1.4 | Invitation lifecycle service | inline | done | 2ad6a60 |
 | 1 | 1.5 | Local-time deadline display primitive | inline | done | 3218b2e |
-| 1 | 1.6 | Invitation and onboarding API routes | inline | todo | — |
+| 1 | 1.6 | Invitation and onboarding API routes | inline | done | 072f516 |
 | 1 | 1.7 | Invitation acceptance and mentor home | inline | todo | — |
 | 1 | 1.8 | Operator invitation script and docs | inline | todo | — |
 | 1 | 1.9 | Invitation integration coverage | inline | todo | — |
