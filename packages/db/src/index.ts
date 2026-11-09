@@ -3,3 +3,4 @@ export { InvitationSchema, MentorProfileSchema, MentorSchema, UserSchema } from 
 export { createOrm, getOrmOptions, type Orm } from "./orm";
 export { createMentorRepository } from "./repositories/mentors/mentor.repository";
 export { createUserRepository } from "./repositories/auth/user.repository";
+export { createInvitationRepository } from "./repositories/invitations/invitation.repository";

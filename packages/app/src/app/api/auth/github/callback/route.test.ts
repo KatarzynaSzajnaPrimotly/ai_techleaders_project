@@ -95,7 +95,7 @@ describe("GET /api/auth/github/callback", () => {
     const sessionCookie = cookies.find((cookie) => cookie.startsWith("devmentor_session="));
     expect(sessionCookie).toBeDefined();
     const token = sessionCookie?.split(";", 1)[0]?.slice("devmentor_session=".length);
-    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: user.id, role: user.role, sessionVersion: 0 });
+    await expect(verifySession(token ?? "", JWT_SECRET)).resolves.toEqual({ userId: user.id, role: user.role, roles: [user.role], sessionVersion: 0 });
   });
 
   it("redirects to the signed, sanitized returnTo after successful sign-in", async () => {

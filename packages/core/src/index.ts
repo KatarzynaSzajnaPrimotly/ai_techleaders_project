@@ -51,6 +51,9 @@ export {
 export type { Mentor, NewMentor } from "./services/mentors/mentor.types";
 export type { MentorProfile } from "./services/mentors/mentor-profile.types";
 export type { Invitation } from "./services/invitations/invitation.types";
+export type { InvitationRepositoryPort, InvitationTransactionPort, NewInvitation } from "./services/invitations/invitation-repository.port";
+export type { InvitationAcceptedEvent, InvitationEventPublisherPort } from "./services/invitations/invitation-events.port";
+export { InvitationService, INVITATION_INVALID_MESSAGE, INVITATION_STACK_TAGS, type AcceptedInvitation, type CreatedInvitation, type PublicInvitation } from "./services/invitations/invitation.service";
 export type { MentorRepositoryPort } from "./services/mentors/mentor-repository.port";
 export { MentorService } from "./services/mentors/mentor.service";
 export type { User, NewUser, StoredRole, PasswordAuthAccount, LoginAccount, ExistingAccountLookup, NewPasswordAccount } from "./services/auth/user.types";

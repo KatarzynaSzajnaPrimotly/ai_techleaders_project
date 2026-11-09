@@ -43,6 +43,6 @@ export async function enforceAccess(
   const session = await resolveCurrentSession(verifiedSession);
   if (!session) throw new UnauthorizedError();
   if (access === "authenticated") return session;
-  if (!access.roles.includes(session.role)) throw new ForbiddenError();
+  if (!access.roles.some((role) => (session.roles ?? [session.role]).includes(role))) throw new ForbiddenError();
   return session;
 }

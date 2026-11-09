@@ -289,17 +289,25 @@ describe("AccountService password account lookups", () => {
 
     await expect(service.createPasswordAccount({
       email: created.email,
-      emailVerifiedAt: created.emailVerifiedAt,
+      emailVerifiedAt: created.emailVerifiedAt!,
       displayName: created.displayName ?? "Ada",
       passwordHash: created.passwordHash ?? "hash",
-    })).resolves.toEqual({ id: created.id, email: created.email, role: created.role, sessionVersion: created.sessionVersion });
+    })).resolves.toEqual({ id: created.id, email: created.email, role: created.role, roles: created.roles, sessionVersion: created.sessionVersion });
     expect(userRepository.create).toHaveBeenCalledWith({
       email: created.email,
-      emailVerifiedAt: created.emailVerifiedAt,
+      emailVerifiedAt: created.emailVerifiedAt!,
       displayName: created.displayName ?? "Ada",
       passwordHash: created.passwordHash ?? "hash",
       role: "mentee",
     });
+  });
+
+  it("includes additive roles when a created account has them", async () => {
+    const created = user({ roles: ["mentee", "mentor"] });
+    const { service, userRepository } = setup();
+    userRepository.create.mockResolvedValue(created);
+    await expect(service.createPasswordAccount({ email: created.email, emailVerifiedAt: created.emailVerifiedAt!, displayName: "Ada", passwordHash: "hash" }))
+      .resolves.toMatchObject({ roles: ["mentee", "mentor"] });
   });
 
   it("returns only the login fields required by password authentication", async () => {
@@ -314,6 +322,13 @@ describe("AccountService password account lookups", () => {
       sessionVersion: existing.sessionVersion,
       passwordHash: existing.passwordHash,
     });
+  });
+
+  it("preserves additive roles in the login projection", async () => {
+    const existing = user({ passwordHash: "$2b$12$sensitive", roles: ["mentee", "mentor"] });
+    const { service, userRepository } = setup();
+    userRepository.findByEmail.mockResolvedValue(existing);
+    await expect(service.findForLogin(existing.email)).resolves.toMatchObject({ roles: ["mentee", "mentor"] });
   });
 
   it("returns null for a password login lookup miss", async () => {

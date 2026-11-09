@@ -36,14 +36,21 @@ describe("session issuer", () => {
     vi.stubEnv("ALLOW_INSECURE_HTTP", "false");
     const issued = await issueSession(user);
 
-    await expect(verifySession(issued.token, SECRET)).resolves.toEqual({ userId: "user-1", role: "mentor", sessionVersion: 0 });
-    expect(issued.session).toEqual({ userId: "user-1", role: "mentor", sessionVersion: 0 });
+    await expect(verifySession(issued.token, SECRET)).resolves.toEqual({ userId: "user-1", role: "mentor", roles: ["mentor"], sessionVersion: 0 });
+    expect(issued.session).toEqual({ userId: "user-1", role: "mentor", roles: ["mentor"], sessionVersion: 0 });
     expect(issued.cookie).toContain("devmentor_session=");
     expect(issued.cookie).toContain("HttpOnly");
     expect(issued.cookie).toContain("SameSite=Lax");
     expect(issued.cookie).toContain("Path=/");
     expect(issued.cookie).toContain(`Max-Age=${SESSION_TTL_SECONDS}`);
     expect(issued.cookie).toContain("Secure");
+  });
+
+  it("keeps all persisted role grants in the session and chooses mentor as the default view", async () => {
+    vi.stubEnv("JWT_SECRET", SECRET);
+    const issued = await issueSession({ ...user, role: "mentee", roles: ["mentee", "mentor"] });
+    expect(issued.session).toMatchObject({ role: "mentor", roles: ["mentee", "mentor"] });
+    await expect(verifySession(issued.token, SECRET)).resolves.toMatchObject({ roles: ["mentee", "mentor"] });
   });
 
   it("omits Secure outside production and when the test-only HTTP flag is enabled", async () => {

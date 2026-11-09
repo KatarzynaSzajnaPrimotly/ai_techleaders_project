@@ -1,6 +1,8 @@
 import { asClass, asFunction, asValue, createContainer, InjectionMode, type AwilixContainer } from "awilix";
 import {
   AccountService,
+  InvitationService,
+  logger,
   MentorService,
   PasswordAuthService,
   createLogMailerAdapter,
@@ -14,8 +16,10 @@ import {
   type MentorRepositoryPort,
   type RateLimiterPort,
   type UserRepositoryPort,
+  type InvitationRepositoryPort,
+  type InvitationEventPublisherPort,
 } from "@devmentor/core";
-import { createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
+import { createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
 
 export interface Cradle {
   orm: Orm;
@@ -23,6 +27,10 @@ export interface Cradle {
   mentorRepository: MentorRepositoryPort;
   mentorService: MentorService;
   userRepository: UserRepositoryPort;
+  invitationRepository: InvitationRepositoryPort;
+  invitationEvents: InvitationEventPublisherPort;
+  invitationService: InvitationService;
+  now: () => Date;
   githubIdentity: GithubIdentityPort;
   accountService: AccountService;
   passwordHasher: PasswordHasherPort;
@@ -84,6 +92,14 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     mentorRepository: asFunction(({ em }: Cradle) => createMentorRepository(em)).scoped(),
     mentorService: asClass(MentorService).scoped(),
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
+    invitationRepository: asFunction(({ em }: Cradle) => createInvitationRepository(em)).scoped(),
+    invitationEvents: asFunction((): InvitationEventPublisherPort => ({
+      async publishInvitationAccepted(event) {
+        logger.info({ invitationId: event.invitationId, userId: event.userId, publishDueAt: event.publishDueAt }, event.type);
+      },
+    })).scoped(),
+    now: asFunction(() => () => new Date()).scoped(),
+    invitationService: asClass(InvitationService).scoped(),
     githubIdentity: asFunction(() => createConfiguredGithubIdentity()).scoped(),
     accountService: asClass(AccountService).scoped(),
     passwordHasher: asFunction(() => createPasswordHasher()).scoped(),

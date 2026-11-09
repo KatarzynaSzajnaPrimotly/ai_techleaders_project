@@ -12,5 +12,6 @@ describe("@devmentor/db public API", () => {
     expect(typeof db.getOrmOptions).toBe("function");
     expect(typeof db.createMentorRepository).toBe("function");
     expect(typeof db.createUserRepository).toBe("function");
+    expect(typeof db.createInvitationRepository).toBe("function");
   });
 });

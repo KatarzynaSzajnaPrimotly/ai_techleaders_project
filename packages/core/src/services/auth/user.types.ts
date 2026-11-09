@@ -5,10 +5,12 @@ export type StoredRole = Exclude<Role, "operator">;
 export interface User {
   id: string;
   email: string;
-  emailVerifiedAt: Date;
+  emailVerifiedAt: Date | null;
   passwordHash: string | null;
   displayName: string | null;
   role: StoredRole;
+  /** All persisted grants; role remains the primary role for older consumers. */
+  roles?: StoredRole[];
   sessionVersion: number;
   githubId: string | null;
   githubLogin: string | null;
@@ -23,6 +25,7 @@ export interface NewUser {
   passwordHash?: string | null;
   displayName?: string | null;
   role?: StoredRole;
+  roles?: StoredRole[];
   githubId?: string | null;
   githubLogin?: string | null;
   avatarUrl?: string | null;
@@ -32,6 +35,7 @@ export interface PasswordAuthAccount {
   id: string;
   email: string;
   role: StoredRole;
+  roles?: StoredRole[];
   sessionVersion: number;
 }
 
