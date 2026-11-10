@@ -13,9 +13,10 @@
 | S03 | 3.2 | Mentor slot editor and public availability display | group:availability | done | 9fc073f |
 | S03 | 3.3 | Keep the availability entity in the ORM options contract test | inline | done | 2ac10cb |
 | S03 | 3.4 | Keep a slot visible when its removal is refused | inline | done | 9c6587e |
+| S03 | 3.5 | Add the owner-only, CSRF-protected slot removal route | inline | done | this commit |
 | S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | done | dbf8283 |
 | S04 | 4.2 | Price editor, public offer readiness and end-to-end coverage | group:prices | done | 27d6074 |
-| S04 | 4.3 | Close E02 unit coverage gaps exposed by the full gate | inline | done | pending |
+| S04 | 4.3 | Close E02 unit coverage gaps exposed by the full gate | inline | done | c02d4b2 |
 
 ## Goal
 Implement E02-S02, E02-S03 and E02-S04 from `.ai/specs/2026-09-08-mentors-become-bookable.md`, building on E02-S01 in PR #60. Keep the user-facing flows aligned with `.ai/specs/2026-09-09-e02-design-handoff.md` and the existing Storybook component patterns. Deliver a stacked draft PR based on `feat/e02-s01-invitations`, with progress reported to issue #8 as requested.

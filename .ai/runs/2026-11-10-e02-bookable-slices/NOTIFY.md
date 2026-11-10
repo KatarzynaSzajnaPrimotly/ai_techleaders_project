@@ -34,3 +34,11 @@
 
 ## 2026-11-10T22:14:00Z — checkpoint 1 (Steps 2.1–2.3)
 - S02 focused checks and production build pass; full coverage, integration runtime and one public-route lint error remain blockers. Desktop and 320px browser screenshots saved. Two disjoint Luna tasks are active: S03 implementation (`ee2ae060`) and test-only coverage repair (`ca8e3a51`). Price story approves PLN bounds, but the epic architecture spec conflicts and needs reconciliation before S04.
+
+## 2026-11-10T23:08:00Z — S03 complete
+- Steps 3.1 (`55f563f`) and 3.2 (`9fc073f`) implement owner-scoped slots, public availability, two-hour notice and local-time conversion. Typecheck, 118 focused tests, production build, four mentor-profile integration tests and desktop/320px browser checks pass; browser QA artifacts are in checkpoint 2.
+
+## 2026-11-10T23:08:00Z — S04 configuration decision
+- Issue #42 confirms EUR and requires no default price bounds. Implement fail-closed behavior when any of the four bounds is unset; integration harness supplies deterministic test-only values, while production configuration remains unset until founder A chooses limits.
+
+- 2026-11-10T23:40:00Z — Cez S03 delegation `ee2ae060` was rejected: it was based before S02 and contained no compatible implementation. Continued on the stacked PR branch; the missing owner-only CSRF-protected DELETE slot route and unit coverage are committed as planned Step 3.5.
