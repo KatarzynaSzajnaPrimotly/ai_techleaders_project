@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MENTOR_STACK_TAGS, type MentorProfileOwnerDto } from "@devmentor/core";
 import { mentorProfileUpdateSchema } from "@devmentor/core/validators";
 import { apiCall, CrudForm } from "@devmentor/ui";
@@ -9,15 +9,8 @@ export function MentorProfileEditor({ initial }: { initial: MentorProfileOwnerDt
   const [profile, setProfile] = useState(initial);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [formError, setFormError] = useState<string | null>(null);
-  const [shareUrl, setShareUrl] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
   const [pending, setPending] = useState(false);
-
-  useEffect(() => {
-    if (profile.slug && typeof window !== "undefined") {
-      setShareUrl(new URL(`/m/${profile.slug}`, window.location.origin).toString());
-    }
-  }, [profile.slug]);
 
   async function save(values: { publicWorkUrl?: string; bio?: string; stackTags?: string[]; sessionChannel?: string }) {
     setFieldErrors({});
@@ -45,7 +38,8 @@ export function MentorProfileEditor({ initial }: { initial: MentorProfileOwnerDt
   }
 
   async function copyLink() {
-    if (!shareUrl) return;
+    if (!profile.slug) return;
+    const shareUrl = new URL(`/m/${profile.slug}`, window.location.origin).toString();
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareUrl);
@@ -101,7 +95,7 @@ export function MentorProfileEditor({ initial }: { initial: MentorProfileOwnerDt
       {profile.publishedAt && profile.slug ? (
         <section aria-labelledby="share-heading" className="space-y-3 rounded-lg border p-4">
           <h2 id="share-heading" className="text-lg font-medium">Your share link</h2>
-          <a href={`/m/${profile.slug}`} className="block break-all text-sm underline">{shareUrl || `/m/${profile.slug}`}</a>
+          <a href={`/m/${profile.slug}`} className="block break-all text-sm underline">/m/{profile.slug}</a>
           <p className="text-sm text-muted-foreground">This link stays the same if you rename yourself.</p>
           <div className="flex flex-wrap gap-2">
             <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={copyLink}>Copy link</button>

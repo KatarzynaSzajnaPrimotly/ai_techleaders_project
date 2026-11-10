@@ -57,7 +57,7 @@ describe("MentorProfileEditor", () => {
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: clipboard });
     mocks.apiCall.mockResolvedValue({ ok: true, status: 200, data: makeProfile({ slug: "ada", publishedAt: new Date(0) }) });
     render(<MentorProfileEditor initial={makeProfile({ slug: "ada", publishedAt: new Date(0) })} />);
-    await waitFor(() => expect(screen.getByRole("link", { name: "http://localhost:3000/m/ada" })).toBeDefined());
+    expect(screen.getByRole("link", { name: "/m/ada" })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: "Copy link" }));
     await screen.findByText("Link copied");
     expect(clipboard.writeText).toHaveBeenCalledWith("http://localhost:3000/m/ada");
