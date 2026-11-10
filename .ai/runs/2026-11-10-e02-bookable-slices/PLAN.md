@@ -5,7 +5,7 @@
 | Phase | Step | Title | Exec | Status | Commit |
 |---|---|---|---|---|---|
 | QA | 0.1 | Local mail capture and invitation CLI reliability | inline | done | ac60153 |
-| S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | done | dd71290 |
+| S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | todo | dd71290 |
 | S02 | 2.2 | Profile editor, public mentor page and integration coverage | group:mentor-profile | todo | ce73d0a |
 | S03 | 3.1 | Availability slot model, service, API and integration coverage | group:availability | todo | — |
 | S03 | 3.2 | Mentor slot editor and public availability display | group:availability | todo | — |
