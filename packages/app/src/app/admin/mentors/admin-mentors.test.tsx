@@ -12,8 +12,8 @@ vi.mock("@devmentor/ui", async (importOriginal) => ({
 import { AdminMentors } from "./admin-mentors";
 
 const rows = [
-  { id: "1", name: "Ada Lovelace", email: "ada@example.com", createdAt: "2026-10-19T09:00:00.000Z" },
-  { id: "2", name: "Grace Hopper", email: "grace@example.com", createdAt: "2026-10-20T09:00:00.000Z" },
+  { slug: "ada-lovelace", displayName: "Ada Lovelace", publicWorkUrl: "https://example.test/ada", bio: "Mathematician", stackTags: ["TypeScript"] },
+  { slug: "grace-hopper", displayName: "Grace Hopper", publicWorkUrl: "https://example.test/grace", bio: "Engineer", stackTags: ["Python"] },
 ];
 const listOk = (data = rows): ApiResult<unknown> => ({ ok: true, status: 200, data });
 const listFailed: ApiResult<unknown> = { ok: false, status: 500, error: { code: "INTERNAL_ERROR", message: "Internal server error" } };
@@ -23,13 +23,13 @@ beforeEach(() => {
 });
 
 describe("AdminMentors", () => {
-  it("shows a loading state, then the mentors with their count and join date", async () => {
+  it("shows a loading state, then published profiles without private contact fields", async () => {
     mocks.apiCall.mockResolvedValue(listOk());
     render(<AdminMentors />);
     expect(screen.getByRole("status")).toBeDefined();
     expect(await screen.findByRole("cell", { name: "Ada Lovelace" })).toBeDefined();
-    expect(screen.getByRole("cell", { name: "grace@example.com" })).toBeDefined();
-    expect(screen.getByRole("cell", { name: "2026-10-20" })).toBeDefined();
+    expect(screen.getByRole("cell", { name: "https://example.test/grace" })).toBeDefined();
+    expect(screen.queryByText(/@example\.com/)).toBeNull();
     expect(screen.getByText("2")).toBeDefined();
     expect(mocks.apiCall).toHaveBeenCalledWith("/api/mentors");
   });
@@ -37,8 +37,7 @@ describe("AdminMentors", () => {
   it("shows the empty state with a zero count", async () => {
     mocks.apiCall.mockResolvedValue(listOk([]));
     render(<AdminMentors />);
-    expect(await screen.findByText("No mentors yet.")).toBeDefined();
-    expect(screen.getByText("Add the first one below.")).toBeDefined();
+    expect(await screen.findByText("No mentor has published a page yet.")).toBeDefined();
     expect(screen.getByText("0")).toBeDefined();
   });
 
@@ -57,15 +56,15 @@ describe("AdminMentors", () => {
     mocks.apiCall
       .mockResolvedValueOnce(listOk([]))
       .mockResolvedValueOnce({ ok: true, status: 201, data: created })
-      .mockResolvedValueOnce(listOk([created]));
+      .mockResolvedValueOnce(listOk([]));
     render(<AdminMentors />);
-    await screen.findByText("No mentors yet.");
+    await screen.findByText("No mentor has published a page yet.");
 
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "  Linus T " } });
     fireEvent.change(screen.getByLabelText("Email"), { target: { value: "LINUS@example.com" } });
     fireEvent.click(screen.getByRole("button", { name: "Add mentor" }));
 
-    expect(await screen.findByRole("cell", { name: "Linus T" })).toBeDefined();
+    expect(await screen.findByText("No mentor has published a page yet.")).toBeDefined();
     expect(mocks.apiCall).toHaveBeenNthCalledWith(2, "/api/mentors", {
       method: "POST",
       body: { name: "Linus T", email: "linus@example.com" },
@@ -79,7 +78,7 @@ describe("AdminMentors", () => {
       error: { code: "CONFLICT", message: "A mentor with email ada@example.com already exists" },
     });
     render(<AdminMentors />);
-    await screen.findByText("No mentors yet.");
+    await screen.findByText("No mentor has published a page yet.");
 
     fireEvent.click(screen.getByRole("button", { name: "Add mentor" }));
     expect(screen.getByText("Name is required")).toBeDefined();

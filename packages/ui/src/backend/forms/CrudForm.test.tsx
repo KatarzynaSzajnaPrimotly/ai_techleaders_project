@@ -42,6 +42,30 @@ describe("CrudForm", () => {
     expect((screen.getByLabelText("Secret") as HTMLInputElement).type).toBe("password");
   });
 
+  it("renders a textarea and a multi-select from initial values and submits selected options", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(success);
+    render(
+      <CrudForm
+        schema={z.object({ bio: z.string(), tags: z.array(z.string()) })}
+        fields={[
+          { name: "bio", label: "About", type: "textarea", maxLength: 500, initialValue: "Existing bio" },
+          { name: "tags", label: "Tags", type: "multiselect", initialValue: ["typescript"], options: [
+            { label: "TypeScript", value: "typescript" }, { label: "React", value: "react" },
+          ] },
+        ]}
+        onSubmit={onSubmit}
+        resetOnSuccess={false}
+      />,
+    );
+    expect((screen.getByLabelText("About") as HTMLTextAreaElement).value).toBe("Existing bio");
+    expect((screen.getByLabelText("TypeScript") as HTMLInputElement).checked).toBe(true);
+    fireEvent.change(screen.getByLabelText("About"), { target: { value: "Updated bio" } });
+    fireEvent.click(screen.getByLabelText("React"));
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ bio: "Updated bio", tags: ["typescript", "react"] }));
+    expect((screen.getByLabelText("About") as HTMLTextAreaElement).value).toBe("Updated bio");
+  });
+
   it("validates on the client with the shared schema and does not submit", () => {
     const { onSubmit, type } = setup();
     type("Email", "nope");

@@ -17,16 +17,17 @@ import {
 } from "@devmentor/ui";
 
 interface MentorRow {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
+  slug: string;
+  displayName: string;
+  publicWorkUrl: string;
+  bio: string;
+  stackTags: string[];
 }
 
 const columns: DataTableColumn<MentorRow>[] = [
-  { key: "name", header: "Name", className: "font-medium" },
-  { key: "email", header: "Email" },
-  { key: "createdAt", header: "Joined", cell: (mentor) => mentor.createdAt.slice(0, 10) },
+  { key: "displayName", header: "Name", className: "font-medium" },
+  { key: "publicWorkUrl", header: "Public work" },
+  { key: "slug", header: "Share page", cell: (mentor) => `/m/${mentor.slug}` },
 ];
 
 export function AdminMentors() {
@@ -55,18 +56,17 @@ export function AdminMentors() {
           <CardTitle>
             Registered mentors <Badge variant="secondary">{result?.ok ? result.data.length : "–"}</Badge>
           </CardTitle>
-          <CardDescription>Mentors visible on the public page.</CardDescription>
+          <CardDescription>Published mentor pages. Unpublished pages and private contact details are excluded.</CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={columns}
             rows={result?.ok ? result.data : []}
-            getRowKey={(mentor) => mentor.id}
+            getRowKey={(mentor) => mentor.slug}
             loading={result === null}
             error={result && !result.ok ? result.error.message : null}
             onRetry={reload}
-            emptyTitle="No mentors yet."
-            emptyDescription="Add the first one below."
+            emptyTitle="No mentor has published a page yet."
           />
         </CardContent>
       </Card>

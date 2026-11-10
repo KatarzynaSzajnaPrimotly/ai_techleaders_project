@@ -5,8 +5,8 @@
 | Phase | Step | Title | Exec | Status | Commit |
 |---|---|---|---|---|---|
 | QA | 0.1 | Local mail capture and invitation CLI reliability | inline | done | e1f0f85 |
-| S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | done | pending |
-| S02 | 2.2 | Profile editor, public mentor page and integration coverage | group:mentor-profile | todo | — |
+| S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | done | 4892401 |
+| S02 | 2.2 | Profile editor, public mentor page and integration coverage | group:mentor-profile | done | pending |
 | S03 | 3.1 | Availability slot model, service, API and integration coverage | group:availability | todo | — |
 | S03 | 3.2 | Mentor slot editor and public availability display | group:availability | todo | — |
 | S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | blocked | — |

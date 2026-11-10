@@ -7,6 +7,7 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./com
 export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "./components/ui/table";
 
 export { MentorCard, type MentorCardProps } from "./components/mentors/mentor-card";
+export { MentorPageView } from "./components/mentors/mentor-page-view";
 
 export type { ApiErrorBody, ApiFieldErrors, ApiResult } from "./backend/api/types";
 export { apiCall, apiCallOrThrow, ApiError, readJsonSafe, type ApiCallOptions } from "./backend/api/apiCall";
