@@ -50,6 +50,8 @@ export {
 
 export type { Mentor, NewMentor } from "./services/mentors/mentor.types";
 export type { MentorProfile } from "./services/mentors/mentor-profile.types";
+export { MENTOR_STACK_TAGS, type MentorProfileOwnerDto, type MentorProfilePublicDto } from "./services/mentors/mentor-profile.types";
+export { mentorProfileUpdateSchema, type MentorProfileUpdate } from "./validators/mentors/mentor-profile.schema";
 export type { Invitation } from "./services/invitations/invitation.types";
 export type { InvitationRepositoryPort, InvitationTransactionPort, NewInvitation } from "./services/invitations/invitation-repository.port";
 export type { InvitationAcceptedEvent, InvitationEventPublisherPort } from "./services/invitations/invitation-events.port";

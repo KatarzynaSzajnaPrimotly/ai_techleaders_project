@@ -8,6 +8,7 @@ function createService() {
   const mentorRepository = {
     findAll: vi.fn().mockResolvedValue([mentor]),
     create: vi.fn().mockResolvedValue(mentor),
+    findProfileByUserId: vi.fn(), updateProfile: vi.fn(), publishProfile: vi.fn(), unpublishProfile: vi.fn(), findPublicProfile: vi.fn(),
   };
   return { service: new MentorService({ mentorRepository }), mentorRepository };
 }
