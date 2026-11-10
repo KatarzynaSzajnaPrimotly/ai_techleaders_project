@@ -11,6 +11,7 @@ import {
   createGithubIdentityAdapter,
   selectAdapter,
   type GithubIdentityPort,
+  type MailMessage,
   type MailerPort,
   type PasswordHasherPort,
   type MentorRepositoryPort,
@@ -20,6 +21,7 @@ import {
   type InvitationEventPublisherPort,
 } from "@devmentor/core";
 import { createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
+import { createLocalFileMailer } from "./local-file-mailer";
 
 export interface Cradle {
   orm: Orm;
@@ -53,7 +55,10 @@ async function buildRootContainer(): Promise<AwilixContainer<Cradle>> {
 function createConfiguredMailer(): MailerPort {
   return {
     async send(message) {
-      const adapter = selectAdapter("MAILER_TRANSPORT", { log: createLogMailerAdapter() }, process.env.MAILER_TRANSPORT);
+      const adapter = selectAdapter("MAILER_TRANSPORT", {
+        log: createLogMailerAdapter(),
+        "local-file": { send: (message: MailMessage) => createLocalFileMailer(process.env.LOCAL_MAILBOX_DIR).send(message) },
+      }, process.env.MAILER_TRANSPORT);
       await adapter.send(message);
     },
   };
