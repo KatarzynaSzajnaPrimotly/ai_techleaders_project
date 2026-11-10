@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { mentorCreateSchema } from "@devmentor/core/validators";
 import {
   apiCall,
   Badge,
@@ -10,7 +9,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CrudForm,
   DataTable,
   type ApiResult,
   type DataTableColumn,
@@ -67,24 +65,6 @@ export function AdminMentors() {
             error={result && !result.ok ? result.error.message : null}
             onRetry={reload}
             emptyTitle="No mentor has published a page yet."
-          />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Add mentor</CardTitle>
-          <CardDescription>Ctrl+Enter submits.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CrudForm
-            schema={mentorCreateSchema}
-            fields={[
-              { name: "name", label: "Name", placeholder: "Ada Lovelace" },
-              { name: "email", label: "Email", type: "email", placeholder: "ada@example.com" },
-            ]}
-            submitLabel="Add mentor"
-            onSubmit={(values) => apiCall("/api/mentors", { method: "POST", body: values })}
-            onSuccess={reload}
           />
         </CardContent>
       </Card>

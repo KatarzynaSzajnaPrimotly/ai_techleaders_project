@@ -9,18 +9,7 @@ const jwtSecret = inject("jwtSecret");
 const operatorEmail = inject("operatorEmail");
 const browser = createBrowser();
 const unique = Date.now().toString(36);
-const mentor = { name: `Ada ${unique}`, email: `ada-${unique}@example.com` };
-
-const CSRF = { "x-devmentor-csrf": "1" };
 let operatorCookie = "";
-
-function postMentor(body: unknown, headers: Record<string, string> = { ...CSRF, cookie: operatorCookie }) {
-  return fetch(`${baseUrl}/api/mentors`, {
-    method: "POST",
-    headers: { "content-type": "application/json", ...headers },
-    body: JSON.stringify(body),
-  });
-}
 
 interface Envelope<T> {
   ok: boolean;
@@ -40,40 +29,19 @@ afterAll(() => {
 });
 
 describe("mentors API against a real PostgreSQL", () => {
-  it("creates a mentor and normalises the input", async () => {
-    const response = await postMentor({ name: `  ${mentor.name} `, email: mentor.email.toUpperCase() });
-    expect(response.status).toBe(201);
-    expect(await response.json()).toMatchObject({ ok: true, data: { name: mentor.name, email: mentor.email } });
-  });
-
-  it("refuses a state-changing request without the CSRF header", async () => {
-    const response = await postMentor({ name: "No Csrf", email: `csrf-${unique}@example.com` }, { cookie: operatorCookie });
-    expect(response.status).toBe(403);
-    expect(((await response.json()) as Envelope<never>).error?.code).toBe("FORBIDDEN");
-  });
-
-  it("rejects a duplicate email with 409 and no database details", async () => {
-    const response = await postMentor(mentor);
-    expect(response.status).toBe(409);
-    const body = (await response.json()) as Envelope<never>;
-    expect(body.error?.code).toBe("CONFLICT");
-    expect(body.error?.message).toBe(`A mentor with email ${mentor.email} already exists`);
-    expect(JSON.stringify(body)).not.toContain("constraint");
-  });
-
-  it("rejects invalid input with 400 and per-field errors", async () => {
-    expect((await postMentor({ name: "No Email" })).status).toBe(400);
-    const response = await postMentor({ name: "Bad", email: "nope" });
-    expect(response.status).toBe(400);
-    const body = (await response.json()) as Envelope<never>;
-    expect(body.error?.code).toBe("VALIDATION_ERROR");
-    expect(body.error?.fieldErrors?.email).toEqual(["Email is invalid"]);
-  });
-
-  it("lists the stored mentor", async () => {
-    const body = (await (await fetch(`${baseUrl}/api/mentors`, { headers: { cookie: operatorCookie } })).json()) as Envelope<Array<{ email: string }>>;
+  it("returns only the published public profile projection to operators", async () => {
+    const body = (await (await fetch(`${baseUrl}/api/mentors`, { headers: { cookie: operatorCookie } })).json()) as Envelope<Array<Record<string, unknown>>>;
     expect(body.ok).toBe(true);
-    expect(body.data?.map((item) => item.email)).toContain(mentor.email);
+    expect(body.data?.every((item) => !("email" in item))).toBe(true);
+  });
+
+  it("does not expose an operator route that bypasses invitations", async () => {
+    const response = await fetch(`${baseUrl}/api/mentors`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: operatorCookie, "x-devmentor-csrf": "1" },
+      body: JSON.stringify({ name: "Uninvited", email: `uninvited-${unique}@example.com` }),
+    });
+    expect(response.status).toBe(405);
   });
 
   it("answers 404 for unknown routes", async () => {
@@ -92,43 +60,19 @@ describe("pages in a real browser (agent-browser)", () => {
     expect(browser.text("body")).toContain("Ana Ruiz");
   });
 
-  it("shows the mentor on the public page", () => {
+  it("keeps the public directory out of scope while share pages are available", () => {
     browser.open(`${baseUrl}/mentors`);
     expect(browser.title()).toBe("Mentors | DevMentor");
     expect(browser.text("h1")).toBe("Meet our mentors");
-    const body = browser.text("body");
-    expect(body).toContain(mentor.name);
-    expect(body).toContain(mentor.email);
+    expect(browser.text("body")).toContain("Mentors share their pages directly.");
   });
 
-  it("shows the mentor in the admin table", () => {
+  it("shows the published-profile contract without a direct registration form", () => {
     browser.open(`${baseUrl}/admin/mentors`);
     expect(browser.title()).toBe("Mentors | DevMentor admin");
-    browser.waitForText(mentor.email);
-    expect(browser.text("table")).toContain(mentor.email);
-  });
-
-  it("adds a mentor through the admin form (CrudForm, apiCall, CSRF header, real database)", () => {
-    const added = { name: `Grace ${unique}`, email: `grace-${unique}@example.com` };
-    browser.open(`${baseUrl}/admin/mentors`);
     browser.waitForText("Registered mentors");
-    browser.fill("#name", added.name);
-    browser.fill("#email", added.email);
-    browser.click('button[type="submit"]');
-    browser.waitForText(added.email);
-    expect(browser.text("table")).toContain(added.name);
-
-    browser.open(`${baseUrl}/mentors`);
-    expect(browser.text("body")).toContain(added.email);
-  });
-
-  it("shows validation messages from the shared schema in the admin form", () => {
-    browser.open(`${baseUrl}/admin/mentors`);
-    browser.waitForText("Registered mentors");
-    browser.fill("#email", "nope");
-    browser.click('button[type="submit"]');
-    browser.waitForText("Email is invalid");
-    expect(browser.text("body")).toContain("Name is required");
+    expect(browser.text("body")).toContain("Published mentor pages. Unpublished pages and private contact details are excluded.");
+    expect(browser.text("body")).not.toContain("Add mentor");
   });
 
   it("navigates from the admin page to the public page", () => {

@@ -68,25 +68,13 @@ beforeAll(clearFakeIdentity);
 afterAll(clearFakeIdentity);
 
 describe("operator access integration", () => {
-  it("requires an operator session to create a mentor", async () => {
+  it("does not expose direct mentor creation outside the invitation flow", async () => {
     const anonymous = await fetch(new URL("/api/mentors", baseUrl), {
       method: "POST",
       headers: CSRF_HEADERS,
       body: JSON.stringify({ name: "Anonymous", email: `anonymous-${unique}@example.test` }),
     });
-    expect(anonymous.status).toBe(401);
-
-    for (const role of ["mentee", "mentor"] as const) {
-      const account = await createUser({ email: `denied-${role}-${unique}@example.test`, role }, databaseUrl);
-      const token = await mintSessionCookie({ userId: account.id, role }, jwtSecret);
-      const denied = await fetch(new URL("/api/mentors", baseUrl), {
-        method: "POST",
-        headers: { ...CSRF_HEADERS, cookie: `${SESSION_COOKIE}=${token}` },
-        body: JSON.stringify({ name: role, email: `${role}-${unique}@example.test` }),
-      });
-      expect(denied.status).toBe(403);
-      await expect(denied.json()).resolves.toMatchObject({ ok: false, error: { code: "FORBIDDEN" } });
-    }
+    expect(anonymous.status).toBe(405);
   });
 
   it("redirects anonymous and wrong-role visitors away from the operator page with 307", async () => {
@@ -106,7 +94,7 @@ describe("operator access integration", () => {
     }
   });
 
-  it("gives an allowlisted GitHub mentee operator access and permits mentor creation", async () => {
+  it("gives an allowlisted GitHub mentee operator access without enabling direct mentor creation", async () => {
     const code = `operator-${unique}`;
     await configureIdentity(githubIdentity(githubIdFor(81_001), `operator-${unique}`, OPERATOR_EMAIL), code);
     const login = await startGithubLogin();
@@ -123,13 +111,12 @@ describe("operator access integration", () => {
     const signIn = await fetch(new URL("/sign-in", baseUrl), { headers: { cookie: sessionCookie }, redirect: "manual" });
     expect(signIn.status).toBe(307);
     expect(signIn.headers.get("location")).toBe("/admin/mentors");
-    const created = await fetch(new URL("/api/mentors", baseUrl), {
+    const directCreation = await fetch(new URL("/api/mentors", baseUrl), {
       method: "POST",
       headers: { ...CSRF_HEADERS, cookie: sessionCookie },
-      body: JSON.stringify({ name: "Operator created", email: `created-${unique}@example.test` }),
+      body: JSON.stringify({ name: "Uninvited", email: `uninvited-${unique}@example.test` }),
     });
-    expect(created.status).toBe(201);
-    await expect(created.json()).resolves.toMatchObject({ ok: true, data: { name: "Operator created" } });
+    expect(directCreation.status).toBe(405);
   });
 
   it("keeps an allowlisted account with stored mentor role as mentor after GitHub sign-in", async () => {
