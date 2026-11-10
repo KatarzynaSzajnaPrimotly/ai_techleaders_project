@@ -42,20 +42,34 @@ export function createMentorRepository(em: EntityManager): MentorRepositoryPort 
       return profile;
     },
     async publishProfile(userId): Promise<MentorProfile> {
-      const profile = await em.findOne<MentorProfile>(PROFILE, { userId }, { lockMode: 2 });
-      if (!profile) throw new NotFoundError("Mentor profile not found");
-      if (!profile.publicWorkUrl) throw new ValidationError("Profile is incomplete", { publicWorkUrl: ["Add a link to your public work before publishing"] });
-      if (!profile.bio?.trim()) throw new ValidationError("Profile is incomplete", { bio: ["Add a description before publishing"] });
-      if (!profile.slug) {
-        const user = await em.findOne<{ id: string; displayName: string | null }>(USER, { id: userId });
-        const base = (user?.displayName || "mentor").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 51) || "mentor";
-        for (let i = 0; i < 100; i++) {
-          const slug = i ? `${base}-${i + 1}` : base;
-          try { profile.slug = slug; profile.publishedAt = new Date(); await em.flush(); return profile; }
-          catch (error) { if ((error as { code?: string }).code !== UNIQUE_VIOLATION) throw error; em.clear(); throw new ConflictError("Could not allocate a profile link; retry"); }
+      const initial = await em.findOne<MentorProfile>(PROFILE, { userId });
+      if (!initial) throw new NotFoundError("Mentor profile not found");
+      if (!initial.publicWorkUrl) throw new ValidationError("Profile is incomplete", { publicWorkUrl: ["Add a link to your public work before publishing"] });
+      if (!initial.bio?.trim()) throw new ValidationError("Profile is incomplete", { bio: ["Add a description before publishing"] });
+      if (initial.slug) {
+        initial.publishedAt = new Date(); await em.flush(); return initial;
+      }
+      const user = await em.findOne<{ id: string; displayName: string | null }>(USER, { id: userId });
+      const normalized = (user?.displayName || "mentor").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "mentor";
+      for (let suffix = 0; suffix < 100; suffix++) {
+        const tail = suffix ? `-${suffix + 1}` : "";
+        const candidate = `${normalized.slice(0, 60 - tail.length).replace(/-+$/g, "")}${tail}`;
+        try {
+          return await em.transactional(async (tx) => {
+            const profile = await tx.findOne<MentorProfile>(PROFILE, { userId }, { lockMode: 2 });
+            if (!profile) throw new NotFoundError("Mentor profile not found");
+            if (profile.slug) { profile.publishedAt = new Date(); await tx.flush(); return profile; }
+            const collision = await tx.findOne<MentorProfile>(PROFILE, { slug: candidate });
+            if (collision) throw new ConflictError("SLUG_COLLISION");
+            profile.slug = candidate; profile.publishedAt = new Date(); await tx.flush(); return profile;
+          });
+        } catch (error) {
+          const detail = error as { code?: string; constraint?: string; message?: string };
+          if (detail.message === "SLUG_COLLISION" || (detail.code === UNIQUE_VIOLATION && detail.constraint?.includes("slug"))) continue;
+          throw error;
         }
       }
-      profile.publishedAt = new Date(); await em.flush(); return profile;
+      throw new ConflictError("Could not allocate a unique mentor link; retry publication");
     },
     async unpublishProfile(userId): Promise<MentorProfile> {
       const profile = await em.findOne<MentorProfile>(PROFILE, { userId });
