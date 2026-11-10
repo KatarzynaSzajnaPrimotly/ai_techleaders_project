@@ -46,3 +46,5 @@
 - 2026-11-10T23:46:00Z — Full integration exposed four legacy assertions for direct mentor creation/public email listing. The S01 acceptance contract is invitation-only and the epic excludes an operator screen, so removed the old registration form/API and rewrote integration expectations; focused real-PostgreSQL/browser tests now pass (11/11).
 
 - 2026-11-10T23:49:00Z — Aligned the operator UI unit tests with the retired registration form. The two affected legacy tests were the only failures in the full-coverage run; build/typecheck/lint passed, and the 11 focused mentor/role integration tests now pass.
+
+- 2026-11-10T23:47:00Z — Made GitHub IDs unique per integration run after repeat execution against the documented persistent database exposed collisions in old auth-callback fixtures; no existing DB data was removed.
