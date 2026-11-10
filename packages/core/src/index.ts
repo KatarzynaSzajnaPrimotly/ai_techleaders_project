@@ -21,6 +21,7 @@ export {
 export { parseWithSchema, readJsonBody } from "./http/validate";
 export { signPurposeToken, verifyPurposeToken, type PurposeToken } from "./http/tokens";
 export { absoluteUrl } from "./config/absolute-url";
+export { RESERVED_SLUGS, slugify, uniqueSlug } from "./domain/slug";
 export { getGithubConfig, type GithubConfig } from "./config/github";
 export { enforceAccess, type Access, type CurrentSessionResolver } from "./http/access";
 export {
@@ -85,3 +86,6 @@ export {
 } from "./services/auth/oauth-state";
 
 export { mentorCreateSchema, type MentorCreateInput } from "./validators";
+export type { MentorProfileOwnerDto, MentorProfilePublicDto, MentorProfileUpdate } from "./services/mentors/mentor-profile.types";
+export { MENTOR_STACK_TAGS } from "./services/mentors/mentor-profile.types";
+export { mentorProfileUpdateSchema, type MentorProfileUpdate as MentorProfileUpdateInput } from "./validators/mentors/mentor-profile.schema";

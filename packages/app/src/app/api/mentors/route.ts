@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const { GET, POST } = makeCrudRoute({
   access: { roles: ["operator"] },
   resolveCurrentSession,
-  list: () => withScope(({ mentorService }) => mentorService.list()),
+  list: () => withScope(({ mentorService }) => mentorService.listPublishedProfiles()),
   create: {
     schema: mentorCreateSchema,
     run: (input) => withScope(({ mentorService }) => mentorService.register(input)),

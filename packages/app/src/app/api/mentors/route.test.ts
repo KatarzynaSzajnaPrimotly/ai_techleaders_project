@@ -4,11 +4,11 @@ vi.hoisted(() => {
   process.env.LOG_LEVEL = "silent";
 });
 
-const mocks = vi.hoisted(() => ({ list: vi.fn(), register: vi.fn() }));
+const mocks = vi.hoisted(() => ({ listPublishedProfiles: vi.fn(), register: vi.fn() }));
 
 vi.mock("../../../server/container", () => ({
   withScope: (run: (cradle: unknown) => Promise<unknown>) =>
-    run({ mentorService: { list: mocks.list, register: mocks.register } }),
+  run({ mentorService: { listPublishedProfiles: mocks.listPublishedProfiles, register: mocks.register } }),
 }));
 vi.mock("../../../server/current-session", () => ({ resolveCurrentSession: async (session: unknown) => session }));
 
@@ -36,7 +36,7 @@ beforeEach(async () => {
   sessions.mentee = await signSession({ userId: "mentee-1", role: "mentee", sessionVersion: 0 }, JWT_SECRET);
   sessions.mentor = await signSession({ userId: "mentor-1", role: "mentor", sessionVersion: 0 }, JWT_SECRET);
   sessions.operator = await signSession({ userId: "operator-1", role: "operator", sessionVersion: 0 }, JWT_SECRET);
-  mocks.list.mockReset();
+  mocks.listPublishedProfiles.mockReset();
   mocks.register.mockReset();
 });
 
@@ -48,11 +48,11 @@ describe("/api/mentors", () => {
   });
 
   describe("GET", () => {
-    it("lists mentors inside the success envelope", async () => {
-      mocks.list.mockResolvedValue([{ id: "1", name: "Ada" }]);
+    it("lists only published public profiles inside the success envelope", async () => {
+      mocks.listPublishedProfiles.mockResolvedValue([{ slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: [] }]);
       const response = await GET(new Request("http://localhost/api/mentors", { headers: authHeaders("operator") }), undefined);
       expect(response.status).toBe(200);
-      await expect(response.json()).resolves.toEqual({ ok: true, data: [{ id: "1", name: "Ada" }] });
+      await expect(response.json()).resolves.toEqual({ ok: true, data: [{ slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: [] }] });
     });
 
     it("requires an operator session", async () => {
@@ -62,7 +62,7 @@ describe("/api/mentors", () => {
       expect(anonymous.status).toBe(401);
       expect(mentee.status).toBe(403);
       expect(mentor.status).toBe(403);
-      expect(mocks.list).not.toHaveBeenCalled();
+      expect(mocks.listPublishedProfiles).not.toHaveBeenCalled();
     });
   });
 
