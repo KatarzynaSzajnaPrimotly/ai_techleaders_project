@@ -12,3 +12,7 @@
 
 ## 2026-11-10T21:05:00Z — executor delegation
 - Dispatched Luna executor 5df81da9 for the coupled S02 profile/public-page group (Steps 2.1–2.2); S03/S04 work remains serialized until its branch is validated.
+
+## 2026-11-10T21:10:00Z — progress update
+- Step 0.1 committed as e1f0f85; targeted tests (33/33), app typecheck, and production build passed. Local mailbox stores messages with 0700 directory / 0600 files; PR #61 remains a draft.
+- S02 executor 5df81da9 is still running. Asked founder A for the initial price bounds; S04 cannot start until answered.
