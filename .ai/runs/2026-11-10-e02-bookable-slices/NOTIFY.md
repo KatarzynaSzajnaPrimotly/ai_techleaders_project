@@ -27,3 +27,7 @@
 
 ## 2026-11-10T21:16:00Z — S02 re-delegated
 - Partial task 5df81da9 was not accepted. Dispatched task bbe8d7d2 on the parent branch to complete S02 with the missing integration, projection, slug retry, route and UI coverage; sent clarification because shell quoting stripped inline paths from its order.
+
+## 2026-11-10T21:20:00Z — partial branch update
+- Task 5df81da9 added follow-up commits 1347a5f and 120f3ba after its partial report (slug retry / error handling and public DTO key allowlist test); its latest report still lacks route/UI test coverage and full integration evidence. Directed it to stop editing while task bbe8d7d2 completes S02 on the parent branch.
+- Integration environment blocker reported: Docker/Testcontainers unavailable.
