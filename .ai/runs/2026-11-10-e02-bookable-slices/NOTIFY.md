@@ -24,3 +24,6 @@
 ## 2026-11-10T21:15:00Z — executor settled partial
 - Task 5df81da9 pushed partial S02 commits to `cez/5df81da9`. Parent validation: app typecheck passed; focused service/entity tests passed 4/4. Not accepted/merged because new routes and UI lack tests, S02 integration coverage is absent, public projection allowlist is untested, and slug collision retry is incomplete.
 - S02 will be completed on the parent branch before S03 begins.
+
+## 2026-11-10T21:16:00Z — S02 re-delegated
+- Partial task 5df81da9 was not accepted. Dispatched task bbe8d7d2 on the parent branch to complete S02 with the missing integration, projection, slug retry, route and UI coverage; sent clarification because shell quoting stripped inline paths from its order.
