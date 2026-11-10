@@ -8,8 +8,9 @@ import { useFormCore, type FormCoreField } from "./useFormCore";
 
 export interface CrudField extends FormCoreField {
   label: string;
-  type?: "text" | "email" | "password" | "textarea" | "multiselect";
+  type?: "text" | "email" | "password" | "textarea" | "multiselect" | "datetime";
   placeholder?: string;
+  description?: string;
   options?: readonly { label: string; value: string }[];
   maxLength?: number;
 }
@@ -51,6 +52,8 @@ export function CrudForm<S extends z.ZodType>({
       {fields.map((field) => {
         const errors = fieldErrors[field.name] ?? serverFieldErrors[field.name];
         const errorId = `${field.name}-error`;
+        const descriptionId = `${field.name}-description`;
+        const describedBy = [field.description ? descriptionId : null, errors ? errorId : null].filter(Boolean).join(" ") || undefined;
         return (
           <div key={field.name} className="space-y-1.5">
             {field.type === "multiselect" ? (
@@ -59,7 +62,7 @@ export function CrudForm<S extends z.ZodType>({
               <label htmlFor={field.name} className="text-sm font-medium">{field.label}</label>
             )}
             {field.type === "multiselect" ? (
-              <fieldset aria-labelledby={`${field.name}-label`} aria-describedby={errors ? errorId : undefined}>
+              <fieldset aria-labelledby={`${field.name}-label`} aria-describedby={describedBy}>
                 <legend className="sr-only">{field.label}</legend>
                 <div className="flex flex-wrap gap-3">
                   {(field.options ?? []).map((option) => {
@@ -92,23 +95,24 @@ export function CrudForm<S extends z.ZodType>({
                 value={typeof values[field.name] === "string" ? values[field.name] as string : ""}
                 onChange={(event) => setValue(field.name, event.target.value)}
                 aria-invalid={errors ? true : undefined}
-                aria-describedby={errors ? errorId : undefined}
+                aria-describedby={describedBy}
                 className={cn("min-h-28 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", errors && "border-destructive")}
               />
             ) : (
               <input
                 id={field.name}
                 name={field.name}
-                type={field.type ?? "text"}
+                type={field.type === "datetime" ? "datetime-local" : field.type ?? "text"}
                 placeholder={field.placeholder}
                 maxLength={field.maxLength}
                 value={typeof values[field.name] === "string" ? values[field.name] as string : ""}
                 onChange={(event) => setValue(field.name, event.target.value)}
                 aria-invalid={errors ? true : undefined}
-                aria-describedby={errors ? errorId : undefined}
+                aria-describedby={describedBy}
                 className={cn("flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", errors && "border-destructive")}
               />
             )}
+            {field.description ? <p id={descriptionId} className="text-xs text-muted-foreground">{field.description}</p> : null}
             {errors ? (
               <p id={errorId} role="alert" className="text-xs text-destructive">
                 {errors.join(" ")}

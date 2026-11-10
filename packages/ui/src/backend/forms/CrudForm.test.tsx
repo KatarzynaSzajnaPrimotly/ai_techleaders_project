@@ -42,6 +42,19 @@ describe("CrudForm", () => {
     expect((screen.getByLabelText("Secret") as HTMLInputElement).type).toBe("password");
   });
 
+  it("renders a datetime-local input with its description", () => {
+    render(
+      <CrudForm
+        schema={z.object({ startsAt: z.string() })}
+        fields={[{ name: "startsAt", label: "Start time", type: "datetime", description: "Times use your local time zone." }]}
+        onSubmit={vi.fn()}
+      />,
+    );
+    expect((screen.getByLabelText("Start time") as HTMLInputElement).type).toBe("datetime-local");
+    expect(screen.getByText("Times use your local time zone.")).toBeDefined();
+    expect(screen.getByLabelText("Start time").getAttribute("aria-describedby")).toBe("startsAt-description");
+  });
+
   it("renders a textarea and a multi-select from initial values and submits selected options", async () => {
     const onSubmit = vi.fn().mockResolvedValue(success);
     render(
