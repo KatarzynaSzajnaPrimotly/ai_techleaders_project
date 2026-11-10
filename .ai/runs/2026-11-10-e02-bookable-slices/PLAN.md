@@ -5,7 +5,8 @@
 | Phase | Step | Title | Exec | Status | Commit |
 |---|---|---|---|---|---|
 | QA | 0.1 | Local mail capture and invitation CLI reliability | inline | done | e1f0f85 |
-| QA | 0.2 | Remove legacy direct mentor registration that bypassed invitations | inline | done | this commit |
+| QA | 0.2 | Remove legacy direct mentor registration that bypassed invitations | inline | done | 60fa44f |
+| QA | 0.3 | Align operator-screen tests with invitation-only mentor creation | inline | done | this commit |
 | S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | done | 4892401 |
 | S02 | 2.2 | Profile editor, public mentor page and integration coverage | group:mentor-profile | done | a414b5e |
 | S02 | 2.3 | Render share link without effect-driven state | inline | done | 7156008 |

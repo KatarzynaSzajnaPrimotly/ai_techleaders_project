@@ -51,43 +51,14 @@ describe("AdminMentors", () => {
     expect(mocks.apiCall).toHaveBeenCalledTimes(2);
   });
 
-  it("creates a mentor through the shared schema and reloads the list", async () => {
-    const created = { id: "3", name: "Linus T", email: "linus@example.com", createdAt: "2026-10-21T09:00:00.000Z" };
-    mocks.apiCall
-      .mockResolvedValueOnce(listOk([]))
-      .mockResolvedValueOnce({ ok: true, status: 201, data: created })
-      .mockResolvedValueOnce(listOk([]));
+  it("keeps mentor creation out of the operator screen", async () => {
+    mocks.apiCall.mockResolvedValue(listOk([]));
     render(<AdminMentors />);
     await screen.findByText("No mentor has published a page yet.");
-
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "  Linus T " } });
-    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "LINUS@example.com" } });
-    fireEvent.click(screen.getByRole("button", { name: "Add mentor" }));
-
-    expect(await screen.findByText("No mentor has published a page yet.")).toBeDefined();
-    expect(mocks.apiCall).toHaveBeenNthCalledWith(2, "/api/mentors", {
-      method: "POST",
-      body: { name: "Linus T", email: "linus@example.com" },
-    });
-  });
-
-  it("validates before sending and shows server errors from the API", async () => {
-    mocks.apiCall.mockResolvedValueOnce(listOk([])).mockResolvedValueOnce({
-      ok: false,
-      status: 409,
-      error: { code: "CONFLICT", message: "A mentor with email ada@example.com already exists" },
-    });
-    render(<AdminMentors />);
-    await screen.findByText("No mentor has published a page yet.");
-
-    fireEvent.click(screen.getByRole("button", { name: "Add mentor" }));
-    expect(screen.getByText("Name is required")).toBeDefined();
+    expect(screen.queryByLabelText("Name")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Add mentor" })).toBeNull();
     expect(mocks.apiCall).toHaveBeenCalledTimes(1);
-
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Ada" } });
-    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ada@example.com" } });
-    fireEvent.click(screen.getByRole("button", { name: "Add mentor" }));
-    expect(await screen.findByText("A mentor with email ada@example.com already exists")).toBeDefined();
+    expect(mocks.apiCall).toHaveBeenCalledWith("/api/mentors");
   });
 
   it("ignores a response that arrives after the component unmounted", async () => {

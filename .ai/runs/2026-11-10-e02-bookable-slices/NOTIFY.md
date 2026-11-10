@@ -44,3 +44,5 @@
 - 2026-11-10T23:40:00Z — Cez S03 delegation `ee2ae060` was rejected: it was based before S02 and contained no compatible implementation. Continued on the stacked PR branch; the missing owner-only CSRF-protected DELETE slot route and unit coverage are committed as planned Step 3.5.
 
 - 2026-11-10T23:46:00Z — Full integration exposed four legacy assertions for direct mentor creation/public email listing. The S01 acceptance contract is invitation-only and the epic excludes an operator screen, so removed the old registration form/API and rewrote integration expectations; focused real-PostgreSQL/browser tests now pass (11/11).
+
+- 2026-11-10T23:49:00Z — Aligned the operator UI unit tests with the retired registration form. The two affected legacy tests were the only failures in the full-coverage run; build/typecheck/lint passed, and the 11 focused mentor/role integration tests now pass.
