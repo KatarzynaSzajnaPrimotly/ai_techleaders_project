@@ -8,6 +8,7 @@
 | S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | done | 4892401 |
 | S02 | 2.2 | Profile editor, public mentor page and integration coverage | group:mentor-profile | done | a414b5e |
 | S02 | 2.3 | Render share link without effect-driven state | inline | done | 7156008 |
+| S02 | 2.4 | Cover unexpected database flush errors | inline | done | pending |
 | S03 | 3.1 | Availability slot model, service, API and integration coverage | group:availability | todo | — |
 | S03 | 3.2 | Mentor slot editor and public availability display | group:availability | todo | — |
 | S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | blocked | — |

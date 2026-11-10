@@ -68,6 +68,12 @@ describe("createMentorRepository", () => {
     expect(em.flush).toHaveBeenCalledTimes(1);
   });
 
+  it("rethrows a flush error without a database code unchanged", async () => {
+    const failure = new Error("unexpected");
+    const em = createEm({ create: vi.fn().mockReturnValue({}), flush: vi.fn().mockRejectedValue(failure) });
+    await expect(createMentorRepository(asEm(em)).create({ name: "Ada", email: "a@b.co" })).rejects.toBe(failure);
+  });
+
   it("translates a PostgreSQL unique violation into a domain error", async () => {
     const em = createEm({
       create: vi.fn().mockReturnValue({}),
