@@ -31,3 +31,6 @@
 ## 2026-11-10T21:20:00Z — partial branch update
 - Task 5df81da9 added follow-up commits 1347a5f and 120f3ba after its partial report (slug retry / error handling and public DTO key allowlist test); its latest report still lacks route/UI test coverage and full integration evidence. Directed it to stop editing while task bbe8d7d2 completes S02 on the parent branch.
 - Integration environment blocker reported: Docker/Testcontainers unavailable.
+
+## 2026-11-10T22:14:00Z — checkpoint 1 (Steps 2.1–2.3)
+- S02 focused checks and production build pass; full coverage, integration runtime and one public-route lint error remain blockers. Desktop and 320px browser screenshots saved. Two disjoint Luna tasks are active: S03 implementation (`ee2ae060`) and test-only coverage repair (`ca8e3a51`). Price story approves PLN bounds, but the epic architecture spec conflicts and needs reconciliation before S04.

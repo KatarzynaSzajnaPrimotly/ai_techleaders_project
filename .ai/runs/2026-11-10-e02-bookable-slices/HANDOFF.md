@@ -1,28 +1,30 @@
 # Handoff — 2026-11-10-e02-bookable-slices
 
-**Last updated:** 2026-11-10T21:20:00Z
+**Last updated:** 2026-11-10T22:14:00Z
 **Branch:** feat/e02-bookable-slices
 **PR:** https://github.com/KatarzynaSzajnaPrimotly/ai_techleaders_project/pull/61
-**Current phase/step:** S02 Steps 2.1–2.2 re-delegated to task bbe8d7d2
-**Last commit:** 2c93d46 — docs(runs): log E02-S02 executor dispatch
+**Current phase/step:** S02 complete in code; checkpoint 1 blocked; S03 3.1 is delegated
+**Last commit:** 7156008 — fix(mentors): make share link rendering lint safe
 
 ## What just happened
-- Confirmed PR #60 is open on `feat/e02-s01-invitations`; current branch tip matches its head.
-- Drafted the execution plan; Step 0.1 local mail capture/invite CLI reliability is committed and the local QA app is running on port 33259.
-- Opened stacked draft PR #61 on PR #60, claimed it, and posted progress to issue #8.
-- Task 5df81da9 delivered a partial S02 patch and pushed its branch. Parent review found the implementation incomplete: no route/UI/integration coverage, missing projection equality checks, and slug uniqueness does not retry as required.
+- S02 profile persistence/API, editor, public page and focused tests are implemented in commits 4892401, a414b5e and 7156008.
+- Typecheck, focused S02 tests, production build (`NODE_ENV=production`) and saved desktop/320px browser smoke passed.
+- Full coverage has 893 passing tests but is below its configured 100% threshold; integration could not start because Testcontainers has no runtime; public mentor page lint error remains.
+- Dispatched the S03 availability implementation to a Luna executor; it was asked to fix the public-route lint error as part of its route work. A separate test-only task is covering disjoint global coverage gaps.
 
 ## Next concrete action
-- Reimplement/finish S02 against issue #40 and the epic contract; then validate before proceeding with S03.
+- Re-check S03 task `ee2ae060` and coverage task `ca8e3a51`; validate their diffs and results before merging. Then rerun the complete checkpoint gate.
 
 ## Blockers / open questions
-- Initial min/max price bounds in EUR for 25- and 50-minute sessions requested from founder A; Slice 4 remains blocked until supplied.
-- Story specs for availability and prices are not present locally; use epic spec and GitHub issues #41/#42 as source.
+- Testcontainers runtime is unavailable in this environment; determine whether CI can provide the full integration run.
+- Global coverage is below 100%; do not mark the gate green.
+- `2026-09-08-mentor-prices.md` records approved PLN bounds, while the epic architecture spec still says USD/bounds require founder approval. Resolve this source conflict before S04.
+- Issue #8 is closed (P04); progress can still be reported there as explicitly requested.
 
 ## Environment caveats
-- Dev runtime runnable: yes, local QA database and test app are available.
-- Browser / UI checks: enabled with agent-browser and the forwarded port 33259.
-- Database/migration state: local devmentor database; do not start/stop PostgreSQL.
+- Dev runtime runnable: yes; local app/database are reused, and PostgreSQL must not be started, dropped or stopped.
+- Browser / UI checks: enabled; desktop and 320px screenshots are in `checkpoint-1-artifacts/`.
+- Database/migration state: local devmentor database; test migration snapshot has uncommitted local drift and must not be staged.
 
 ## Worktree
 - Path: /tmp/e02-implementation
