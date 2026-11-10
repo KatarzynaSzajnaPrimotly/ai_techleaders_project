@@ -4,6 +4,7 @@ import {
   InvitationService,
   logger,
   MentorService,
+  AvailabilityService,
   PasswordAuthService,
   createLogMailerAdapter,
   createMemoryRateLimiter,
@@ -15,12 +16,13 @@ import {
   type MailerPort,
   type PasswordHasherPort,
   type MentorRepositoryPort,
+  type AvailabilityRepositoryPort,
   type RateLimiterPort,
   type UserRepositoryPort,
   type InvitationRepositoryPort,
   type InvitationEventPublisherPort,
 } from "@devmentor/core";
-import { createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
+import { createAvailabilityRepository, createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
 import { createLocalFileMailer } from "./local-file-mailer";
 
 export interface Cradle {
@@ -28,6 +30,8 @@ export interface Cradle {
   em: Orm["em"];
   mentorRepository: MentorRepositoryPort;
   mentorService: MentorService;
+  availabilityRepository: AvailabilityRepositoryPort;
+  availabilityService: AvailabilityService;
   userRepository: UserRepositoryPort;
   invitationRepository: InvitationRepositoryPort;
   invitationEvents: InvitationEventPublisherPort;
@@ -96,6 +100,8 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     em: asFunction(({ orm }: Cradle) => orm.em.fork()).scoped(),
     mentorRepository: asFunction(({ em }: Cradle) => createMentorRepository(em)).scoped(),
     mentorService: asClass(MentorService).scoped(),
+    availabilityRepository: asFunction(({ em }: Cradle) => createAvailabilityRepository(em)).scoped(),
+    availabilityService: asClass(AvailabilityService).scoped(),
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
     invitationRepository: asFunction(({ em }: Cradle) => createInvitationRepository(em)).scoped(),
     invitationEvents: asFunction((): InvitationEventPublisherPort => ({

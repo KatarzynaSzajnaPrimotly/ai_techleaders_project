@@ -38,7 +38,7 @@ describe("mentor profile integration", () => {
     const response = await fetch(new URL(`/api/mentors/${slug}`, baseUrl));
     expect(response.status).toBe(200);
     const body = await response.json() as { data: Record<string, unknown> };
-    expect(Object.keys(body.data).sort()).toEqual(["bio", "displayName", "publicWorkUrl", "slug", "stackTags"]);
+    expect(Object.keys(body.data).sort()).toEqual(["bio", "displayName", "publicWorkUrl", "slots", "slug", "stackTags"]);
     expect(body.data).toMatchObject({ slug, publicWorkUrl: "https://example.test/work", bio: "I build reliable systems." });
     expect(JSON.stringify(body.data)).not.toContain("private-channel@example.test");
     const publicPage = await fetch(new URL(`/m/${slug}`, baseUrl));
@@ -75,5 +75,46 @@ describe("mentor profile integration", () => {
     expect(responses.map((response) => response.status)).toEqual([200, 200]);
     const slugs = await Promise.all(responses.map(async (response) => (await response.json() as { data: { slug: string } }).data.slug));
     expect(new Set(slugs).size).toBe(2);
+  });
+
+  it("publishes, lists and removes availability while keeping the public projection private", async () => {
+    const user = await createUser({ email: `slots-${unique}@example.test`, role: "mentor", displayName: `Slot Mentor ${unique}` }, databaseUrl);
+    await seedProfile(user.id);
+    const token = await mintSessionCookie({ userId: user.id, role: "mentor", roles: ["mentor"] }, jwtSecret);
+    const headers = { ...csrf, cookie: `${SESSION_COOKIE}=${token}` };
+    const startsAt = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+
+    const missingChannel = await fetch(new URL("/api/availability/slots", baseUrl), { method: "POST", headers, body: JSON.stringify({ startsAt }) });
+    expect(missingChannel.status).toBe(400);
+    expect(await missingChannel.json()).toMatchObject({ error: { fieldErrors: { sessionChannel: [expect.any(String)] } } });
+
+    const draft = await fetch(new URL("/api/mentors/me", baseUrl), { method: "PUT", headers, body: JSON.stringify({ publicWorkUrl: "https://example.test/work", bio: "Mentor", sessionChannel: "Private mentor room" }) });
+    expect(draft.status).toBe(200);
+    const published = await fetch(new URL("/api/mentors/me/publish", baseUrl), { method: "POST", headers, body: "{}" });
+    const slug = (await published.json() as { data: { slug: string } }).data.slug;
+
+    const created = await fetch(new URL("/api/availability/slots", baseUrl), { method: "POST", headers, body: JSON.stringify({ startsAt }) });
+    expect(created.status).toBe(200);
+    const slot = (await created.json() as { data: { id: string; startsAt: string } }).data;
+    const listed = await fetch(new URL("/api/availability/slots", baseUrl), { headers: { cookie: headers.cookie } });
+    expect(await listed.json()).toMatchObject({ data: [{ id: slot.id, startsAt }] });
+
+    const publicResponse = await fetch(new URL(`/api/mentors/${slug}`, baseUrl));
+    const publicBody = await publicResponse.json() as { data: Record<string, unknown> & { slots: Array<{ id: string; meetsLeadTime: boolean }> } };
+    expect(publicBody.data.slots).toEqual([{ id: slot.id, startsAt: expect.any(String), meetsLeadTime: true }]);
+    expect(JSON.stringify(publicBody.data)).not.toContain("Private mentor room");
+    const publicPage = await fetch(new URL(`/m/${slug}`, baseUrl));
+    expect(await publicPage.text()).toContain("Availability");
+
+    const duplicate = await fetch(new URL("/api/availability/slots", baseUrl), { method: "POST", headers, body: JSON.stringify({ startsAt }) });
+    expect(duplicate.status).toBe(409);
+    const removed = await fetch(new URL(`/api/availability/slots/${slot.id}`, baseUrl), { method: "DELETE", headers });
+    expect(removed.status).toBe(200);
+    expect((await (await fetch(new URL(`/api/mentors/${slug}`, baseUrl))).json() as { data: { slots: unknown[] } }).data.slots).toEqual([]);
+
+    const republished = await fetch(new URL("/api/availability/slots", baseUrl), { method: "POST", headers, body: JSON.stringify({ startsAt }) });
+    expect(republished.status).toBe(200);
+    const owner = await fetch(new URL("/api/mentors/me", baseUrl), { headers: { cookie: headers.cookie } });
+    expect((await owner.json() as { data: { lastPublishedAvailabilityAt: string | null } }).data.lastPublishedAvailabilityAt).not.toBeNull();
   });
 });

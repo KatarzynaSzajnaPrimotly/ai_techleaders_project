@@ -14,6 +14,7 @@ export const MentorProfileSchema = new EntitySchema<MentorProfile>({
     sessionChannel: { type: "string", fieldName: "session_channel", columnType: "text", nullable: true },
     stackTags: { type: Array, fieldName: "stack_tags", columnType: "text[]", defaultRaw: "'{}'::text[]" },
     publishedAt: { type: "Date", fieldName: "published_at", columnType: "timestamptz", nullable: true },
+    lastPublishedAvailabilityAt: { type: "Date", fieldName: "last_published_availability_at", columnType: "timestamptz", nullable: true },
     createdAt: { type: "Date", fieldName: "created_at", columnType: "timestamptz", defaultRaw: "now()" },
     updatedAt: { type: "Date", fieldName: "updated_at", columnType: "timestamptz", defaultRaw: "now()" },
   },

@@ -25,7 +25,7 @@ export class MentorService {
   async profile(userId: string): Promise<MentorProfileOwnerDto> {
     const profile = await this.mentorRepository.findProfileByUserId(userId);
     if (!profile) throw new NotFoundError("Mentor profile not found");
-    return { id: profile.id, publicWorkUrl: profile.publicWorkUrl ?? null, bio: profile.bio ?? null, sessionChannel: profile.sessionChannel ?? null, stackTags: profile.stackTags ?? [], slug: profile.slug ?? null, publishedAt: profile.publishedAt ?? null, readiness: { publicWorkUrl: Boolean(profile.publicWorkUrl), bio: Boolean(profile.bio?.trim()), sessionChannel: Boolean(profile.sessionChannel?.trim()) } };
+    return { id: profile.id, publicWorkUrl: profile.publicWorkUrl ?? null, bio: profile.bio ?? null, sessionChannel: profile.sessionChannel ?? null, stackTags: profile.stackTags ?? [], slug: profile.slug ?? null, publishedAt: profile.publishedAt ?? null, lastPublishedAvailabilityAt: profile.lastPublishedAvailabilityAt ?? null, readiness: { publicWorkUrl: Boolean(profile.publicWorkUrl), bio: Boolean(profile.bio?.trim()), sessionChannel: Boolean(profile.sessionChannel?.trim()) } };
   }
   async updateProfile(userId: string, input: MentorProfileUpdate): Promise<MentorProfileOwnerDto> { await this.mentorRepository.updateProfile(userId, { ...input, publicWorkUrl: input.publicWorkUrl === "" ? null : input.publicWorkUrl, sessionChannel: input.sessionChannel === "" ? null : input.sessionChannel }); return this.profile(userId); }
   async publishProfile(userId: string): Promise<MentorProfileOwnerDto> { await this.mentorRepository.publishProfile(userId); return this.profile(userId); }

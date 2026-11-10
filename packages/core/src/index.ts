@@ -57,6 +57,9 @@ export type { InvitationAcceptedEvent, InvitationEventPublisherPort } from "./se
 export { InvitationService, INVITATION_INVALID_MESSAGE, INVITATION_STACK_TAGS, type AcceptedInvitation, type CreatedInvitation, type PublicInvitation } from "./services/invitations/invitation.service";
 export type { MentorRepositoryPort } from "./services/mentors/mentor-repository.port";
 export { MentorService } from "./services/mentors/mentor.service";
+export { AvailabilityService } from "./services/availability/availability.service";
+export type { AvailabilityRepositoryPort } from "./services/availability/availability-repository.port";
+export type { Slot, MentorSlotDto, PublicMentorSlotDto, StoredMentorSlot } from "./services/availability/slot.types";
 export type { User, NewUser, StoredRole, PasswordAuthAccount, LoginAccount, ExistingAccountLookup, NewPasswordAccount } from "./services/auth/user.types";
 export type { UserRepositoryPort } from "./services/auth/user-repository.port";
 export { effectiveRole, issueSession, type IssuedSession } from "./services/auth/session-issuer";
@@ -89,3 +92,4 @@ export { mentorCreateSchema, type MentorCreateInput } from "./validators";
 export type { MentorProfileOwnerDto, MentorProfilePublicDto, MentorProfileUpdate } from "./services/mentors/mentor-profile.types";
 export { MENTOR_STACK_TAGS } from "./services/mentors/mentor-profile.types";
 export { mentorProfileUpdateSchema, type MentorProfileUpdate as MentorProfileUpdateInput } from "./validators/mentors/mentor-profile.schema";
+export { slotCreateSchema, slotIdSchema, type SlotCreateInput } from "./validators/availability/slot-create.schema";

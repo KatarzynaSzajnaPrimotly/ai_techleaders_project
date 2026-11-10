@@ -4,7 +4,7 @@ export interface MentorProfileUpdate { publicWorkUrl?: string | null; bio?: stri
 export interface MentorProfile {
   id: string; userId: string; initialPublishDueAt: Date | null;
   publicWorkUrl?: string | null; bio?: string | null; sessionChannel?: string | null; stackTags?: string[];
-  slug?: string | null; publishedAt?: Date | null; createdAt: Date; updatedAt: Date;
+  slug?: string | null; publishedAt?: Date | null; lastPublishedAvailabilityAt?: Date | null; createdAt: Date; updatedAt: Date;
 }
-export interface MentorProfileOwnerDto { id: string; publicWorkUrl: string | null; bio: string | null; sessionChannel: string | null; stackTags: string[]; slug: string | null; publishedAt: Date | null; readiness: { publicWorkUrl: boolean; bio: boolean; sessionChannel: boolean } }
+export interface MentorProfileOwnerDto { id: string; publicWorkUrl: string | null; bio: string | null; sessionChannel: string | null; stackTags: string[]; slug: string | null; publishedAt: Date | null; lastPublishedAvailabilityAt: Date | null; readiness: { publicWorkUrl: boolean; bio: boolean; sessionChannel: boolean } }
 export interface MentorProfilePublicDto { slug: string; displayName: string; publicWorkUrl: string; bio: string; stackTags: string[] }
