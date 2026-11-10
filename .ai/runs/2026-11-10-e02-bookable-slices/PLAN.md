@@ -6,7 +6,7 @@
 |---|---|---|---|---|---|
 | QA | 0.1 | Local mail capture and invitation CLI reliability | inline | done | e1f0f85 |
 | QA | 0.2 | Remove legacy direct mentor registration that bypassed invitations | inline | done | 60fa44f |
-| QA | 0.3 | Align operator-screen tests with invitation-only mentor creation | inline | done | this commit |
+| QA | 0.3 | Align operator-screen tests with invitation-only mentor creation | inline | done | 9db80f9 |
 | S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | done | 4892401 |
 | S02 | 2.2 | Profile editor, public mentor page and integration coverage | group:mentor-profile | done | a414b5e |
 | S02 | 2.3 | Render share link without effect-driven state | inline | done | 7156008 |
@@ -15,7 +15,7 @@
 | S03 | 3.2 | Mentor slot editor and public availability display | group:availability | done | 9fc073f |
 | S03 | 3.3 | Keep the availability entity in the ORM options contract test | inline | done | 2ac10cb |
 | S03 | 3.4 | Keep a slot visible when its removal is refused | inline | done | 9c6587e |
-| S03 | 3.5 | Add the owner-only, CSRF-protected slot removal route | inline | done | this commit |
+| S03 | 3.5 | Add the owner-only, CSRF-protected slot removal route | inline | done | 03a0cff |
 | S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | done | dbf8283 |
 | S04 | 4.2 | Price editor, public offer readiness and end-to-end coverage | group:prices | done | 27d6074 |
 | S04 | 4.3 | Close E02 unit coverage gaps exposed by the full gate | inline | done | c02d4b2 |
