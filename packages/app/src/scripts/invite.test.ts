@@ -108,6 +108,19 @@ describe("main", () => {
     expect(mocks.createOrm).not.toHaveBeenCalled();
   });
 
+  it("does not validate a public link when revoking an invitation", async () => {
+    const orm = { em: { fork: vi.fn(() => "entity-manager") }, close: vi.fn() };
+    const instance = { revoke: vi.fn().mockResolvedValue(undefined) };
+    mocks.createOrm.mockResolvedValue(orm);
+    mocks.createInvitationRepository.mockReturnValue("repository");
+    mocks.InvitationService.mockImplementation(function () { return instance; });
+    mocks.absoluteUrl.mockImplementation(() => { throw new Error("link configuration is unavailable"); });
+    await expect(main(["revoke", "--id", "inv-1", "--operator", "Founder A"])).resolves.toBeUndefined();
+    expect(mocks.absoluteUrl).not.toHaveBeenCalled();
+    expect(instance.revoke).toHaveBeenCalledWith("inv-1");
+    expect(orm.close).toHaveBeenCalledOnce();
+  });
+
   it("closes an initialized ORM if a command fails", async () => {
     const orm = { em: { fork: vi.fn() }, close: vi.fn() };
     mocks.createOrm.mockResolvedValue(orm);

@@ -8,13 +8,14 @@
 | S02 | 2.1 | Mentor profile domain, schema, persistence and API | group:mentor-profile | done | 4892401 |
 | S02 | 2.2 | Profile editor, public mentor page and integration coverage | group:mentor-profile | done | a414b5e |
 | S02 | 2.3 | Render share link without effect-driven state | inline | done | 7156008 |
-| S02 | 2.4 | Cover unexpected database flush errors | inline | done | pending |
+| S02 | 2.4 | Cover unexpected database flush errors | inline | done | e55b5d2 |
 | S03 | 3.1 | Availability slot model, service, API and integration coverage | group:availability | done | 55f563f |
-| S03 | 3.2 | Mentor slot editor and public availability display | group:availability | done | pending |
-| S03 | 3.3 | Keep the availability entity in the ORM options contract test | inline | done | pending |
-| S03 | 3.4 | Keep a slot visible when its removal is refused | inline | done | pending |
-| S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | done | pending |
-| S04 | 4.2 | Price editor, public offer readiness and end-to-end coverage | group:prices | blocked | — |
+| S03 | 3.2 | Mentor slot editor and public availability display | group:availability | done | 9fc073f |
+| S03 | 3.3 | Keep the availability entity in the ORM options contract test | inline | done | 2ac10cb |
+| S03 | 3.4 | Keep a slot visible when its removal is refused | inline | done | 9c6587e |
+| S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | done | dbf8283 |
+| S04 | 4.2 | Price editor, public offer readiness and end-to-end coverage | group:prices | done | 27d6074 |
+| S04 | 4.3 | Close E02 unit coverage gaps exposed by the full gate | inline | done | pending |
 
 ## Goal
 Implement E02-S02, E02-S03 and E02-S04 from `.ai/specs/2026-09-08-mentors-become-bookable.md`, building on E02-S01 in PR #60. Keep the user-facing flows aligned with `.ai/specs/2026-09-09-e02-design-handoff.md` and the existing Storybook component patterns. Deliver a stacked draft PR based on `feat/e02-s01-invitations`, with progress reported to issue #8 as requested.

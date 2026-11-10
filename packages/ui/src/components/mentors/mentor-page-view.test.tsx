@@ -42,4 +42,13 @@ describe("MentorPageView", () => {
     expect(screen.getByText("25 minutes: 125.50 EUR")).toBeDefined();
     expect(screen.getByText("50 minutes: 260.00 EUR")).toBeDefined();
   });
+
+  it("marks a published time as not bookable until prices and a session channel are ready", () => {
+    render(<MentorPageView profile={{
+      slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: [],
+      prices: null, isBookable: false,
+    }} slots={[{ id: "slot-1", startsAt: "2026-11-23T18:00:00.000Z", meetsLeadTime: true }]} />);
+    expect(screen.getByText("Not bookable yet.", { selector: "p" })).toBeDefined();
+    expect(screen.getByText("Not bookable yet", { selector: "span" })).toBeDefined();
+  });
 });

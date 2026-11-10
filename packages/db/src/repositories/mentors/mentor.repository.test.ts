@@ -16,6 +16,110 @@ function createEm(overrides: Record<string, unknown> = {}) {
 const asEm = (em: ReturnType<typeof createEm>) => em as unknown as Parameters<typeof createMentorRepository>[0];
 
 describe("createMentorRepository", () => {
+  it("finds profiles by user id", async () => {
+    const profile = { id: "p1", userId: "u1" };
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(profile) });
+    await expect(createMentorRepository(asEm(em)).findProfileByUserId("u1")).resolves.toBe(profile);
+    expect(em.findOne).toHaveBeenCalledWith("MentorProfile", { userId: "u1" });
+  });
+
+  it("omits incomplete public list rows and defaults missing tags", async () => {
+    const em = createEm({ find: vi.fn()
+      .mockResolvedValueOnce([
+        { userId: "u1", slug: null, publicWorkUrl: "url", bio: "bio" },
+        { userId: "u2", slug: "two", publicWorkUrl: null, bio: "bio" },
+        { userId: "u3", slug: "three", publicWorkUrl: "url", bio: "" },
+        { userId: "u4", slug: "four", publicWorkUrl: "url", bio: "bio", stackTags: null },
+      ])
+      .mockResolvedValueOnce([]) });
+    await expect(createMentorRepository(asEm(em)).findPublishedProfiles()).resolves.toEqual([
+      { slug: "four", displayName: "Mentor", publicWorkUrl: "url", bio: "bio", stackTags: [] },
+    ]);
+  });
+
+  it("updates a profile and rejects a missing profile", async () => {
+    const profile = { id: "p1", userId: "u1", bio: "old" };
+    const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(profile).mockResolvedValueOnce(null), flush: vi.fn() });
+    await expect(createMentorRepository(asEm(em)).updateProfile("u1", { bio: "new" })).resolves.toMatchObject({ bio: "new", updatedAt: expect.any(Date) });
+    await expect(createMentorRepository(asEm(em)).updateProfile("u2", { bio: "new" })).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("rejects missing price profiles and propagates flush failures", async () => {
+    const missing = createEm({ findOne: vi.fn().mockResolvedValue(null) });
+    await expect(createMentorRepository(asEm(missing)).updatePrices("u1", 1, 2)).rejects.toMatchObject({ status: 404 });
+    const failure = new Error("flush failed");
+    const profile = { userId: "u1" };
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(profile), flush: vi.fn().mockRejectedValue(failure) });
+    await expect(createMentorRepository(asEm(em)).updatePrices("u1", 1, 2)).rejects.toBe(failure);
+  });
+
+  it("unpublishes a profile and rejects missing profiles", async () => {
+    const profile = { userId: "u1", publishedAt: new Date() };
+    const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(profile).mockResolvedValueOnce(null) });
+    await expect(createMentorRepository(asEm(em)).unpublishProfile("u1")).resolves.toMatchObject({ publishedAt: null });
+    await expect(createMentorRepository(asEm(em)).unpublishProfile("u2")).rejects.toMatchObject({ status: 404 });
+  });
+
+  it.each([
+    [{ bio: "Builder" }, { publicWorkUrl: ["Add a link to your public work before publishing"] }],
+    [{ publicWorkUrl: "https://example.test" }, { bio: ["Add a description before publishing"] }],
+    [{ publicWorkUrl: "", bio: " " }, { publicWorkUrl: ["Add a link to your public work before publishing"], bio: ["Add a description before publishing"] }],
+  ])("refuses to publish an incomplete profile", async (profileData, fieldErrors) => {
+    const tx = createEm({ findOne: vi.fn().mockResolvedValue({ userId: "u1", ...profileData }) });
+    const em = createEm({ findOne: vi.fn().mockResolvedValue({ id: "u1", displayName: "Ada" }) });
+    em.transactional.mockImplementation(async (run) => run(tx as never));
+    await expect(createMentorRepository(asEm(em)).publishProfile("u1")).rejects.toMatchObject({ status: 400, fieldErrors });
+  });
+
+  it("requires an existing profile when publishing", async () => {
+    const tx = createEm({ findOne: vi.fn().mockResolvedValue(null) });
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(null) });
+    em.transactional.mockImplementation(async (run) => run(tx as never));
+    await expect(createMentorRepository(asEm(em)).publishProfile("missing")).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("keeps a previously allocated slug stable when republishing", async () => {
+    const profile = { userId: "u1", slug: "ada", publishedAt: null, publicWorkUrl: "https://example.test", bio: "Engineer" };
+    const tx = createEm({ findOne: vi.fn().mockResolvedValue(profile), flush: vi.fn().mockResolvedValue(undefined) });
+    const em = createEm({ findOne: vi.fn().mockResolvedValue({ id: "u1", displayName: "New Name" }) });
+    em.transactional.mockImplementation(async (run) => run(tx as never));
+    await expect(createMentorRepository(asEm(em)).publishProfile("u1")).resolves.toMatchObject({ slug: "ada", publishedAt: expect.any(Date) });
+    expect(tx.findOne).toHaveBeenCalledTimes(1);
+    expect(tx.flush).toHaveBeenCalledOnce();
+  });
+
+  it("allocates a unique slug after a candidate collision", async () => {
+    const profile = { userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer" };
+    const tx = createEm({ findOne: vi.fn()
+      .mockResolvedValueOnce(profile).mockResolvedValueOnce({ id: "collision" })
+      .mockResolvedValueOnce(profile).mockResolvedValueOnce(null), flush: vi.fn().mockResolvedValue(undefined) });
+    const em = createEm({ findOne: vi.fn().mockResolvedValue({ id: "u1", displayName: "Ada" }) });
+    em.transactional.mockImplementation(async (run) => run(tx as never));
+    await expect(createMentorRepository(asEm(em)).publishProfile("u1")).resolves.toMatchObject({ slug: "ada-2", publishedAt: expect.any(Date) });
+    expect(tx.findOne).toHaveBeenCalledTimes(4);
+  });
+
+  it("retries a concurrent database slug collision", async () => {
+    const freshProfile = () => ({ userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer" });
+    const tx = createEm({ findOne: vi.fn()
+      .mockImplementation(async (_entity, where: Record<string, unknown>) => "userId" in where ? freshProfile() : null),
+      flush: vi.fn().mockRejectedValueOnce(Object.assign(new Error("duplicate"), { code: "23505", constraint: "mentor_profiles_slug_unique" })).mockResolvedValue(undefined) });
+    const em = createEm({ findOne: vi.fn().mockResolvedValue({ id: "u1", displayName: "Ada" }) });
+    em.transactional.mockImplementation(async (run) => run(tx as never));
+    await expect(createMentorRepository(asEm(em)).publishProfile("u1")).resolves.toMatchObject({ slug: "ada-2" });
+    expect(tx.findOne).toHaveBeenCalledTimes(4);
+    expect(tx.flush).toHaveBeenCalledTimes(2);
+  });
+
+  it("fails clearly when no unique slug is available", async () => {
+    const profile = { userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer" };
+    const tx = createEm({ findOne: vi.fn().mockImplementation(async (_entity, where: Record<string, unknown>) => "userId" in where ? profile : { id: "collision" }) });
+    const em = createEm({ findOne: vi.fn().mockResolvedValue({ id: "u1", displayName: "Ada" }) });
+    em.transactional.mockImplementation(async (run) => run(tx as never));
+    await expect(createMentorRepository(asEm(em)).publishProfile("u1")).rejects.toMatchObject({ status: 409, message: "Could not allocate a unique mentor link; retry publication" });
+    expect(tx.findOne).toHaveBeenCalledTimes(200);
+  });
+
   it("lists mentors ordered by creation date", async () => {
     const mentors = [{ id: "1" }];
     const em = createEm({ find: vi.fn().mockResolvedValue(mentors) });
@@ -69,6 +173,20 @@ describe("createMentorRepository", () => {
     const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(profile).mockResolvedValueOnce({ id: "private-owner", displayName: "Ada" }) });
     const result = await createMentorRepository(asEm(em)).findPublicProfile("ada");
     expect(result).toEqual({ slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Builder", stackTags: ["TypeScript"], sessionChannel: "private room", publishedAt: profile.publishedAt, price25Cents: null, price50Cents: null });
+  });
+
+  it("returns no public profile when unpublished or missing required fields and defaults the display name", async () => {
+    const incomplete = { userId: "u1", slug: "ada", publishedAt: new Date(), publicWorkUrl: null, bio: "Engineer" };
+    const missingUser = { userId: "u1", slug: "ada", publishedAt: new Date(), publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: null };
+    const em = createEm({ findOne: vi.fn()
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(incomplete)
+      .mockResolvedValueOnce(missingUser)
+      .mockResolvedValueOnce(null) });
+    const repository = createMentorRepository(asEm(em));
+    await expect(repository.findPublicProfile("missing")).resolves.toBeNull();
+    await expect(repository.findPublicProfile("incomplete")).resolves.toBeNull();
+    await expect(repository.findPublicProfile("ada")).resolves.toMatchObject({ displayName: "Mentor", stackTags: [], sessionChannel: null, price25Cents: null, price50Cents: null });
   });
 
   it("creates a mentor, stamping the creation date, and flushes", async () => {

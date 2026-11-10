@@ -62,12 +62,28 @@ describe("MentorService", () => {
     await expect(service.profile("missing")).rejects.toBeInstanceOf(NotFoundError);
   });
 
+  it("keeps a partially configured price pair explicit in the owner projection", async () => {
+    const { service, mentorRepository } = createService();
+    mentorRepository.findProfileByUserId.mockResolvedValue({ id: "p1", price25Cents: 2500, price50Cents: null });
+    await expect(service.profile("u1")).resolves.toMatchObject({ prices: { price25Cents: 2500, price50Cents: null, currency: "EUR" } });
+    mentorRepository.findProfileByUserId.mockResolvedValue({ id: "p1", price25Cents: null, price50Cents: 25000 });
+    await expect(service.profile("u1")).resolves.toMatchObject({ prices: { price25Cents: null, price50Cents: 25000, currency: "EUR" } });
+  });
+
   it("normalizes blank URL and channel fields before saving", async () => {
     const { service, mentorRepository } = createService();
     mentorRepository.updateProfile.mockResolvedValue(undefined);
     mentorRepository.findProfileByUserId.mockResolvedValue({ id: "p1", stackTags: [] });
     await service.updateProfile("u1", { publicWorkUrl: "", sessionChannel: "", stackTags: [] });
     expect(mentorRepository.updateProfile).toHaveBeenCalledWith("u1", { publicWorkUrl: null, sessionChannel: null, stackTags: [] });
+  });
+
+  it("preserves non-empty profile fields when updating", async () => {
+    const { service, mentorRepository } = createService();
+    mentorRepository.updateProfile.mockResolvedValue(undefined);
+    mentorRepository.findProfileByUserId.mockResolvedValue({ id: "p1", stackTags: [] });
+    await service.updateProfile("u1", { publicWorkUrl: "https://example.test", sessionChannel: "Meet", stackTags: [] });
+    expect(mentorRepository.updateProfile).toHaveBeenCalledWith("u1", { publicWorkUrl: "https://example.test", sessionChannel: "Meet", stackTags: [] });
   });
 
   it("runs publish and unpublish transitions and returns the owner profile", async () => {
@@ -98,6 +114,28 @@ describe("MentorService", () => {
       priceBounds: { p25: { minCents: 1000, maxCents: 60000 } },
     });
     expect(mentorRepository.updatePrices).toHaveBeenCalledWith("u1", 1000, 120000);
+  });
+
+  it("returns null price values if the repository has no persisted pair", async () => {
+    const { service, mentorRepository } = createService();
+    mentorRepository.updatePrices.mockResolvedValue({ id: "p1", price25Cents: null, price50Cents: null });
+    await expect(service.updatePrices("u1", { price25: "10", price50: "180" })).resolves.toMatchObject({
+      prices: { price25Cents: null, price50Cents: null, currency: "EUR" },
+    });
+  });
+
+  it("returns the owner's current prices and bounds, and rejects a missing profile", async () => {
+    const { service, mentorRepository, platformSettingsService } = createService();
+    mentorRepository.findProfileByUserId.mockResolvedValue({ id: "p1", price25Cents: 2500, price50Cents: 30000 });
+    await expect(service.priceConfiguration("u1")).resolves.toEqual({
+      prices: { price25Cents: 2500, price50Cents: 30000, currency: "EUR" },
+      priceBounds: { p25: { minCents: 1000, maxCents: 60000 }, p50: { minCents: 18000, maxCents: 120000 } },
+    });
+    mentorRepository.findProfileByUserId.mockResolvedValue({ id: "p1", price25Cents: null, price50Cents: null });
+    platformSettingsService.getOrNull.mockReturnValue(null);
+    await expect(service.priceConfiguration("u1")).resolves.toEqual({ prices: null, priceBounds: null });
+    mentorRepository.findProfileByUserId.mockResolvedValue(null);
+    await expect(service.priceConfiguration("missing")).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("rejects out-of-bound prices with the inclusive configured limits", async () => {
@@ -143,7 +181,10 @@ describe("MentorService", () => {
     expect(service.isBookable(profile)).toBe(true);
     expect(service.isBookable({ ...profile, sessionChannel: " " })).toBe(false);
     expect(service.isBookable({ ...profile, publishedAt: null })).toBe(false);
+    expect(service.isBookable({ ...profile, sessionChannel: null })).toBe(false);
     expect(service.isBookable({ ...profile, price25Cents: null })).toBe(false);
+    expect(service.isBookable({ ...profile, price50Cents: null })).toBe(false);
+    expect(service.isBookable({ ...profile, price25Cents: 999 })).toBe(false);
     expect(service.isBookable({ ...profile, price50Cents: 120001 })).toBe(false);
     platformSettingsService.getOrNull.mockReturnValue(null);
     expect(service.isBookable(profile)).toBe(false);
@@ -153,7 +194,17 @@ describe("MentorService", () => {
     const { service, mentorRepository } = createService();
     mentorRepository.findProfileById.mockResolvedValue({ id: "p1", publishedAt: new Date(1), sessionChannel: "Private", price25Cents: 2500, price50Cents: 25000 });
     await expect(service.getPriceFor("p1", 25)).resolves.toEqual({ amountCents: 2500, currency: "EUR" });
+    await expect(service.getPriceFor("p1", 50)).resolves.toEqual({ amountCents: 25000, currency: "EUR" });
+    await expect(service.getPriceFor("p1", 75 as never)).rejects.toBeInstanceOf(ValidationError);
+    mentorRepository.findProfileById.mockResolvedValue(null);
+    await expect(service.getPriceFor("missing", 25)).rejects.toBeInstanceOf(NotFoundError);
     mentorRepository.findProfileById.mockResolvedValue({ id: "p1", publishedAt: null, sessionChannel: "Private", price25Cents: 2500, price50Cents: 25000 });
     await expect(service.getPriceFor("p1", 25)).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("rejects a zero price even when called without the route schema", async () => {
+    const { service, mentorRepository } = createService();
+    await expect(service.updatePrices("u1", { price25: "0", price50: "180" })).rejects.toBeInstanceOf(ValidationError);
+    expect(mentorRepository.updatePrices).not.toHaveBeenCalled();
   });
 });

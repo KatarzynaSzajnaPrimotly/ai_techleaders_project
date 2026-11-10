@@ -79,6 +79,54 @@ describe("CrudForm", () => {
     expect((screen.getByLabelText("About") as HTMLTextAreaElement).value).toBe("Updated bio");
   });
 
+  it("removes a selected multi-select option when its checkbox is unchecked", () => {
+    render(
+      <CrudForm
+        schema={z.object({ tags: z.array(z.string()) })}
+        fields={[{ name: "tags", label: "Tags", type: "multiselect", initialValue: ["typescript"], options: [
+          { label: "TypeScript", value: "typescript" }, { label: "React", value: "react" },
+        ] }]}
+        onSubmit={vi.fn()}
+      />,
+    );
+    const typescript = screen.getByLabelText("TypeScript") as HTMLInputElement;
+    expect(typescript.checked).toBe(true);
+    fireEvent.click(typescript);
+    expect(typescript.checked).toBe(false);
+  });
+
+  it("renders optional empty multi-select options and attaches server errors", () => {
+    render(
+      <CrudForm
+        schema={z.object({ tags: z.array(z.string()), empty: z.array(z.string()) })}
+        fields={[
+          { name: "tags", label: "Tags", type: "multiselect", options: [{ label: "React", value: "react" }] },
+          { name: "empty", label: "No options", type: "multiselect" },
+        ]}
+        onSubmit={vi.fn()}
+        serverFieldErrors={{ tags: ["Choose at least one area"] }}
+      />,
+    );
+    expect(screen.getByRole("group", { name: "Tags" })).toBeDefined();
+    expect(screen.getByRole("group", { name: "No options" })).toBeDefined();
+    expect(screen.getByText("Choose at least one area")).toBeDefined();
+  });
+
+  it("renders an empty value when textarea and input fields receive array initial values", () => {
+    render(
+      <CrudForm
+        schema={z.object({ about: z.string(), title: z.string() })}
+        fields={[
+          { name: "about", label: "About", type: "textarea", initialValue: [] },
+          { name: "title", label: "Title", initialValue: [] },
+        ]}
+        onSubmit={vi.fn()}
+      />,
+    );
+    expect((screen.getByLabelText("About") as HTMLTextAreaElement).value).toBe("");
+    expect((screen.getByLabelText("Title") as HTMLInputElement).value).toBe("");
+  });
+
   it("validates on the client with the shared schema and does not submit", () => {
     const { onSubmit, type } = setup();
     type("Email", "nope");

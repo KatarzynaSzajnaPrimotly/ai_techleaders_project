@@ -38,7 +38,6 @@ export function MentorProfileEditor({ initial }: { initial: MentorProfileOwnerDt
   }
 
   async function copyLink() {
-    if (!profile.slug) return;
     const shareUrl = new URL(`/m/${profile.slug}`, window.location.origin).toString();
     try {
       if (navigator.clipboard?.writeText) {

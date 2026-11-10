@@ -52,6 +52,20 @@ describe("MentorProfileEditor", () => {
     expect(screen.getByText("Profile is incomplete")).toBeDefined();
   });
 
+  it("shows transition errors that do not include field errors", async () => {
+    mocks.apiCall.mockResolvedValue({ ok: false, status: 503, error: { code: "SERVICE_UNAVAILABLE", message: "Try again later" } });
+    render(<MentorProfileEditor initial={makeProfile()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Publish page" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("Try again later");
+  });
+
+  it("shows each readiness item as complete when the profile is ready", () => {
+    render(<MentorProfileEditor initial={makeProfile({ publicWorkUrl: "https://example.test", bio: "Engineer", sessionChannel: "Private room", readiness: { publicWorkUrl: true, bio: true, sessionChannel: true } })} />);
+    expect(screen.getByText("Public work link added")).toBeDefined();
+    expect(screen.getByText("Description added")).toBeDefined();
+    expect(screen.getByText("Session channel added")).toBeDefined();
+  });
+
   it("copies a stable share link and unpublishes without discarding its slug", async () => {
     const clipboard = { writeText: vi.fn().mockResolvedValue(undefined) };
     Object.defineProperty(navigator, "clipboard", { configurable: true, value: clipboard });

@@ -52,6 +52,11 @@ describe("createAvailabilityRepository", () => {
     await expect(repository.publishForMentor("owner-1", startsAt, publishedAt)).rejects.toBeInstanceOf(ValidationError);
   });
 
+  it("requires a mentor profile when publishing a time", async () => {
+    const { repository } = setup({ profile: null });
+    await expect(repository.publishForMentor("missing", startsAt, publishedAt)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
   it("turns duplicate active-slot violations into a conflict", async () => {
     const duplicate = Object.assign(new Error("duplicate"), { code: "23505", constraint: "slots_active_profile_start_unique" });
     const { repository } = setup({ flushError: duplicate });
@@ -71,6 +76,11 @@ describe("createAvailabilityRepository", () => {
     expect(em.findOne).toHaveBeenCalledWith("Slot", { id: "slot-1", mentorProfileId: "profile-1", removedAt: null });
     expect(slot.removedAt).toBe(publishedAt);
     expect(em.flush).toHaveBeenCalledOnce();
+  });
+
+  it("requires an active owned slot when removing a time", async () => {
+    const { repository } = setup();
+    await expect(repository.removeForMentor("owner-1", "missing", publishedAt)).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("returns only slots for published pages", async () => {

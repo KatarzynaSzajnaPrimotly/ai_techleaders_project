@@ -16,4 +16,8 @@ describe("money helpers", () => {
     "formats integer cents %i exactly",
     (cents, amount) => expect(centsToMajorAmount(cents)).toBe(amount),
   );
+
+  it.each([-1, Number.NaN])("rejects invalid cents %s", (cents) => {
+    expect(() => centsToMajorAmount(cents)).toThrow("Cents must be a non-negative safe integer");
+  });
 });

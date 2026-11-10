@@ -26,6 +26,15 @@ describe("AvailabilityService", () => {
     expect(availabilityRepository.listForMentor).toHaveBeenCalledWith("owner-1");
   });
 
+  it("marks listed slots in the past using the injected clock", async () => {
+    const { service, availabilityRepository } = setup();
+    vi.mocked(availabilityRepository.listForMentor).mockResolvedValue([
+      { id: "old", mentorProfileId: "profile-1", startsAt: new Date("2026-11-10T15:59:59.999Z"), removedAt: null, createdAt: now },
+      { id: "future", mentorProfileId: "profile-1", startsAt: new Date(start), removedAt: null, createdAt: now },
+    ]);
+    await expect(service.listForMentor("owner-1")).resolves.toMatchObject([{ id: "old", isPast: true }, { id: "future", isPast: false }]);
+  });
+
   it("accepts a slot exactly two hours in the future and uses the server clock", async () => {
     const { service, availabilityRepository } = setup();
     await expect(service.publish("owner-1", start)).resolves.toEqual({ id: "slot-1", startsAt: new Date(start), isPast: false });

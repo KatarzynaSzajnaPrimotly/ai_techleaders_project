@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { AccountService, InvitationService, logger, MentorService, PasswordAuthService, ServiceUnavailableError, UnauthorizedError, ValidationError } from "@devmentor/core";
+import { AccountService, AvailabilityService, InvitationService, logger, MentorService, PasswordAuthService, ServiceUnavailableError, UnauthorizedError, ValidationError } from "@devmentor/core";
 
 const mocks = vi.hoisted(() => ({
   createOrm: vi.fn(),
+  createAvailabilityRepository: vi.fn(),
   createMentorRepository: vi.fn(),
   createUserRepository: vi.fn(),
   createInvitationRepository: vi.fn(),
@@ -10,10 +11,13 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@devmentor/db", () => ({
   createOrm: mocks.createOrm,
+  createAvailabilityRepository: mocks.createAvailabilityRepository,
   createMentorRepository: mocks.createMentorRepository,
   createUserRepository: mocks.createUserRepository,
   createInvitationRepository: mocks.createInvitationRepository,
 }));
+const localMailer = vi.hoisted(() => ({ send: vi.fn() }));
+vi.mock("./local-file-mailer", () => ({ createLocalFileMailer: vi.fn(() => localMailer) }));
 
 import { createRequestScope, withScope } from "./container";
 
@@ -27,6 +31,7 @@ function createFakeOrm() {
 beforeEach(() => {
   delete globalForContainer.devmentorContainer;
   mocks.createOrm.mockReset();
+  mocks.createAvailabilityRepository.mockReset();
   mocks.createMentorRepository.mockReset();
   mocks.createUserRepository.mockReset();
   mocks.createInvitationRepository.mockReset();
@@ -74,6 +79,17 @@ describe("createRequestScope", () => {
     expect(scope.cradle.mentorService).toBeInstanceOf(MentorService);
     await expect(scope.cradle.mentorService.list()).resolves.toEqual([]);
     expect(repository.findAll).toHaveBeenCalledTimes(1);
+  });
+
+  it("registers the availability repository and service in the request scope", async () => {
+    const { orm } = createFakeOrm();
+    const repository = { listForMentor: vi.fn(), publishForMentor: vi.fn(), removeForMentor: vi.fn(), listForPublishedSlug: vi.fn() };
+    mocks.createOrm.mockResolvedValue(orm);
+    mocks.createAvailabilityRepository.mockReturnValue(repository);
+    const scope = await createRequestScope();
+    expect(scope.cradle.availabilityRepository).toBe(repository);
+    expect(mocks.createAvailabilityRepository).toHaveBeenCalledWith(scope.cradle.em);
+    expect(scope.cradle.availabilityService).toBeInstanceOf(AvailabilityService);
   });
 
   it("registers the auth repository, GitHub adapter, and account service in the request scope", async () => {
@@ -136,6 +152,16 @@ describe("createRequestScope", () => {
     const scope = await createRequestScope();
     expect(scope.cradle.rateLimiter).toMatchObject({ hit: expect.any(Function) });
     expect(scope.cradle.mailer).toMatchObject({ send: expect.any(Function) });
+  });
+
+  it("selects the local file mailer when configured", async () => {
+    vi.stubEnv("MAILER_TRANSPORT", "local-file");
+    vi.stubEnv("LOCAL_MAILBOX_DIR", "/tmp/devmentor-mailbox-test");
+    const { orm } = createFakeOrm();
+    mocks.createOrm.mockResolvedValue(orm);
+    const scope = await createRequestScope();
+    await scope.cradle.mailer.send({ to: "ada@example.test", subject: "Invite", text: "Link" });
+    expect(localMailer.send).toHaveBeenCalledWith({ to: "ada@example.test", subject: "Invite", text: "Link" });
   });
 
   it("allows login services to resolve without mail config but fails closed when mail is sent", async () => {
