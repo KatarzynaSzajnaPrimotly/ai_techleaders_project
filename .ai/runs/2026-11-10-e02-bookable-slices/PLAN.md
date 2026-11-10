@@ -12,6 +12,7 @@
 | S03 | 3.1 | Availability slot model, service, API and integration coverage | group:availability | done | 55f563f |
 | S03 | 3.2 | Mentor slot editor and public availability display | group:availability | done | pending |
 | S03 | 3.3 | Keep the availability entity in the ORM options contract test | inline | done | pending |
+| S03 | 3.4 | Keep a slot visible when its removal is refused | inline | done | pending |
 | S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | done | pending |
 | S04 | 4.2 | Price editor, public offer readiness and end-to-end coverage | group:prices | blocked | — |
 

@@ -33,6 +33,7 @@ export function AvailabilitySlotManager() {
   const [result, setResult] = useState<ApiResult<SlotRow[]> | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [showPast, setShowPast] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -45,6 +46,7 @@ export function AvailabilitySlotManager() {
   }, [reloadKey]);
 
   const reload = () => {
+    setActionError(null);
     setResult(null);
     setReloadKey((key) => key + 1);
   };
@@ -52,7 +54,7 @@ export function AvailabilitySlotManager() {
   const remove = async (slot: SlotRow) => {
     const removed = await apiCall<{ id: string }>(`/api/availability/slots/${slot.id}`, { method: "DELETE" });
     if (removed.ok) reload();
-    else setResult({ ok: false, status: removed.status, error: removed.error });
+    else setActionError(removed.error.message);
   };
 
   const columns: DataTableColumn<SlotRow>[] = [
@@ -99,6 +101,7 @@ export function AvailabilitySlotManager() {
           emptyTitle={showPast ? "No published times." : "No future times published."}
           actions={(slot) => <button type="button" className="rounded-md border px-3 py-2 text-sm" onClick={() => void remove(slot)}>Remove</button>}
         />
+        {actionError ? <p role="alert" className="text-sm text-destructive">{actionError}</p> : null}
       </section>
     </main>
   );
