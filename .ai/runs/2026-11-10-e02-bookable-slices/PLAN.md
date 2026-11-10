@@ -11,7 +11,8 @@
 | S02 | 2.4 | Cover unexpected database flush errors | inline | done | pending |
 | S03 | 3.1 | Availability slot model, service, API and integration coverage | group:availability | done | 55f563f |
 | S03 | 3.2 | Mentor slot editor and public availability display | group:availability | done | pending |
-| S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | blocked | — |
+| S03 | 3.3 | Keep the availability entity in the ORM options contract test | inline | done | pending |
+| S04 | 4.1 | Exact money, platform settings and bounded price persistence/API | group:prices | done | pending |
 | S04 | 4.2 | Price editor, public offer readiness and end-to-end coverage | group:prices | blocked | — |
 
 ## Goal
@@ -29,7 +30,7 @@ Implement E02-S02, E02-S03 and E02-S04 from `.ai/specs/2026-09-08-mentors-become
 - Merging the stacked PR into its base branch.
 
 ## Risks / blockers
-- Slice 4 requires founder A's initial EUR price bounds before implementation/QA; D29 resolves currency as EUR, but the bounds are explicitly undecided in the story spec.
+- Slice 4 ships fail-closed with no production price-bound defaults. Issue #42 requires the four EUR-cent bounds to be configured before saves/QA; deterministic limits are injected only by the integration harness.
 - Issue #8 is already closed and titled P04 — Pilot measurement and prerequisites; progress comments there may be out of context, but the brief explicitly requests reporting there.
 - The supplied handoff doc is a design contract; its non-goals and no-production-service boundary remain authoritative.
 
