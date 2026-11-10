@@ -7,6 +7,7 @@ function createEm(overrides: Record<string, unknown> = {}) {
     find: vi.fn(),
     create: vi.fn(),
     flush: vi.fn(),
+    findOne: vi.fn(),
     ...overrides,
   };
 }
@@ -19,6 +20,14 @@ describe("createMentorRepository", () => {
     const em = createEm({ find: vi.fn().mockResolvedValue(mentors) });
     await expect(createMentorRepository(asEm(em)).findAll()).resolves.toBe(mentors);
     expect(em.find).toHaveBeenCalledWith("Mentor", {}, { orderBy: { createdAt: "asc" } });
+  });
+
+  it("projects only allowlisted fields in the public mentor DTO", async () => {
+    const profile = { id: "private-id", userId: "private-owner", initialPublishDueAt: new Date(), slug: "ada", publishedAt: new Date(), publicWorkUrl: "https://example.test", bio: "Builder", stackTags: ["TypeScript"] };
+    const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(profile).mockResolvedValueOnce({ id: "private-owner", displayName: "Ada" }) });
+    const result = await createMentorRepository(asEm(em)).findPublicProfile("ada");
+    expect(result).toEqual({ slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Builder", stackTags: ["TypeScript"] });
+    expect(Object.keys(result ?? {}).sort()).toEqual(["bio", "displayName", "publicWorkUrl", "slug", "stackTags"]);
   });
 
   it("creates a mentor, stamping the creation date, and flushes", async () => {
