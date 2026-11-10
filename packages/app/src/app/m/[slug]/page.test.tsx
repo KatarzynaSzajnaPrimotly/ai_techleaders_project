@@ -11,7 +11,7 @@ beforeEach(() => { state.publicProfile.mockReset(); state.publicSlots.mockReset(
 
 describe("/m/[slug]", () => {
   it("renders the public profile returned for the requested slug", async () => {
-    const profile = { slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test/work", bio: "Engineer", stackTags: ["TypeScript"] };
+    const profile = { slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test/work", bio: "Engineer", stackTags: ["TypeScript"], prices: null, isBookable: false };
     state.publicProfile.mockResolvedValue(profile);
     state.publicSlots.mockResolvedValue([]);
     await expect(PublicMentorPage({ params: Promise.resolve({ slug: "ada" }) })).resolves.toMatchObject({ props: { profile, slots: [] } });
