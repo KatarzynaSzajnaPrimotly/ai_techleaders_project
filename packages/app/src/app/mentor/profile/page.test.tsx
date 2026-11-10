@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ token: "valid", role: "mentor" as "mentee" | "mentor", destination: "", profile: {
-  id: "profile-1", publicWorkUrl: null, bio: null, sessionChannel: null, stackTags: [], slug: null, publishedAt: null, lastPublishedAvailabilityAt: null,
+  id: "profile-1", publicWorkUrl: null, bio: null, sessionChannel: null, stackTags: [], slug: null, publishedAt: null, lastPublishedAvailabilityAt: null, prices: null,
   readiness: { publicWorkUrl: false, bio: false, sessionChannel: false },
 } }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => state.token ? { value: state.token } : undefined }) }));

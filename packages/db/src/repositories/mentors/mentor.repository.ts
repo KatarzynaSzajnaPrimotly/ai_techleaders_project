@@ -1,6 +1,6 @@
 import type { EntityName } from "@mikro-orm/core";
 import type { EntityManager } from "@mikro-orm/postgresql";
-import { ConflictError, NotFoundError, slugify, uniqueSlug, ValidationError, type Mentor, type MentorProfile, type MentorProfileOwnerDto, type MentorProfilePublicDto, type MentorProfileUpdate, type MentorRepositoryPort, type NewMentor } from "@devmentor/core";
+import { ConflictError, NotFoundError, slugify, uniqueSlug, ValidationError, type Mentor, type MentorProfile, type MentorProfilePublicBaseDto, type MentorProfilePublicSource, type MentorRepositoryPort, type NewMentor } from "@devmentor/core";
 
 // The entity is referenced by name, not by schema object: bundlers may load this package more than once
 // (one copy per Next.js route), and the ORM only recognises the schema instance it was initialised with.
@@ -33,7 +33,10 @@ export function createMentorRepository(em: EntityManager): MentorRepositoryPort 
     async findProfileByUserId(userId): Promise<MentorProfile | null> {
       return em.findOne<MentorProfile>(PROFILE, { userId });
     },
-    async findPublishedProfiles(): Promise<MentorProfilePublicDto[]> {
+    async findProfileById(profileId): Promise<MentorProfile | null> {
+      return em.findOne<MentorProfile>(PROFILE, { id: profileId });
+    },
+    async findPublishedProfiles(): Promise<MentorProfilePublicBaseDto[]> {
       const profiles = await em.find<MentorProfile>(PROFILE, { publishedAt: { $ne: null } }, { orderBy: { publishedAt: "desc" } });
       if (profiles.length === 0) return [];
       const users = await em.find<{ id: string; displayName: string | null }>(USER, { id: { $in: profiles.map((profile) => profile.userId) } });
@@ -55,6 +58,17 @@ export function createMentorRepository(em: EntityManager): MentorRepositoryPort 
       Object.assign(profile, input, { updatedAt: new Date() });
       await em.flush();
       return profile;
+    },
+    async updatePrices(userId, price25Cents, price50Cents): Promise<MentorProfile> {
+      return em.transactional(async (tx) => {
+        const profile = await tx.findOne<MentorProfile>(PROFILE, { userId }, { lockMode: 2 });
+        if (!profile) throw new NotFoundError("Mentor profile not found");
+        profile.price25Cents = price25Cents;
+        profile.price50Cents = price50Cents;
+        profile.updatedAt = new Date();
+        await tx.flush();
+        return profile;
+      });
     },
     async publishProfile(userId): Promise<MentorProfile> {
       const user = await em.findOne<{ id: string; displayName: string | null }>(USER, { id: userId });
@@ -98,11 +112,11 @@ export function createMentorRepository(em: EntityManager): MentorRepositoryPort 
         return profile;
       });
     },
-    async findPublicProfile(slug): Promise<MentorProfilePublicDto | null> {
+    async findPublicProfile(slug): Promise<MentorProfilePublicSource | null> {
       const profile = await em.findOne<MentorProfile>(PROFILE, { slug, publishedAt: { $ne: null } });
       if (!profile?.publicWorkUrl || !profile.bio) return null;
       const user = await em.findOne<{ id: string; displayName: string | null }>(USER, { id: profile.userId });
-      return { slug: profile.slug!, displayName: user?.displayName || "Mentor", publicWorkUrl: profile.publicWorkUrl, bio: profile.bio, stackTags: profile.stackTags || [] };
+      return { slug: profile.slug!, displayName: user?.displayName || "Mentor", publicWorkUrl: profile.publicWorkUrl, bio: profile.bio, stackTags: profile.stackTags || [], sessionChannel: profile.sessionChannel ?? null, publishedAt: profile.publishedAt!, price25Cents: profile.price25Cents ?? null, price50Cents: profile.price50Cents ?? null };
     },
   };
 }

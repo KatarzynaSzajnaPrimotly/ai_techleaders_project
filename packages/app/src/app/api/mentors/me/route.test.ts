@@ -10,7 +10,7 @@ import { SESSION_COOKIE, signSession } from "@devmentor/core";
 import { dynamic, GET, PUT } from "./route";
 
 const SECRET = "e02-mentor-profile-route-secret-at-least-32-characters";
-const profile = { id: "profile-1", publicWorkUrl: null, bio: null, sessionChannel: null, stackTags: [], slug: null, publishedAt: null, readiness: { publicWorkUrl: false, bio: false, sessionChannel: false } };
+const profile = { id: "profile-1", publicWorkUrl: null, bio: null, sessionChannel: null, stackTags: [], slug: null, publishedAt: null, prices: null, readiness: { publicWorkUrl: false, bio: false, sessionChannel: false } };
 
 async function mentorCookie() {
   const token = await signSession({ userId: "mentor-1", role: "mentor", roles: ["mentee", "mentor"], sessionVersion: 1 }, SECRET);

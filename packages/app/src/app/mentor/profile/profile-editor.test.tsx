@@ -12,7 +12,7 @@ const originalExecCommand = Object.getOwnPropertyDescriptor(document, "execComma
 
 function makeProfile(overrides: Partial<MentorProfileOwnerDto> = {}): MentorProfileOwnerDto {
   return {
-    id: "profile-1", publicWorkUrl: null, bio: null, sessionChannel: null, stackTags: [], slug: null, publishedAt: null, lastPublishedAvailabilityAt: null,
+    id: "profile-1", publicWorkUrl: null, bio: null, sessionChannel: null, stackTags: [], slug: null, publishedAt: null, lastPublishedAvailabilityAt: null, prices: null,
     readiness: { publicWorkUrl: false, bio: false, sessionChannel: false }, ...overrides,
   };
 }

@@ -3,13 +3,14 @@ import { ConflictError } from "@devmentor/core";
 import { createMentorRepository } from "./mentor.repository";
 
 function createEm(overrides: Record<string, unknown> = {}) {
-  return {
+  const em = {
     find: vi.fn(),
     create: vi.fn(),
     flush: vi.fn(),
     findOne: vi.fn(),
     ...overrides,
   };
+  return { ...em, transactional: vi.fn(async (run: (tx: unknown) => Promise<unknown>) => run(em as never)) };
 }
 
 const asEm = (em: ReturnType<typeof createEm>) => em as unknown as Parameters<typeof createMentorRepository>[0];
@@ -41,6 +42,22 @@ describe("createMentorRepository", () => {
     expect(JSON.stringify(results)).not.toContain("@example.test");
   });
 
+  it("finds profiles by id for the downstream booking price lookup", async () => {
+    const profile = { id: "profile-1", userId: "u1" };
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(profile) });
+    await expect(createMentorRepository(asEm(em)).findProfileById("profile-1")).resolves.toBe(profile);
+    expect(em.findOne).toHaveBeenCalledWith("MentorProfile", { id: "profile-1" });
+  });
+
+  it("updates both prices together under a profile row lock", async () => {
+    const profile = { id: "profile-1", userId: "u1", price25Cents: null, price50Cents: null };
+    const em = createEm({ findOne: vi.fn().mockResolvedValue(profile), flush: vi.fn().mockResolvedValue(undefined) });
+    const result = await createMentorRepository(asEm(em)).updatePrices("u1", 1000, 18000);
+    expect(result).toMatchObject({ price25Cents: 1000, price50Cents: 18000 });
+    expect(em.findOne).toHaveBeenCalledWith("MentorProfile", { userId: "u1" }, { lockMode: 2 });
+    expect(em.flush).toHaveBeenCalledOnce();
+  });
+
   it("does not query users when no profile is published", async () => {
     const em = createEm({ find: vi.fn().mockResolvedValue([]) });
     await expect(createMentorRepository(asEm(em)).findPublishedProfiles()).resolves.toEqual([]);
@@ -48,11 +65,10 @@ describe("createMentorRepository", () => {
   });
 
   it("projects only allowlisted fields in the public mentor DTO", async () => {
-    const profile = { id: "private-id", userId: "private-owner", initialPublishDueAt: new Date(), slug: "ada", publishedAt: new Date(), publicWorkUrl: "https://example.test", bio: "Builder", stackTags: ["TypeScript"] };
+    const profile = { id: "private-id", userId: "private-owner", initialPublishDueAt: new Date(), slug: "ada", publishedAt: new Date(), publicWorkUrl: "https://example.test", bio: "Builder", stackTags: ["TypeScript"], sessionChannel: "private room", price25Cents: null, price50Cents: null };
     const em = createEm({ findOne: vi.fn().mockResolvedValueOnce(profile).mockResolvedValueOnce({ id: "private-owner", displayName: "Ada" }) });
     const result = await createMentorRepository(asEm(em)).findPublicProfile("ada");
-    expect(result).toEqual({ slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Builder", stackTags: ["TypeScript"] });
-    expect(Object.keys(result ?? {}).sort()).toEqual(["bio", "displayName", "publicWorkUrl", "slug", "stackTags"]);
+    expect(result).toEqual({ slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Builder", stackTags: ["TypeScript"], sessionChannel: "private room", publishedAt: profile.publishedAt, price25Cents: null, price50Cents: null });
   });
 
   it("creates a mentor, stamping the creation date, and flushes", async () => {

@@ -23,6 +23,11 @@ export function createHarnessEnvironment({ base, databaseUrl, appUrl, fakeServer
     TRUST_PROXY_HOPS: "1",
     INVITATION_TTL_DAYS: "14",
     MENTOR_PUBLISH_WINDOW_DAYS: "14",
+    // Deterministic integration-only bounds; production has no defaults.
+    PRICE_MIN_25_CENTS: "1000",
+    PRICE_MAX_25_CENTS: "60000",
+    PRICE_MIN_50_CENTS: "18000",
+    PRICE_MAX_50_CENTS: "120000",
     OPERATOR_EMAILS: `${operatorEmail},${listedMentorEmail}`,
     ALLOW_INSECURE_HTTP: "true",
   };

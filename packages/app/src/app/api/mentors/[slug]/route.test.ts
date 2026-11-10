@@ -9,7 +9,7 @@ describe("GET /api/mentors/[slug]", () => {
   beforeEach(() => { mocks.publicProfile.mockReset(); mocks.publicSlots.mockReset(); });
 
   it("returns the public DTO to a signed-out visitor", async () => {
-    const dto = { slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: ["TypeScript"] };
+    const dto = { slug: "ada", displayName: "Ada", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: ["TypeScript"], prices: null, isBookable: false };
     mocks.publicProfile.mockResolvedValue(dto);
     mocks.publicSlots.mockResolvedValue([]);
     expect(dynamic).toBe("force-dynamic");

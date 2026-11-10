@@ -38,8 +38,8 @@ describe("mentor profile integration", () => {
     const response = await fetch(new URL(`/api/mentors/${slug}`, baseUrl));
     expect(response.status).toBe(200);
     const body = await response.json() as { data: Record<string, unknown> };
-    expect(Object.keys(body.data).sort()).toEqual(["bio", "displayName", "publicWorkUrl", "slots", "slug", "stackTags"]);
-    expect(body.data).toMatchObject({ slug, publicWorkUrl: "https://example.test/work", bio: "I build reliable systems." });
+    expect(Object.keys(body.data).sort()).toEqual(["bio", "displayName", "isBookable", "prices", "publicWorkUrl", "slots", "slug", "stackTags"]);
+    expect(body.data).toMatchObject({ slug, publicWorkUrl: "https://example.test/work", bio: "I build reliable systems.", prices: null, isBookable: false });
     expect(JSON.stringify(body.data)).not.toContain("private-channel@example.test");
     const publicPage = await fetch(new URL(`/m/${slug}`, baseUrl));
     expect(publicPage.status).toBe(200);
@@ -116,5 +116,30 @@ describe("mentor profile integration", () => {
     expect(republished.status).toBe(200);
     const owner = await fetch(new URL("/api/mentors/me", baseUrl), { headers: { cookie: headers.cookie } });
     expect((await owner.json() as { data: { lastPublishedAvailabilityAt: string | null } }).data.lastPublishedAvailabilityAt).not.toBeNull();
+  });
+
+  it("saves both bounded prices atomically and exposes them only in the public price projection", async () => {
+    const user = await createUser({ email: `prices-${unique}@example.test`, role: "mentor", displayName: `Price Mentor ${unique}` }, databaseUrl);
+    await seedProfile(user.id);
+    const token = await mintSessionCookie({ userId: user.id, role: "mentor", roles: ["mentor"] }, jwtSecret);
+    const headers = { ...csrf, cookie: `${SESSION_COOKIE}=${token}` };
+    await fetch(new URL("/api/mentors/me", baseUrl), { method: "PUT", headers, body: JSON.stringify({ publicWorkUrl: "https://example.test/work", bio: "Price test", sessionChannel: "Private price-test room" }) });
+    const published = await fetch(new URL("/api/mentors/me/publish", baseUrl), { method: "POST", headers, body: "{}" });
+    const slug = (await published.json() as { data: { slug: string } }).data.slug;
+
+    const invalid = await fetch(new URL("/api/mentors/me/prices", baseUrl), { method: "PUT", headers, body: JSON.stringify({ price25: "9.99", price50: "1200" }) });
+    expect(invalid.status).toBe(400);
+    expect(await invalid.json()).toMatchObject({ error: { fieldErrors: { price25: [expect.stringContaining("€10.00")] } } });
+
+    const saved = await fetch(new URL("/api/mentors/me/prices", baseUrl), { method: "PUT", headers, body: JSON.stringify({ price25: "10.00", price50: "1200.00" }) });
+    expect(saved.status).toBe(200);
+    expect(await saved.json()).toMatchObject({ data: { prices: { price25Cents: 1000, price50Cents: 120000, currency: "EUR" } } });
+    const owner = await fetch(new URL("/api/mentors/me/prices", baseUrl), { headers: { cookie: headers.cookie } });
+    expect(await owner.json()).toMatchObject({ data: { priceBounds: { p25: { minCents: 1000, maxCents: 60000 }, p50: { minCents: 18000, maxCents: 120000 } } } });
+
+    const publicResponse = await fetch(new URL(`/api/mentors/${slug}`, baseUrl));
+    const publicBody = await publicResponse.json() as { data: { isBookable: boolean; prices: { price25Cents: number; price50Cents: number; currency: string }; slots: unknown[] } };
+    expect(publicBody.data).toMatchObject({ isBookable: true, prices: { price25Cents: 1000, price50Cents: 120000, currency: "EUR" }, slots: [] });
+    expect(JSON.stringify(publicBody.data)).not.toContain("Private price-test room");
   });
 });

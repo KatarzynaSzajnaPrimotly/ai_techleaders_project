@@ -4,6 +4,7 @@ import {
   InvitationService,
   logger,
   MentorService,
+  PlatformSettingsService,
   AvailabilityService,
   PasswordAuthService,
   createLogMailerAdapter,
@@ -30,6 +31,7 @@ export interface Cradle {
   em: Orm["em"];
   mentorRepository: MentorRepositoryPort;
   mentorService: MentorService;
+  platformSettingsService: PlatformSettingsService;
   availabilityRepository: AvailabilityRepositoryPort;
   availabilityService: AvailabilityService;
   userRepository: UserRepositoryPort;
@@ -99,6 +101,7 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
   scope.register({
     em: asFunction(({ orm }: Cradle) => orm.em.fork()).scoped(),
     mentorRepository: asFunction(({ em }: Cradle) => createMentorRepository(em)).scoped(),
+    platformSettingsService: asClass(PlatformSettingsService).scoped(),
     mentorService: asClass(MentorService).scoped(),
     availabilityRepository: asFunction(({ em }: Cradle) => createAvailabilityRepository(em)).scoped(),
     availabilityService: asClass(AvailabilityService).scoped(),
