@@ -60,7 +60,9 @@ export function createBookingRepository(em: EntityManager): BookingRepositoryPor
     },
     async attachCheckoutSession(bookingId, checkoutSessionId) {
       const changed = await em.nativeUpdate<Booking>(BOOKING, { id: bookingId, status: "pending_payment", checkoutSessionId: null }, { checkoutSessionId, paymentStatus: "checkout_open" });
-      if (!changed) throw new ConflictError("Checkout is already started or booking is no longer pending");
+      if (changed) return;
+      const existing = await em.findOne<Booking>(BOOKING, { id: bookingId, status: "pending_payment", checkoutSessionId, paymentStatus: "checkout_open" });
+      if (!existing) throw new ConflictError("Checkout is already started or booking is no longer pending");
     },
     async settlePayment(event, now) {
       return em.transactional(async (tx) => {
@@ -74,7 +76,7 @@ export function createBookingRepository(em: EntityManager): BookingRepositoryPor
         }
         const booking = await tx.findOne<Booking>(BOOKING, { checkoutSessionId: event.checkoutSessionId }, { lockMode: 2 });
         if (!booking || booking.paymentStatus === "paid" || booking.paymentStatus === "refunded") return "ignored" as const;
-        if (booking.priceCents !== event.amountCents || booking.currency !== event.currency || !booking.expiresAt || booking.expiresAt <= now) {
+        if (booking.status !== "pending_payment" || booking.paymentStatus !== "checkout_open" || booking.priceCents !== event.amountCents || booking.currency !== event.currency || !booking.expiresAt || booking.expiresAt <= now) {
           booking.paymentStatus = "refund_pending";
           if (booking.expiresAt && booking.expiresAt <= now) booking.status = "expired";
           await tx.flush();

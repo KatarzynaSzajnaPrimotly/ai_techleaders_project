@@ -53,7 +53,7 @@ describe("booking repository", () => {
     await expect(unknown.repository.createHold({ slotId: "x", menteeUserId: "m", lengthMinutes: 25, now, holdExpiresAt: now })).rejects.toThrow("database failure");
   });
 
-  it("looks up an owned pending booking and attaches exactly one checkout session", async () => {
+  it("looks up an owned pending booking and attaches one idempotent checkout session", async () => {
     const { repository, tx } = setup();
     tx.findOne.mockResolvedValueOnce(booking);
     await expect(repository.findPendingOwned("booking-1", "mentee-1")).resolves.toBe(booking);
@@ -61,6 +61,10 @@ describe("booking repository", () => {
     await expect(repository.findPendingOwned("missing", "mentee-1")).rejects.toBeInstanceOf(NotFoundError);
     await expect(repository.attachCheckoutSession("booking-1", "session-1")).resolves.toBeUndefined();
     tx.nativeUpdate.mockResolvedValueOnce(0);
+    tx.findOne.mockResolvedValueOnce({ ...booking, checkoutSessionId: "session-1", paymentStatus: "checkout_open" });
+    await expect(repository.attachCheckoutSession("booking-1", "session-1")).resolves.toBeUndefined();
+    tx.nativeUpdate.mockResolvedValueOnce(0);
+    tx.findOne.mockResolvedValueOnce(null);
     await expect(repository.attachCheckoutSession("booking-1", "session-2")).rejects.toBeInstanceOf(ConflictError);
   });
 
@@ -89,6 +93,20 @@ describe("booking repository", () => {
     await expect(success.repository.settlePayment(event, now)).resolves.toBe("confirmed");
     expect(paidBooking.status).toBe("confirmed");
     expect(paidBooking.paymentStatus).toBe("paid");
+
+    for (const invalidState of [
+      { status: "pending_payment", paymentStatus: "not_started" },
+      { status: "pending_payment", paymentStatus: "failed" },
+      { status: "pending_payment", paymentStatus: "refund_pending" },
+      { status: "cancelled", paymentStatus: "checkout_open" },
+    ]) {
+      const invalidStateSetup = setup();
+      const invalidStateBooking = { ...booking, ...invalidState, checkoutSessionId: "session-1" };
+      invalidStateSetup.tx.findOne.mockResolvedValueOnce(invalidStateBooking);
+      await expect(invalidStateSetup.repository.settlePayment(event, now)).resolves.toBe("refund");
+      expect(invalidStateBooking.paymentStatus).toBe("refund_pending");
+      expect(invalidStateBooking.status).not.toBe("confirmed");
+    }
   });
 
   it("marks a pending refund complete", async () => {

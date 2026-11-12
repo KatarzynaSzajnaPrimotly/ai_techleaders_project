@@ -14,7 +14,12 @@ export class BookingPaymentService {
   async createCheckout(menteeUserId: string, bookingId: string) {
     const booking = await this.dependencies.bookingRepository.findPendingOwned(bookingId, menteeUserId);
     if (booking.expiresAt && booking.expiresAt <= this.dependencies.now()) throw new ConflictError("Booking hold has expired");
-    const checkout = await this.dependencies.paymentGateway.createCheckout({ bookingId, amountCents: booking.priceCents, currency: "EUR" });
+    const checkout = await this.dependencies.paymentGateway.createCheckout({
+      bookingId,
+      idempotencyKey: `booking-checkout:${bookingId}`,
+      amountCents: booking.priceCents,
+      currency: "EUR",
+    });
     await this.dependencies.bookingRepository.attachCheckoutSession(bookingId, checkout.id);
     return { bookingId, checkoutUrl: checkout.url, expiresAt: booking.expiresAt };
   }

@@ -26,8 +26,21 @@ describe("BookingPaymentService", () => {
   it("creates checkout from the stored price and attaches the session", async () => {
     const { service, bookingRepository, paymentGateway } = setup();
     await expect(service.createCheckout("mentee-1", "booking-1")).resolves.toMatchObject({ checkoutUrl: "https://payments.example/checkout" });
-    expect(paymentGateway.createCheckout).toHaveBeenCalledWith({ bookingId: "booking-1", amountCents: 5000, currency: "EUR" });
+    expect(paymentGateway.createCheckout).toHaveBeenCalledWith({ bookingId: "booking-1", idempotencyKey: "booking-checkout:booking-1", amountCents: 5000, currency: "EUR" });
     expect(bookingRepository.attachCheckoutSession).toHaveBeenCalledWith("booking-1", "session-1");
+  });
+
+  it("uses a stable provider idempotency key when checkout creation is retried concurrently", async () => {
+    const { service, paymentGateway, bookingRepository } = setup();
+    const results = await Promise.all([
+      service.createCheckout("mentee-1", "booking-1"),
+      service.createCheckout("mentee-1", "booking-1"),
+    ]);
+    expect(paymentGateway.createCheckout).toHaveBeenCalledTimes(2);
+    expect(paymentGateway.createCheckout).toHaveBeenNthCalledWith(1, expect.objectContaining({ idempotencyKey: "booking-checkout:booking-1" }));
+    expect(paymentGateway.createCheckout).toHaveBeenNthCalledWith(2, expect.objectContaining({ idempotencyKey: "booking-checkout:booking-1" }));
+    expect(results[0]?.checkoutUrl).toBe(results[1]?.checkoutUrl);
+    expect(bookingRepository.attachCheckoutSession).toHaveBeenCalledTimes(2);
   });
 
   it("refuses an expired booking before contacting the gateway", async () => {

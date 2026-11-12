@@ -19,8 +19,12 @@ describe("test payment gateway", () => {
   it("creates a local checkout URL", async () => {
     configure();
     const gateway = createTestPaymentGateway();
-    const checkout = await gateway.createCheckout({ bookingId: randomUUID(), amountCents: 5000, currency: "EUR" });
+    const bookingId = randomUUID();
+    const input = { bookingId, idempotencyKey: `booking-checkout:${bookingId}`, amountCents: 5000, currency: "EUR" as const };
+    const checkout = await gateway.createCheckout(input);
+    const retry = await createTestPaymentGateway().createCheckout(input);
     expect(new URL(checkout.url).pathname).toBe(`/test-checkout/${checkout.id}`);
+    expect(retry).toEqual(checkout);
   });
 
   it("verifies webhook signature and event shape", async () => {

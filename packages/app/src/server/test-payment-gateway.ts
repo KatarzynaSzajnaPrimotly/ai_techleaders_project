@@ -2,6 +2,8 @@ import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { parseEnv, requireConfig, ValidationError, type PaymentGatewayPort, type VerifiedPaymentEvent } from "@devmentor/core";
 import { z } from "zod";
 
+const checkoutSessions = new Map<string, { id: string; url: string }>();
+
 const paymentEventSchema = z.object({
   id: z.string().min(1),
   type: z.literal("checkout.paid"),
@@ -20,10 +22,13 @@ export function createTestPaymentGateway(): PaymentGatewayPort {
 
   return {
     async createCheckout(input) {
+      const existing = checkoutSessions.get(input.idempotencyKey);
+      if (existing) return existing;
       const id = randomUUID();
       const url = new URL(`/test-checkout/${id}`, APP_URL).toString();
-      void input;
-      return { id, url };
+      const session = { id, url };
+      checkoutSessions.set(input.idempotencyKey, session);
+      return session;
     },
     async verifyWebhook(rawBody, signature) {
       const expected = createHmac("sha256", PAYMENT_WEBHOOK_SECRET).update(rawBody).digest();

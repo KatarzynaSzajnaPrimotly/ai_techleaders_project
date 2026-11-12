@@ -13,7 +13,7 @@ export interface VerifiedPaymentEvent {
 }
 
 export interface PaymentGatewayPort {
-  createCheckout(input: { bookingId: string; amountCents: number; currency: "EUR" }): Promise<CheckoutSession>;
+  createCheckout(input: { bookingId: string; idempotencyKey: string; amountCents: number; currency: "EUR" }): Promise<CheckoutSession>;
   verifyWebhook(rawBody: string, signature: string): Promise<VerifiedPaymentEvent>;
   refund(input: { checkoutSessionId: string; amountCents: number; idempotencyKey: string }): Promise<void>;
 }
