@@ -12,5 +12,7 @@ export interface Booking {
   startsAt: Date;
   bookedAt: Date | null;
   expiresAt: Date | null;
+  checkoutSessionId: string | null;
+  paymentStatus: "not_started" | "checkout_open" | "paid" | "refund_pending" | "refunded" | "failed";
   createdAt: Date;
 }

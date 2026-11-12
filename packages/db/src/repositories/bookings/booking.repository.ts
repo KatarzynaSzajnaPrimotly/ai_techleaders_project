@@ -38,6 +38,8 @@ export function createBookingRepository(em: EntityManager): BookingRepositoryPor
             startsAt: slot.startsAt,
             bookedAt: null,
             expiresAt: input.holdExpiresAt,
+            checkoutSessionId: null,
+            paymentStatus: "not_started",
             createdAt: input.now,
           });
           await tx.flush();

@@ -7,11 +7,12 @@ describe("BookingSchema", () => {
     expect(BookingSchema.meta.tableName).toBe("bookings");
     const properties = BookingSchema.meta.properties;
     expect(Object.keys(properties).sort()).toEqual([
-      "bookedAt", "createdAt", "currency", "expiresAt", "id", "lengthMinutes", "menteeUserId",
-      "mentorProfileId", "priceCents", "slotId", "startsAt", "status",
+      "bookedAt", "checkoutSessionId", "createdAt", "currency", "expiresAt", "id", "lengthMinutes", "menteeUserId",
+      "mentorProfileId", "paymentStatus", "priceCents", "slotId", "startsAt", "status",
     ]);
     expect(properties.id.primary).toBe(true);
     expect(properties.currency.default).toBe("EUR");
     expect(properties.expiresAt.nullable).toBe(true);
+    expect(properties.paymentStatus.default).toBe("not_started");
   });
 });

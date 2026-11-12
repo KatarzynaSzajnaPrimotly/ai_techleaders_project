@@ -16,6 +16,8 @@ export const BookingSchema = new EntitySchema<Booking>({
     startsAt: { type: "Date", fieldName: "starts_at", columnType: "timestamptz" },
     bookedAt: { type: "Date", fieldName: "booked_at", columnType: "timestamptz", nullable: true },
     expiresAt: { type: "Date", fieldName: "expires_at", columnType: "timestamptz", nullable: true },
+    checkoutSessionId: { type: "string", fieldName: "checkout_session_id", nullable: true, unique: true },
+    paymentStatus: { type: "string", fieldName: "payment_status", length: 24, default: "not_started" },
     createdAt: { type: "Date", fieldName: "created_at", columnType: "timestamptz", defaultRaw: "now()" },
   },
 });
