@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { Client } from "pg";
 import { describe, expect, inject, it } from "vitest";
 import { SESSION_COOKIE } from "../../packages/core/src/http/auth";
@@ -7,6 +8,7 @@ import { createUser, mintSessionCookie } from "./helpers/identity";
 const baseUrl = inject("baseUrl");
 const databaseUrl = inject("databaseUrl");
 const jwtSecret = inject("jwtSecret");
+const paymentSecret = "integration-only-webhook-secret-at-least-32-characters";
 const unique = () => randomUUID().replaceAll("-", "");
 const headersFor = async (userId: string) => ({
   cookie: `${SESSION_COOKIE}=${await mintSessionCookie({ userId, role: "mentee", roles: ["mentee"] }, jwtSecret)}`,
@@ -60,5 +62,53 @@ describe("booking hold integration", () => {
     finally { await client.end(); }
     const secondResponse = await fetch(new URL("/api/bookings", baseUrl), { method: "POST", headers: await headersFor(second.id), body: JSON.stringify({ slotId, lengthMinutes: 50 }) });
     expect(secondResponse.status).toBe(200);
+  });
+
+  it("confirms a booking only from a signed payment webhook and deduplicates retries", async () => {
+    const slotId = await seedBookableSlot();
+    const mentee = await createUser({ email: `booking-paid-${unique()}@example.test`, role: "mentee", displayName: "Paying Mentee" }, databaseUrl);
+    const headers = await headersFor(mentee.id);
+    const held = await fetch(new URL("/api/bookings", baseUrl), { method: "POST", headers, body: JSON.stringify({ slotId, lengthMinutes: 25 }) });
+    const heldBody = await held.json() as { data: { id: string } };
+    expect(held.status).toBe(200);
+    const checkout = await fetch(new URL("/api/bookings/checkout", baseUrl), { method: "POST", headers, body: JSON.stringify({ bookingId: heldBody.data.id }) });
+    const checkoutBody = await checkout.json() as { data: { checkoutUrl: string } };
+    expect(checkout.status).toBe(200);
+    const checkoutSessionId = new URL(checkoutBody.data.checkoutUrl).pathname.split("/").at(-1) ?? "";
+    const event = JSON.stringify({ id: randomUUID(), type: "checkout.paid", checkoutSessionId, amountCents: 5000, currency: "EUR" });
+    const signature = createHmac("sha256", paymentSecret).update(event).digest("hex");
+    const sendWebhook = () => fetch(new URL("/api/payments/webhook", baseUrl), { method: "POST", headers: { "x-devmentor-payment-signature": signature }, body: event });
+    expect((await sendWebhook()).status).toBe(200);
+    expect((await sendWebhook()).status).toBe(200);
+    const client = new Client({ connectionString: databaseUrl });
+    await client.connect();
+    try {
+      const result = await client.query("select status, payment_status from bookings where id = $1", [heldBody.data.id]);
+      expect(result.rows[0]).toEqual({ status: "confirmed", payment_status: "paid" });
+    } finally { await client.end(); }
+  });
+
+  it("refunds a valid payment that arrives after the hold expires", async () => {
+    const slotId = await seedBookableSlot();
+    const mentee = await createUser({ email: `booking-late-${unique()}@example.test`, role: "mentee", displayName: "Late Mentee" }, databaseUrl);
+    const headers = await headersFor(mentee.id);
+    const held = await fetch(new URL("/api/bookings", baseUrl), { method: "POST", headers, body: JSON.stringify({ slotId, lengthMinutes: 25 }) });
+    const heldBody = await held.json() as { data: { id: string } };
+    const checkout = await fetch(new URL("/api/bookings/checkout", baseUrl), { method: "POST", headers, body: JSON.stringify({ bookingId: heldBody.data.id }) });
+    const checkoutBody = await checkout.json() as { data: { checkoutUrl: string } };
+    const checkoutSessionId = new URL(checkoutBody.data.checkoutUrl).pathname.split("/").at(-1) ?? "";
+    const client = new Client({ connectionString: databaseUrl });
+    await client.connect();
+    try { await client.query("update bookings set expires_at = now() - interval '1 minute' where id = $1", [heldBody.data.id]); }
+    finally { await client.end(); }
+    const event = JSON.stringify({ id: randomUUID(), type: "checkout.paid", checkoutSessionId, amountCents: 5000, currency: "EUR" });
+    const signature = createHmac("sha256", paymentSecret).update(event).digest("hex");
+    const response = await fetch(new URL("/api/payments/webhook", baseUrl), { method: "POST", headers: { "x-devmentor-payment-signature": signature }, body: event });
+    expect(response.status).toBe(200);
+    const verify = new Client({ connectionString: databaseUrl });
+    await verify.connect();
+    const result = await verify.query("select status, payment_status from bookings where id = $1", [heldBody.data.id]);
+    expect(result.rows[0]).toEqual({ status: "expired", payment_status: "refunded" });
+    await verify.end();
   });
 });

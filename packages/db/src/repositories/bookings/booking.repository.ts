@@ -53,5 +53,40 @@ export function createBookingRepository(em: EntityManager): BookingRepositoryPor
         throw error;
       }
     },
+    async findPendingOwned(bookingId, menteeUserId) {
+      const booking = await em.findOne<Booking>(BOOKING, { id: bookingId, menteeUserId, status: "pending_payment", paymentStatus: { $ne: "paid" } });
+      if (!booking) throw new NotFoundError("Pending booking not found");
+      return booking;
+    },
+    async attachCheckoutSession(bookingId, checkoutSessionId) {
+      const changed = await em.nativeUpdate<Booking>(BOOKING, { id: bookingId, status: "pending_payment", checkoutSessionId: null }, { checkoutSessionId, paymentStatus: "checkout_open" });
+      if (!changed) throw new ConflictError("Checkout is already started or booking is no longer pending");
+    },
+    async settlePayment(event, now) {
+      return em.transactional(async (tx) => {
+        const inserted = await tx.execute<Array<{ event_id: string }>>(
+          `insert into payment_events (event_id, processed_at) values (?, ?) on conflict (event_id) do nothing returning event_id`,
+          [event.id, now],
+        );
+        if (!inserted.length) return "ignored" as const;
+        const booking = await tx.findOne<Booking>(BOOKING, { checkoutSessionId: event.checkoutSessionId }, { lockMode: 2 });
+        if (!booking || booking.paymentStatus === "paid" || booking.paymentStatus === "refunded") return "ignored" as const;
+        if (booking.priceCents !== event.amountCents || booking.currency !== event.currency || !booking.expiresAt || booking.expiresAt <= now) {
+          booking.paymentStatus = "refund_pending";
+          if (booking.expiresAt && booking.expiresAt <= now) booking.status = "expired";
+          await tx.flush();
+          return "refund" as const;
+        }
+        booking.status = "confirmed";
+        booking.bookedAt = now;
+        booking.expiresAt = null;
+        booking.paymentStatus = "paid";
+        await tx.flush();
+        return "confirmed" as const;
+      });
+    },
+    async markRefunded(checkoutSessionId) {
+      await em.nativeUpdate<Booking>(BOOKING, { checkoutSessionId, paymentStatus: "refund_pending" }, { paymentStatus: "refunded" });
+    },
   };
 }

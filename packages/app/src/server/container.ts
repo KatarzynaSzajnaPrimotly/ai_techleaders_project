@@ -7,6 +7,8 @@ import {
   PlatformSettingsService,
   AvailabilityService,
   BookingService,
+  BookingPaymentService,
+  type PaymentGatewayPort,
   PasswordAuthService,
   createLogMailerAdapter,
   createMemoryRateLimiter,
@@ -27,6 +29,7 @@ import {
 } from "@devmentor/core";
 import { createAvailabilityRepository, createBookingRepository, createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
 import { createLocalFileMailer } from "./local-file-mailer";
+import { createTestPaymentGateway } from "./test-payment-gateway";
 
 export interface Cradle {
   orm: Orm;
@@ -38,6 +41,8 @@ export interface Cradle {
   availabilityService: AvailabilityService;
   bookingRepository: BookingRepositoryPort;
   bookingService: BookingService;
+  bookingPaymentService: BookingPaymentService;
+  paymentGateway: PaymentGatewayPort;
   userRepository: UserRepositoryPort;
   invitationRepository: InvitationRepositoryPort;
   invitationEvents: InvitationEventPublisherPort;
@@ -111,6 +116,8 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     availabilityService: asClass(AvailabilityService).scoped(),
     bookingRepository: asFunction(({ em }: Cradle) => createBookingRepository(em)).scoped(),
     bookingService: asClass(BookingService).scoped(),
+    paymentGateway: asFunction(() => createTestPaymentGateway()).scoped(),
+    bookingPaymentService: asClass(BookingPaymentService).scoped(),
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
     invitationRepository: asFunction(({ em }: Cradle) => createInvitationRepository(em)).scoped(),
     invitationEvents: asFunction((): InvitationEventPublisherPort => ({

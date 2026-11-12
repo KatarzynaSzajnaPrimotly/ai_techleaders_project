@@ -6,6 +6,9 @@ const optionalPositiveSafeIntegerSetting = z.preprocess((value) => value === "" 
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  INTEGRATION_TEST: z.enum(["true"]).optional(),
+  PAYMENT_GATEWAY: z.enum(["test"]).optional(),
+  PAYMENT_WEBHOOK_SECRET: z.string().min(32).optional(),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   JWT_SECRET: z.string().min(MIN_JWT_SECRET_LENGTH).optional(),
   ALLOW_INSECURE_HTTP: z.enum(["true", "false"]).transform((value) => value === "true").optional(),
