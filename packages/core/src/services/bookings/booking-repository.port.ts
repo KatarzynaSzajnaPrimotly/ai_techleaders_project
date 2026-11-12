@@ -1,3 +1,4 @@
+/* c8 ignore file -- type-only port; has no runtime behavior. */
 import type { Booking } from "./booking.types";
 
 export interface BookingRepositoryPort {

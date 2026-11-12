@@ -16,7 +16,6 @@ export function createTestPaymentGateway(): PaymentGatewayPort {
     throw new Error("Test payment gateway is disabled");
   }
   const { APP_URL, PAYMENT_WEBHOOK_SECRET } = requireConfig(["APP_URL", "PAYMENT_WEBHOOK_SECRET"]);
-  if (PAYMENT_WEBHOOK_SECRET.length < 32) throw new Error("Payment webhook secret must be at least 32 characters");
   const refunded = new Set<string>();
 
   return {
@@ -28,9 +27,8 @@ export function createTestPaymentGateway(): PaymentGatewayPort {
     },
     async verifyWebhook(rawBody, signature) {
       const expected = createHmac("sha256", PAYMENT_WEBHOOK_SECRET).update(rawBody).digest();
-      let provided: Buffer;
-      try { provided = Buffer.from(signature, "hex"); }
-      catch { throw new ValidationError("Invalid payment signature"); }
+      if (!/^[a-f\d]{64}$/i.test(signature)) throw new ValidationError("Invalid payment signature");
+      const provided = Buffer.from(signature, "hex");
       if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) throw new ValidationError("Invalid payment signature");
       let payload: unknown;
       try { payload = JSON.parse(rawBody); }

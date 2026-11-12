@@ -1,3 +1,4 @@
+/* c8 ignore file -- type-only gateway contract; no runtime behavior. */
 export interface CheckoutSession {
   id: string;
   url: string;

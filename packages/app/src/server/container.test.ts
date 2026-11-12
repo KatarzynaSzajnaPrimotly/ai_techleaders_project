@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   createMentorRepository: vi.fn(),
   createUserRepository: vi.fn(),
   createInvitationRepository: vi.fn(),
+  createBookingRepository: vi.fn(),
 }));
 
 vi.mock("@devmentor/db", () => ({
@@ -15,6 +16,7 @@ vi.mock("@devmentor/db", () => ({
   createMentorRepository: mocks.createMentorRepository,
   createUserRepository: mocks.createUserRepository,
   createInvitationRepository: mocks.createInvitationRepository,
+  createBookingRepository: mocks.createBookingRepository,
 }));
 const localMailer = vi.hoisted(() => ({ send: vi.fn() }));
 vi.mock("./local-file-mailer", () => ({ createLocalFileMailer: vi.fn(() => localMailer) }));
@@ -35,11 +37,29 @@ beforeEach(() => {
   mocks.createMentorRepository.mockReset();
   mocks.createUserRepository.mockReset();
   mocks.createInvitationRepository.mockReset();
+  mocks.createBookingRepository.mockReset();
 });
 
 afterEach(() => vi.unstubAllEnvs());
 
 describe("createRequestScope", () => {
+  it("registers booking repository and test payment services", async () => {
+    vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("PAYMENT_GATEWAY", "test");
+    vi.stubEnv("PAYMENT_WEBHOOK_SECRET", "container-test-webhook-secret-more-than-32-characters");
+    vi.stubEnv("APP_URL", "http://localhost:3000");
+    const { orm } = createFakeOrm();
+    const repository = { createHold: vi.fn(), findPendingOwned: vi.fn(), attachCheckoutSession: vi.fn(), settlePayment: vi.fn(), markRefunded: vi.fn() };
+    mocks.createOrm.mockResolvedValue(orm);
+    mocks.createBookingRepository.mockReturnValue(repository);
+    const scope = await createRequestScope();
+    expect(scope.cradle.bookingRepository).toBe(repository);
+    expect(mocks.createBookingRepository).toHaveBeenCalledWith(scope.cradle.em);
+    expect(scope.cradle.bookingService).toBeInstanceOf((await import("@devmentor/core")).BookingService);
+    expect(scope.cradle.bookingPaymentService).toBeInstanceOf((await import("@devmentor/core")).BookingPaymentService);
+    expect(scope.cradle.paymentGateway).toBeDefined();
+  });
+
   it("builds the root container once and reuses it for later scopes", async () => {
     const { orm } = createFakeOrm();
     mocks.createOrm.mockResolvedValue(orm);

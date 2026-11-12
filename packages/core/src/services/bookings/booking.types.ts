@@ -1,3 +1,4 @@
+/* c8 ignore file -- type-only domain contracts; no runtime behavior. */
 export type BookingStatus = "pending_payment" | "confirmed" | "completed" | "cancelled" | "expired" | "payment_failed";
 
 export interface Booking {
