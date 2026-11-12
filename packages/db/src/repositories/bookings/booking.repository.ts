@@ -68,7 +68,10 @@ export function createBookingRepository(em: EntityManager): BookingRepositoryPor
           `insert into payment_events (event_id, processed_at) values (?, ?) on conflict (event_id) do nothing returning event_id`,
           [event.id, now],
         );
-        if (!inserted.length) return "ignored" as const;
+        if (!inserted.length) {
+          const retry = await tx.findOne<Booking>(BOOKING, { checkoutSessionId: event.checkoutSessionId }, { lockMode: 2 });
+          return retry?.paymentStatus === "refund_pending" ? "refund" as const : "ignored" as const;
+        }
         const booking = await tx.findOne<Booking>(BOOKING, { checkoutSessionId: event.checkoutSessionId }, { lockMode: 2 });
         if (!booking || booking.paymentStatus === "paid" || booking.paymentStatus === "refunded") return "ignored" as const;
         if (booking.priceCents !== event.amountCents || booking.currency !== event.currency || !booking.expiresAt || booking.expiresAt <= now) {

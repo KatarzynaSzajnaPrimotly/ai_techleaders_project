@@ -68,6 +68,9 @@ describe("booking repository", () => {
     const event = { id: "event-1", checkoutSessionId: "session-1", amountCents: 5000, currency: "EUR" as const };
     const duplicate = setup({ inserted: [] });
     await expect(duplicate.repository.settlePayment(event, now)).resolves.toBe("ignored");
+    const refundRetry = setup({ inserted: [] });
+    refundRetry.tx.findOne.mockResolvedValueOnce({ ...booking, checkoutSessionId: "session-1", paymentStatus: "refund_pending" });
+    await expect(refundRetry.repository.settlePayment(event, now)).resolves.toBe("refund");
     const notFound = setup({ inserted: [{ event_id: "e" }], active: null });
     notFound.tx.findOne.mockResolvedValueOnce(null);
     await expect(notFound.repository.settlePayment(event, now)).resolves.toBe("ignored");
