@@ -4,8 +4,8 @@ import { resolveCurrentSession } from "../../../server/current-session";
 
 export const dynamic = "force-dynamic";
 
-export const { GET } = makeCrudRoute({
+export const { GET, POST } = makeCrudRoute({
   access: { roles: ["operator"] },
   resolveCurrentSession,
-  list: () => withScope(({ mentorService }) => mentorService.listPublishedProfiles()),
+  list: () => withScope(({ mentorService }) => mentorService.list()),
 });

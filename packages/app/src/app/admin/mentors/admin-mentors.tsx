@@ -34,7 +34,7 @@ export function AdminMentors() {
 
   useEffect(() => {
     let active = true;
-    apiCall<MentorRow[]>("/api/mentors").then((next) => {
+    apiCall<MentorRow[]>("/api/mentors/published").then((next) => {
       if (active) setResult(next);
     });
     return () => {

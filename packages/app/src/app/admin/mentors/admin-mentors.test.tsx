@@ -31,7 +31,7 @@ describe("AdminMentors", () => {
     expect(screen.getByRole("cell", { name: "https://example.test/grace" })).toBeDefined();
     expect(screen.queryByText(/@example\.com/)).toBeNull();
     expect(screen.getByText("2")).toBeDefined();
-    expect(mocks.apiCall).toHaveBeenCalledWith("/api/mentors");
+    expect(mocks.apiCall).toHaveBeenCalledWith("/api/mentors/published");
   });
 
   it("shows the empty state with a zero count", async () => {
@@ -58,7 +58,7 @@ describe("AdminMentors", () => {
     expect(screen.queryByLabelText("Name")).toBeNull();
     expect(screen.queryByRole("button", { name: "Add mentor" })).toBeNull();
     expect(mocks.apiCall).toHaveBeenCalledTimes(1);
-    expect(mocks.apiCall).toHaveBeenCalledWith("/api/mentors");
+    expect(mocks.apiCall).toHaveBeenCalledWith("/api/mentors/published");
   });
 
   it("ignores a response that arrives after the component unmounted", async () => {
