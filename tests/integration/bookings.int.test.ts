@@ -7,7 +7,7 @@ import { createUser, mintSessionCookie } from "./helpers/identity";
 const baseUrl = inject("baseUrl");
 const databaseUrl = inject("databaseUrl");
 const jwtSecret = inject("jwtSecret");
-const unique = randomUUID().replaceAll("-", "");
+const unique = () => randomUUID().replaceAll("-", "");
 const headersFor = async (userId: string) => ({
   cookie: `${SESSION_COOKIE}=${await mintSessionCookie({ userId, role: "mentee", roles: ["mentee"] }, jwtSecret)}`,
   "x-devmentor-csrf": "1",
@@ -15,14 +15,15 @@ const headersFor = async (userId: string) => ({
 });
 
 async function seedBookableSlot() {
-  const mentor = await createUser({ email: `booking-mentor-${unique}@example.test`, role: "mentor", displayName: `Booking Mentor ${unique}` }, databaseUrl);
+  const suffix = unique();
+  const mentor = await createUser({ email: `booking-mentor-${suffix}@example.test`, role: "mentor", displayName: `Booking Mentor ${suffix}` }, databaseUrl);
   const client = new Client({ connectionString: databaseUrl });
   await client.connect();
   try {
     const profile = await client.query<{ id: string }>(
       `insert into mentor_profiles (user_id, slug, public_work_url, bio, session_channel, stack_tags, published_at, price_25_cents, price_50_cents)
        values ($1, $2, 'https://example.test/work', 'Experienced mentor profile text', 'https://example.test/session', ARRAY['TypeScript'], now(), 5000, 9000) returning id`,
-      [mentor.id, `booking-${unique}`],
+      [mentor.id, `booking-${suffix}`],
     );
     const slot = await client.query<{ id: string }>(
       "insert into slots (mentor_profile_id, starts_at) values ($1, now() + interval '4 hours') returning id",
@@ -35,7 +36,8 @@ async function seedBookableSlot() {
 describe("booking hold integration", () => {
   it("allows only one concurrent mentee to hold a slot and snapshots server price", async () => {
     const slotId = await seedBookableSlot();
-    const mentees = await Promise.all([1, 2].map((n) => createUser({ email: `booking-mentee-${n}-${unique}@example.test`, role: "mentee", displayName: `Mentee ${n}` }, databaseUrl)));
+    const suffix = unique();
+    const mentees = await Promise.all([1, 2].map((n) => createUser({ email: `booking-mentee-${n}-${suffix}@example.test`, role: "mentee", displayName: `Mentee ${n}` }, databaseUrl)));
     const responses = await Promise.all(mentees.map(async (mentee) => fetch(new URL("/api/bookings", baseUrl), {
       method: "POST", headers: await headersFor(mentee.id), body: JSON.stringify({ slotId, lengthMinutes: 25 }),
     })));
@@ -47,8 +49,9 @@ describe("booking hold integration", () => {
 
   it("releases a stale hold so another mentee can claim the slot", async () => {
     const slotId = await seedBookableSlot();
-    const first = await createUser({ email: `booking-expired-a-${unique}@example.test`, role: "mentee", displayName: "First Mentee" }, databaseUrl);
-    const second = await createUser({ email: `booking-expired-b-${unique}@example.test`, role: "mentee", displayName: "Second Mentee" }, databaseUrl);
+    const suffix = unique();
+    const first = await createUser({ email: `booking-expired-a-${suffix}@example.test`, role: "mentee", displayName: "First Mentee" }, databaseUrl);
+    const second = await createUser({ email: `booking-expired-b-${suffix}@example.test`, role: "mentee", displayName: "Second Mentee" }, databaseUrl);
     const firstResponse = await fetch(new URL("/api/bookings", baseUrl), { method: "POST", headers: await headersFor(first.id), body: JSON.stringify({ slotId, lengthMinutes: 50 }) });
     expect(firstResponse.status).toBe(200);
     const client = new Client({ connectionString: databaseUrl });
