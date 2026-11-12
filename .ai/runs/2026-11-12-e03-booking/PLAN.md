@@ -5,9 +5,9 @@
 | Phase | Step | Title | Exec | Status | Commit |
 |---|---|---|---|---|---|
 | Design | 0.1 | Finalize E03 spec and contracts against existing stories | inline | todo | |
-| Booking | 1.1 | Booking model, transactional slot hold and migration | inline | todo | |
-| Booking | 1.2 | Booking service/API, 120-minute lead rule and 10-minute expiry | inline | todo | |
-| Booking | 1.3 | Concurrency and route integration coverage | inline | todo | |
+| Booking | 1.1 | Booking model, transactional slot hold and migration | inline | done | pending |
+| Booking | 1.2 | Booking service/API, 120-minute lead rule and 10-minute expiry | inline | done | pending |
+| Booking | 1.3 | Concurrency and route integration coverage | inline | done | pending |
 | Checkout | 2.1 | Payment gateway port and test-mode checkout start | inline | todo | |
 | Checkout | 2.2 | Verified idempotent webhook and late-payment refund | inline | todo | |
 | Final | 3.1 | Review, integration/browser QA and full validation gate | inline | todo | |
