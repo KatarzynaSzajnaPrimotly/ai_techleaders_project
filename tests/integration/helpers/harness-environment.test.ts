@@ -16,6 +16,7 @@ describe("integration harness environment", () => {
       CUSTOM_SETTING: "keep",
       DEVMENTOR_DATABASE_URL: "postgresql://throwaway/db",
       NODE_ENV: "production",
+      INTEGRATION_TEST: "true",
       APP_URL: "http://127.0.0.1:4123",
       JWT_SECRET: "random-test-secret",
       GITHUB_CLIENT_ID: "devmentor-integration-client",
@@ -30,6 +31,8 @@ describe("integration harness environment", () => {
       PRICE_MAX_25_CENTS: "60000",
       PRICE_MIN_50_CENTS: "18000",
       PRICE_MAX_50_CENTS: "120000",
+      PAYMENT_GATEWAY: "test",
+      PAYMENT_WEBHOOK_SECRET: "integration-only-webhook-secret-at-least-32-characters",
       OPERATOR_EMAILS: "operator@example.test,mentor@example.test",
       ALLOW_INSECURE_HTTP: "true",
     });

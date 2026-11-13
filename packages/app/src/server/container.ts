@@ -6,6 +6,9 @@ import {
   MentorService,
   PlatformSettingsService,
   AvailabilityService,
+  BookingService,
+  BookingPaymentService,
+  type PaymentGatewayPort,
   PasswordAuthService,
   createLogMailerAdapter,
   createMemoryRateLimiter,
@@ -18,13 +21,15 @@ import {
   type PasswordHasherPort,
   type MentorRepositoryPort,
   type AvailabilityRepositoryPort,
+  type BookingRepositoryPort,
   type RateLimiterPort,
   type UserRepositoryPort,
   type InvitationRepositoryPort,
   type InvitationEventPublisherPort,
 } from "@devmentor/core";
-import { createAvailabilityRepository, createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
+import { createAvailabilityRepository, createBookingRepository, createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
 import { createLocalFileMailer } from "./local-file-mailer";
+import { createTestPaymentGateway } from "./test-payment-gateway";
 
 export interface Cradle {
   orm: Orm;
@@ -34,6 +39,10 @@ export interface Cradle {
   platformSettingsService: PlatformSettingsService;
   availabilityRepository: AvailabilityRepositoryPort;
   availabilityService: AvailabilityService;
+  bookingRepository: BookingRepositoryPort;
+  bookingService: BookingService;
+  bookingPaymentService: BookingPaymentService;
+  paymentGateway: PaymentGatewayPort;
   userRepository: UserRepositoryPort;
   invitationRepository: InvitationRepositoryPort;
   invitationEvents: InvitationEventPublisherPort;
@@ -105,6 +114,10 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
     mentorService: asClass(MentorService).scoped(),
     availabilityRepository: asFunction(({ em }: Cradle) => createAvailabilityRepository(em)).scoped(),
     availabilityService: asClass(AvailabilityService).scoped(),
+    bookingRepository: asFunction(({ em }: Cradle) => createBookingRepository(em)).scoped(),
+    bookingService: asClass(BookingService).scoped(),
+    paymentGateway: asFunction(() => createTestPaymentGateway()).scoped(),
+    bookingPaymentService: asClass(BookingPaymentService).scoped(),
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
     invitationRepository: asFunction(({ em }: Cradle) => createInvitationRepository(em)).scoped(),
     invitationEvents: asFunction((): InvitationEventPublisherPort => ({

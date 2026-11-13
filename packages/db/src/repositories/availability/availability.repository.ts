@@ -1,17 +1,31 @@
 import type { EntityName } from "@mikro-orm/core";
 import type { EntityManager } from "@mikro-orm/postgresql";
-import { ConflictError, NotFoundError, ValidationError, type AvailabilityRepositoryPort, type Slot, type StoredMentorSlot } from "@devmentor/core";
+import { ConflictError, NotFoundError, ValidationError, type AvailabilityRepositoryPort, type Booking, type Slot, type StoredMentorSlot } from "@devmentor/core";
 
 const PROFILE = "MentorProfile" as unknown as EntityName<{ id: string; userId: string; sessionChannel: string | null; lastPublishedAvailabilityAt: Date | null; slug: string | null; publishedAt: Date | null }>;
 const SLOT = "Slot" as unknown as EntityName<Slot>;
+const BOOKING = "Booking" as unknown as EntityName<Booking>;
 const UNIQUE_VIOLATION = "23505";
 
 export function createAvailabilityRepository(em: EntityManager): AvailabilityRepositoryPort {
+  async function excludeReserved(slots: Slot[]): Promise<Slot[]> {
+    if (!slots.length) return slots;
+    const reservations = await em.find<Booking>(BOOKING, {
+      slotId: { $in: slots.map(({ id }) => id) },
+      $or: [
+        { status: "confirmed" },
+        { status: "pending_payment", expiresAt: { $gt: new Date() } },
+      ],
+    });
+    const reserved = new Set(reservations.map(({ slotId }) => slotId));
+    return slots.filter(({ id }) => !reserved.has(id));
+  }
+
   return {
     async listForMentor(userId: string): Promise<StoredMentorSlot[]> {
       const profile = await em.findOne(PROFILE, { userId });
       if (!profile) throw new NotFoundError("Mentor profile not found");
-      const slots = await em.find<Slot>(SLOT, { mentorProfileId: profile.id, removedAt: null }, { orderBy: { startsAt: "asc" } });
+      const slots = await excludeReserved(await em.find<Slot>(SLOT, { mentorProfileId: profile.id, removedAt: null }, { orderBy: { startsAt: "asc" } }));
       return slots.map(({ id, startsAt }) => ({ id, startsAt }));
     },
 
@@ -47,7 +61,7 @@ export function createAvailabilityRepository(em: EntityManager): AvailabilityRep
     async listForPublishedSlug(slug: string): Promise<Slot[]> {
       const profile = await em.findOne(PROFILE, { slug, publishedAt: { $ne: null } });
       if (!profile) throw new NotFoundError("Mentor page not found");
-      return em.find<Slot>(SLOT, { mentorProfileId: profile.id, removedAt: null }, { orderBy: { startsAt: "asc" } });
+      return excludeReserved(await em.find<Slot>(SLOT, { mentorProfileId: profile.id, removedAt: null }, { orderBy: { startsAt: "asc" } }));
     },
   };
 }

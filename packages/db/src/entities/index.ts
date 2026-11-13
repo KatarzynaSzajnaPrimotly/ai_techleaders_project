@@ -3,3 +3,4 @@ export { MentorSchema } from "./mentors/mentor.entity";
 export { MentorProfileSchema } from "./mentors/mentor-profile.entity";
 export { UserSchema } from "./auth/user.entity";
 export { SlotSchema } from "./availability/slot.entity";
+export { BookingSchema } from "./bookings/booking.entity";
