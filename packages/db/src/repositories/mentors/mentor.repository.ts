@@ -82,6 +82,7 @@ export function createMentorRepository(em: EntityManager): MentorRepositoryPort 
             const fieldErrors: Record<string, string[]> = {};
             if (!profile.publicWorkUrl) fieldErrors.publicWorkUrl = ["Add a link to your public work before publishing"];
             if (!profile.bio?.trim()) fieldErrors.bio = ["Add a description before publishing"];
+            if (!profile.stackTags?.length) fieldErrors.stackTags = ["Choose at least one area of expertise before publishing"];
             if (Object.keys(fieldErrors).length) throw new ValidationError("Profile is incomplete", fieldErrors);
             if (profile.slug) {
               profile.publishedAt ??= new Date();

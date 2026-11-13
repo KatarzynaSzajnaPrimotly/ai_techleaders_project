@@ -63,6 +63,7 @@ describe("createMentorRepository", () => {
   it.each([
     [{ bio: "Builder" }, { publicWorkUrl: ["Add a link to your public work before publishing"] }],
     [{ publicWorkUrl: "https://example.test" }, { bio: ["Add a description before publishing"] }],
+    [{ publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: [] }, { stackTags: ["Choose at least one area of expertise before publishing"] }],
     [{ publicWorkUrl: "", bio: " " }, { publicWorkUrl: ["Add a link to your public work before publishing"], bio: ["Add a description before publishing"] }],
   ])("refuses to publish an incomplete profile", async (profileData, fieldErrors) => {
     const tx = createEm({ findOne: vi.fn().mockResolvedValue({ userId: "u1", ...profileData }) });
@@ -79,7 +80,7 @@ describe("createMentorRepository", () => {
   });
 
   it("keeps a previously allocated slug stable when republishing", async () => {
-    const profile = { userId: "u1", slug: "ada", publishedAt: null, publicWorkUrl: "https://example.test", bio: "Engineer" };
+    const profile = { userId: "u1", slug: "ada", publishedAt: null, publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: ["TypeScript"] };
     const tx = createEm({ findOne: vi.fn().mockResolvedValue(profile), flush: vi.fn().mockResolvedValue(undefined) });
     const em = createEm({ findOne: vi.fn().mockResolvedValue({ id: "u1", displayName: "New Name" }) });
     em.transactional.mockImplementation(async (run) => run(tx as never));
@@ -89,7 +90,7 @@ describe("createMentorRepository", () => {
   });
 
   it("allocates a unique slug after a candidate collision", async () => {
-    const profile = { userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer" };
+    const profile = { userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: ["TypeScript"] };
     const tx = createEm({ findOne: vi.fn()
       .mockResolvedValueOnce(profile).mockResolvedValueOnce({ id: "collision" })
       .mockResolvedValueOnce(profile).mockResolvedValueOnce(null), flush: vi.fn().mockResolvedValue(undefined) });
@@ -100,7 +101,7 @@ describe("createMentorRepository", () => {
   });
 
   it("retries a concurrent database slug collision", async () => {
-    const freshProfile = () => ({ userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer" });
+    const freshProfile = () => ({ userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: ["TypeScript"] });
     const tx = createEm({ findOne: vi.fn()
       .mockImplementation(async (_entity, where: Record<string, unknown>) => "userId" in where ? freshProfile() : null),
       flush: vi.fn().mockRejectedValueOnce(Object.assign(new Error("duplicate"), { code: "23505", constraint: "mentor_profiles_slug_unique" })).mockResolvedValue(undefined) });
@@ -112,7 +113,7 @@ describe("createMentorRepository", () => {
   });
 
   it("fails clearly when no unique slug is available", async () => {
-    const profile = { userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer" };
+    const profile = { userId: "u1", publicWorkUrl: "https://example.test", bio: "Engineer", stackTags: ["TypeScript"] };
     const tx = createEm({ findOne: vi.fn().mockImplementation(async (_entity, where: Record<string, unknown>) => "userId" in where ? profile : { id: "collision" }) });
     const em = createEm({ findOne: vi.fn().mockResolvedValue({ id: "u1", displayName: "Ada" }) });
     em.transactional.mockImplementation(async (run) => run(tx as never));
