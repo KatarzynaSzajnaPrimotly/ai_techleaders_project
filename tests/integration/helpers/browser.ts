@@ -30,6 +30,7 @@ export function createBrowser(session = DEFAULT_BROWSER_SESSION) {
     title: () => run("get", "title"),
     text: (selector: string) => run("get", "text", selector),
     click: (selector: string) => run("click", selector),
+    clickRole: (role: string, name: string) => run("find", "role", role, "click", "--name", name),
     fill: (selector: string, value: string) => run("fill", selector, value),
     setCookie: (name: string, value: string, pageUrl: string) => setCookie(name, value, pageUrl, session),
     waitForText: (text: string) => run("wait", "--text", text),

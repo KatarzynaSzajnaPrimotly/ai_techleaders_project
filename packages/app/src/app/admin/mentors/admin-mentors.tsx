@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { mentorCreateSchema } from "@devmentor/core/validators";
 import {
   apiCall,
   Badge,
@@ -10,23 +9,23 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CrudForm,
   DataTable,
   type ApiResult,
   type DataTableColumn,
 } from "@devmentor/ui";
 
 interface MentorRow {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
+  slug: string;
+  displayName: string;
+  publicWorkUrl: string;
+  bio: string;
+  stackTags: string[];
 }
 
 const columns: DataTableColumn<MentorRow>[] = [
-  { key: "name", header: "Name", className: "font-medium" },
-  { key: "email", header: "Email" },
-  { key: "createdAt", header: "Joined", cell: (mentor) => mentor.createdAt.slice(0, 10) },
+  { key: "displayName", header: "Name", className: "font-medium" },
+  { key: "publicWorkUrl", header: "Public work" },
+  { key: "slug", header: "Share page", cell: (mentor) => `/m/${mentor.slug}` },
 ];
 
 export function AdminMentors() {
@@ -35,7 +34,7 @@ export function AdminMentors() {
 
   useEffect(() => {
     let active = true;
-    apiCall<MentorRow[]>("/api/mentors").then((next) => {
+    apiCall<MentorRow[]>("/api/mentors/published").then((next) => {
       if (active) setResult(next);
     });
     return () => {
@@ -55,36 +54,17 @@ export function AdminMentors() {
           <CardTitle>
             Registered mentors <Badge variant="secondary">{result?.ok ? result.data.length : "–"}</Badge>
           </CardTitle>
-          <CardDescription>Mentors visible on the public page.</CardDescription>
+          <CardDescription>Published mentor pages. Unpublished pages and private contact details are excluded.</CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={columns}
             rows={result?.ok ? result.data : []}
-            getRowKey={(mentor) => mentor.id}
+            getRowKey={(mentor) => mentor.slug}
             loading={result === null}
             error={result && !result.ok ? result.error.message : null}
             onRetry={reload}
-            emptyTitle="No mentors yet."
-            emptyDescription="Add the first one below."
-          />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Add mentor</CardTitle>
-          <CardDescription>Ctrl+Enter submits.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CrudForm
-            schema={mentorCreateSchema}
-            fields={[
-              { name: "name", label: "Name", placeholder: "Ada Lovelace" },
-              { name: "email", label: "Email", type: "email", placeholder: "ada@example.com" },
-            ]}
-            submitLabel="Add mentor"
-            onSubmit={(values) => apiCall("/api/mentors", { method: "POST", body: values })}
-            onSuccess={reload}
+            emptyTitle="No mentor has published a page yet."
           />
         </CardContent>
       </Card>

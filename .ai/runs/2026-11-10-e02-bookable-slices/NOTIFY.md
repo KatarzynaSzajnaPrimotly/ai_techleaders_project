@@ -1,0 +1,59 @@
+# Notify — 2026-11-10-e02-bookable-slices
+
+> Append-only log. Every entry is UTC-timestamped. Never rewrite prior entries.
+
+## 2026-11-10T20:50:00Z — run started
+- Brief: Implement remaining E02 mentor profile, availability, and pricing slices on top of E02-S01; open a stacked PR and report progress to issue #8.
+- External skill URLs: none
+
+## 2026-11-10T20:50:00Z — decision
+- Keeping E02-S04 blocked until founder A provides initial EUR price bounds; this is an explicit spec gate.
+- Reusing the existing linked worktree and local QA environment; no new worktree or database lifecycle changes.
+
+## 2026-11-10T21:05:00Z — executor delegation
+- Dispatched Luna executor 5df81da9 for the coupled S02 profile/public-page group (Steps 2.1–2.2); S03/S04 work remains serialized until its branch is validated.
+
+## 2026-11-10T21:10:00Z — progress update
+- Step 0.1 committed as e1f0f85; targeted tests (33/33), app typecheck, and production build passed. Local mailbox stores messages with 0700 directory / 0600 files; PR #61 remains a draft.
+- S02 executor 5df81da9 is still running. Asked founder A for the initial price bounds; S04 cannot start until answered.
+
+## 2026-11-10T21:13:00Z — S02 validation follow-up
+- Executor reported local S02 commits but omitted integration coverage and could not push. Parent ran app typecheck and the two focused mentor service/entity files (4 tests passed).
+- Review identified missing S02 route/UI/integration tests and incomplete slug-collision retry; requested corrections before accepting the child branch.
+
+## 2026-11-10T21:15:00Z — executor settled partial
+- Task 5df81da9 pushed partial S02 commits to `cez/5df81da9`. Parent validation: app typecheck passed; focused service/entity tests passed 4/4. Not accepted/merged because new routes and UI lack tests, S02 integration coverage is absent, public projection allowlist is untested, and slug collision retry is incomplete.
+- S02 will be completed on the parent branch before S03 begins.
+
+## 2026-11-10T21:16:00Z — S02 re-delegated
+- Partial task 5df81da9 was not accepted. Dispatched task bbe8d7d2 on the parent branch to complete S02 with the missing integration, projection, slug retry, route and UI coverage; sent clarification because shell quoting stripped inline paths from its order.
+
+## 2026-11-10T21:20:00Z — partial branch update
+- Task 5df81da9 added follow-up commits 1347a5f and 120f3ba after its partial report (slug retry / error handling and public DTO key allowlist test); its latest report still lacks route/UI test coverage and full integration evidence. Directed it to stop editing while task bbe8d7d2 completes S02 on the parent branch.
+- Integration environment blocker reported: Docker/Testcontainers unavailable.
+
+## 2026-11-10T22:14:00Z — checkpoint 1 (Steps 2.1–2.3)
+- S02 focused checks and production build pass; full coverage, integration runtime and one public-route lint error remain blockers. Desktop and 320px browser screenshots saved. Two disjoint Luna tasks are active: S03 implementation (`ee2ae060`) and test-only coverage repair (`ca8e3a51`). Price story approves PLN bounds, but the epic architecture spec conflicts and needs reconciliation before S04.
+
+## 2026-11-10T23:08:00Z — S03 complete
+- Steps 3.1 (`55f563f`) and 3.2 (`9fc073f`) implement owner-scoped slots, public availability, two-hour notice and local-time conversion. Typecheck, 118 focused tests, production build, four mentor-profile integration tests and desktop/320px browser checks pass; browser QA artifacts are in checkpoint 2.
+
+## 2026-11-10T23:08:00Z — S04 configuration decision
+- Issue #42 confirms EUR and requires no default price bounds. Implement fail-closed behavior when any of the four bounds is unset; integration harness supplies deterministic test-only values, while production configuration remains unset until founder A chooses limits.
+
+- 2026-11-10T23:40:00Z — Cez S03 delegation `ee2ae060` was rejected: it was based before S02 and contained no compatible implementation. Continued on the stacked PR branch; the missing owner-only CSRF-protected DELETE slot route and unit coverage are committed as planned Step 3.5.
+
+- 2026-11-10T23:46:00Z — Full integration exposed four legacy assertions for direct mentor creation/public email listing. The S01 acceptance contract is invitation-only and the epic excludes an operator screen, so removed the old registration form/API and rewrote integration expectations; focused real-PostgreSQL/browser tests now pass (11/11).
+
+- 2026-11-10T23:49:00Z — Aligned the operator UI unit tests with the retired registration form. The two affected legacy tests were the only failures in the full-coverage run; build/typecheck/lint passed, and the 11 focused mentor/role integration tests now pass.
+
+- 2026-11-10T23:47:00Z — Made GitHub IDs unique per integration run after repeat execution against the documented persistent database exposed collisions in old auth-callback fixtures; no existing DB data was removed.
+
+
+## 2026-11-10T23:56:00Z — checkpoint 2
+- S02–S04 implementation and local validation are complete: 133 unit files / 1,018 tests at 100% coverage, production build, lint/typecheck, and the 55-test real-PostgreSQL integration suite pass. S04 browser flow saved prices, reloaded, and verified the public share page at desktop and 320px. Screenshots are in `checkpoint-2-artifacts/`.
+- Removed the pre-E02 direct-mentor-registration path and updated the old integration expectations to match the invitation-only spec. OAuth integration identities are unique per run for safe reruns against persistent local PostgreSQL.
+- Remaining: push the checkpoint, independent review/autofix, PR QA, status/summary updates, and ready promotion only if all gates remain green.
+
+## 2026-11-11T00:00:32Z — independent review delegated
+- Dispatched read-only Cez review task `9a6fbc31` against the pushed PR #61 head `f9be045`. The task is checking the full configured review gate and the E02 contract; parent will validate its report before deciding whether any fix is needed. GitHub CI for `f9be045` is green.

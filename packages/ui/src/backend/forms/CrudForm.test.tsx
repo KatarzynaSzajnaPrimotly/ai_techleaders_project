@@ -42,6 +42,91 @@ describe("CrudForm", () => {
     expect((screen.getByLabelText("Secret") as HTMLInputElement).type).toBe("password");
   });
 
+  it("renders a datetime-local input with its description", () => {
+    render(
+      <CrudForm
+        schema={z.object({ startsAt: z.string() })}
+        fields={[{ name: "startsAt", label: "Start time", type: "datetime", description: "Times use your local time zone." }]}
+        onSubmit={vi.fn()}
+      />,
+    );
+    expect((screen.getByLabelText("Start time") as HTMLInputElement).type).toBe("datetime-local");
+    expect(screen.getByText("Times use your local time zone.")).toBeDefined();
+    expect(screen.getByLabelText("Start time").getAttribute("aria-describedby")).toBe("startsAt-description");
+  });
+
+  it("renders a textarea and a multi-select from initial values and submits selected options", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(success);
+    render(
+      <CrudForm
+        schema={z.object({ bio: z.string(), tags: z.array(z.string()) })}
+        fields={[
+          { name: "bio", label: "About", type: "textarea", maxLength: 500, initialValue: "Existing bio" },
+          { name: "tags", label: "Tags", type: "multiselect", initialValue: ["typescript"], options: [
+            { label: "TypeScript", value: "typescript" }, { label: "React", value: "react" },
+          ] },
+        ]}
+        onSubmit={onSubmit}
+        resetOnSuccess={false}
+      />,
+    );
+    expect((screen.getByLabelText("About") as HTMLTextAreaElement).value).toBe("Existing bio");
+    expect((screen.getByLabelText("TypeScript") as HTMLInputElement).checked).toBe(true);
+    fireEvent.change(screen.getByLabelText("About"), { target: { value: "Updated bio" } });
+    fireEvent.click(screen.getByLabelText("React"));
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ bio: "Updated bio", tags: ["typescript", "react"] }));
+    expect((screen.getByLabelText("About") as HTMLTextAreaElement).value).toBe("Updated bio");
+  });
+
+  it("removes a selected multi-select option when its checkbox is unchecked", () => {
+    render(
+      <CrudForm
+        schema={z.object({ tags: z.array(z.string()) })}
+        fields={[{ name: "tags", label: "Tags", type: "multiselect", initialValue: ["typescript"], options: [
+          { label: "TypeScript", value: "typescript" }, { label: "React", value: "react" },
+        ] }]}
+        onSubmit={vi.fn()}
+      />,
+    );
+    const typescript = screen.getByLabelText("TypeScript") as HTMLInputElement;
+    expect(typescript.checked).toBe(true);
+    fireEvent.click(typescript);
+    expect(typescript.checked).toBe(false);
+  });
+
+  it("renders optional empty multi-select options and attaches server errors", () => {
+    render(
+      <CrudForm
+        schema={z.object({ tags: z.array(z.string()), empty: z.array(z.string()) })}
+        fields={[
+          { name: "tags", label: "Tags", type: "multiselect", options: [{ label: "React", value: "react" }] },
+          { name: "empty", label: "No options", type: "multiselect" },
+        ]}
+        onSubmit={vi.fn()}
+        serverFieldErrors={{ tags: ["Choose at least one area"] }}
+      />,
+    );
+    expect(screen.getByRole("group", { name: "Tags" })).toBeDefined();
+    expect(screen.getByRole("group", { name: "No options" })).toBeDefined();
+    expect(screen.getByText("Choose at least one area")).toBeDefined();
+  });
+
+  it("renders an empty value when textarea and input fields receive array initial values", () => {
+    render(
+      <CrudForm
+        schema={z.object({ about: z.string(), title: z.string() })}
+        fields={[
+          { name: "about", label: "About", type: "textarea", initialValue: [] },
+          { name: "title", label: "Title", initialValue: [] },
+        ]}
+        onSubmit={vi.fn()}
+      />,
+    );
+    expect((screen.getByLabelText("About") as HTMLTextAreaElement).value).toBe("");
+    expect((screen.getByLabelText("Title") as HTMLInputElement).value).toBe("");
+  });
+
   it("validates on the client with the shared schema and does not submit", () => {
     const { onSubmit, type } = setup();
     type("Email", "nope");

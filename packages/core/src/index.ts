@@ -21,6 +21,8 @@ export {
 export { parseWithSchema, readJsonBody } from "./http/validate";
 export { signPurposeToken, verifyPurposeToken, type PurposeToken } from "./http/tokens";
 export { absoluteUrl } from "./config/absolute-url";
+export { RESERVED_SLUGS, slugify, uniqueSlug } from "./domain/slug";
+export { centsToMajorAmount, majorAmountToCents, PLATFORM_CURRENCY } from "./domain/money";
 export { getGithubConfig, type GithubConfig } from "./config/github";
 export { enforceAccess, type Access, type CurrentSessionResolver } from "./http/access";
 export {
@@ -56,6 +58,10 @@ export type { InvitationAcceptedEvent, InvitationEventPublisherPort } from "./se
 export { InvitationService, INVITATION_INVALID_MESSAGE, INVITATION_STACK_TAGS, type AcceptedInvitation, type CreatedInvitation, type PublicInvitation } from "./services/invitations/invitation.service";
 export type { MentorRepositoryPort } from "./services/mentors/mentor-repository.port";
 export { MentorService } from "./services/mentors/mentor.service";
+export { PlatformSettingsService, type PlatformSettings, type PriceBounds } from "./services/operator/platform-settings.service";
+export { AvailabilityService } from "./services/availability/availability.service";
+export type { AvailabilityRepositoryPort } from "./services/availability/availability-repository.port";
+export type { Slot, MentorSlotDto, PublicMentorSlotDto, StoredMentorSlot } from "./services/availability/slot.types";
 export type { User, NewUser, StoredRole, PasswordAuthAccount, LoginAccount, ExistingAccountLookup, NewPasswordAccount } from "./services/auth/user.types";
 export type { UserRepositoryPort } from "./services/auth/user-repository.port";
 export { effectiveRole, issueSession, type IssuedSession } from "./services/auth/session-issuer";
@@ -85,3 +91,8 @@ export {
 } from "./services/auth/oauth-state";
 
 export { mentorCreateSchema, type MentorCreateInput } from "./validators";
+export type { MentorPrices, MentorProfileOwnerDto, MentorProfilePublicBaseDto, MentorProfilePublicDto, MentorProfilePublicSource, MentorProfileUpdate } from "./services/mentors/mentor-profile.types";
+export { MENTOR_STACK_TAGS } from "./services/mentors/mentor-profile.types";
+export { mentorProfileUpdateSchema, type MentorProfileUpdate as MentorProfileUpdateInput } from "./validators/mentors/mentor-profile.schema";
+export { mentorPricesUpdateSchema, type MentorPricesUpdateInput } from "./validators/mentors/mentor-prices-update.schema";
+export { slotCreateSchema, slotIdSchema, type SlotCreateInput } from "./validators/availability/slot-create.schema";

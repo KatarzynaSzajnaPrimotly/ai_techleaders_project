@@ -12,23 +12,14 @@ vi.mock("../../../server/container", () => ({
 }));
 vi.mock("../../../server/current-session", () => ({ resolveCurrentSession: async (session: unknown) => session }));
 
-import { ConflictError, SESSION_COOKIE, signSession, type Role } from "@devmentor/core";
+import { SESSION_COOKIE, signSession, type Role } from "@devmentor/core";
 import { dynamic, GET, POST } from "./route";
 
-const CSRF = { "x-devmentor-csrf": "1" };
 const JWT_SECRET = "mentors-route-test-secret-long-enough-for-hs256";
 const sessions: Record<Role, string> = { mentee: "", mentor: "", operator: "" };
 
 function authHeaders(role: Role): Record<string, string> {
-  return { ...CSRF, cookie: `${SESSION_COOKIE}=${sessions[role]}` };
-}
-
-function post(body: unknown, headers: Record<string, string> = authHeaders("operator"), raw = false) {
-  return new Request("http://localhost/api/mentors", {
-    method: "POST",
-    headers: { "content-type": "application/json", ...headers },
-    body: raw ? (body as string) : JSON.stringify(body),
-  });
+  return { cookie: `${SESSION_COOKIE}=${sessions[role]}` };
 }
 
 beforeEach(async () => {
@@ -47,83 +38,32 @@ describe("/api/mentors", () => {
     expect(dynamic).toBe("force-dynamic");
   });
 
-  describe("GET", () => {
-    it("lists mentors inside the success envelope", async () => {
-      mocks.list.mockResolvedValue([{ id: "1", name: "Ada" }]);
-      const response = await GET(new Request("http://localhost/api/mentors", { headers: authHeaders("operator") }), undefined);
-      expect(response.status).toBe(200);
-      await expect(response.json()).resolves.toEqual({ ok: true, data: [{ id: "1", name: "Ada" }] });
-    });
-
-    it("requires an operator session", async () => {
-      const anonymous = await GET(new Request("http://localhost/api/mentors"), undefined);
-      const mentee = await GET(new Request("http://localhost/api/mentors", { headers: { cookie: `${SESSION_COOKIE}=${sessions.mentee}` } }), undefined);
-      const mentor = await GET(new Request("http://localhost/api/mentors", { headers: { cookie: `${SESSION_COOKIE}=${sessions.mentor}` } }), undefined);
-      expect(anonymous.status).toBe(401);
-      expect(mentee.status).toBe(403);
-      expect(mentor.status).toBe(403);
-      expect(mocks.list).not.toHaveBeenCalled();
-    });
+  it("preserves the legacy mentor list shape in the success envelope", async () => {
+    const mentors = [{ id: "mentor-1", name: "Ada", email: "ada@example.test", createdAt: new Date("2026-01-01T00:00:00.000Z") }];
+    mocks.list.mockResolvedValue(mentors);
+    const response = await GET(new Request("http://localhost/api/mentors", { headers: authHeaders("operator") }), undefined);
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ok: true, data: [{ ...mentors[0], createdAt: "2026-01-01T00:00:00.000Z" }] });
   });
 
-  describe("POST", () => {
-    it.each(["anonymous", "mentee", "mentor"] as const)("rejects %s", async (identity) => {
-      const headers = identity === "anonymous" ? CSRF : authHeaders(identity);
-      const response = await POST(post({ name: "Ada", email: "a@b.co" }, headers), undefined);
-      expect(response.status).toBe(identity === "anonymous" ? 401 : 403);
-      expect(mocks.register).not.toHaveBeenCalled();
-    });
+  it("requires an operator session for listing", async () => {
+    const anonymous = await GET(new Request("http://localhost/api/mentors"), undefined);
+    const mentee = await GET(new Request("http://localhost/api/mentors", { headers: authHeaders("mentee") }), undefined);
+    const mentor = await GET(new Request("http://localhost/api/mentors", { headers: authHeaders("mentor") }), undefined);
+    expect(anonymous.status).toBe(401);
+    expect(mentee.status).toBe(403);
+    expect(mentor.status).toBe(403);
+    expect(mocks.list).not.toHaveBeenCalled();
+  });
 
-    it("creates a mentor from the validated, normalised input and answers 201", async () => {
-      mocks.register.mockResolvedValue({ id: "1", name: "Ada", email: "ada@example.com" });
-      const response = await POST(post({ name: "  Ada ", email: " ADA@Example.com ", id: "evil", status: "x" }), undefined);
-      expect(response.status).toBe(201);
-      await expect(response.json()).resolves.toEqual({
-        ok: true,
-        data: { id: "1", name: "Ada", email: "ada@example.com" },
-      });
-      expect(mocks.register).toHaveBeenCalledWith({ name: "Ada", email: "ada@example.com" });
-    });
-
-    it("rejects a request without the CSRF header", async () => {
-      const response = await POST(post({ name: "Ada", email: "a@b.co" }, {}), undefined);
-      expect(response.status).toBe(403);
-      expect(mocks.register).not.toHaveBeenCalled();
-    });
-
-    it("rejects invalid input with per-field errors", async () => {
-      const response = await POST(post({ name: " ", email: "nope" }), undefined);
-      expect(response.status).toBe(400);
-      const body = (await response.json()) as { error: { code: string; fieldErrors: Record<string, string[]> } };
-      expect(body.error.code).toBe("VALIDATION_ERROR");
-      expect(body.error.fieldErrors.name).toEqual(["Name is required"]);
-      expect(body.error.fieldErrors.email).toEqual(["Email is invalid"]);
-      expect(mocks.register).not.toHaveBeenCalled();
-    });
-
-    it("rejects a body that is not valid JSON", async () => {
-      const response = await POST(post("not json", authHeaders("operator"), true), undefined);
-      expect(response.status).toBe(400);
-      await expect(response.json()).resolves.toMatchObject({ error: { message: "Request body must be valid JSON" } });
-    });
-
-    it("maps a duplicate mentor to 409 without database details", async () => {
-      mocks.register.mockRejectedValue(new ConflictError("A mentor with email ada@example.com already exists"));
-      const response = await POST(post({ name: "Ada", email: "ada@example.com" }), undefined);
-      expect(response.status).toBe(409);
-      await expect(response.json()).resolves.toEqual({
-        ok: false,
-        error: { code: "CONFLICT", message: "A mentor with email ada@example.com already exists" },
-      });
-    });
-
-    it("hides unexpected errors behind a generic 500", async () => {
-      mocks.register.mockRejectedValue(new Error("password=secret leaked"));
-      const response = await POST(post({ name: "Ada", email: "ada@example.com" }), undefined);
-      expect(response.status).toBe(500);
-      const text = await response.text();
-      expect(text).not.toContain("secret");
-      expect(JSON.parse(text).error.message).toBe("Internal server error");
-    });
+  it("keeps the POST method contract while disabling direct registration", async () => {
+    const response = await POST(new Request("http://localhost/api/mentors", {
+      method: "POST",
+      headers: { ...authHeaders("operator"), "content-type": "application/json" },
+      body: JSON.stringify({ name: "Ada", email: "ada@example.test" }),
+    }), undefined);
+    expect(response.status).toBe(405);
+    expect(await response.json()).toMatchObject({ ok: false });
+    expect(mocks.register).not.toHaveBeenCalled();
   });
 });

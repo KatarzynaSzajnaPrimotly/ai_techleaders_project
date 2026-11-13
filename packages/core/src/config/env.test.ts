@@ -45,6 +45,18 @@ describe("parseEnv", () => {
     });
   });
 
+  it("parses optional price bounds in positive EUR cents and treats blank values as unset", () => {
+    expect(parseEnv({ PRICE_MIN_25_CENTS: "1000", PRICE_MAX_25_CENTS: "60000", PRICE_MIN_50_CENTS: "18000", PRICE_MAX_50_CENTS: "120000" })).toMatchObject({
+      PRICE_MIN_25_CENTS: 1000, PRICE_MAX_25_CENTS: 60000, PRICE_MIN_50_CENTS: 18000, PRICE_MAX_50_CENTS: 120000,
+    });
+    expect(parseEnv({ PRICE_MIN_25_CENTS: "" }).PRICE_MIN_25_CENTS).toBeUndefined();
+  });
+
+  it.each(["0", "-1", "1.5", "1e2", " 1", "01", "abc", "9".repeat(400)])(
+    "rejects invalid price bound %s",
+    (value) => expect(() => parseEnv({ PRICE_MIN_25_CENTS: value })).toThrowError("Invalid environment variables: PRICE_MIN_25_CENTS"),
+  );
+
   it.each(["0", "-1", "1.5", "1e2", " 1", "01", "abc", "9".repeat(400)])(
     "rejects invalid invitation durations %s",
     (value) => {
