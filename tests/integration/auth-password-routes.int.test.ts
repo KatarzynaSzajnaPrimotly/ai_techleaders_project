@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { describe, expect, inject, it } from "vitest";
+import { SignJWT } from "jose";
 import { REGISTRATION_TOKEN_TTL_SECONDS, signPurposeToken } from "../../packages/core/src/index";
 import { Client } from "pg";
 import { runConcurrently } from "./helpers/concurrency";
@@ -83,6 +84,23 @@ describe("password authentication route integration", () => {
     const confirmation = await post("/api/auth/register/confirm", { token, password: PASSWORD });
     expect(confirmation.status).toBe(200);
     expect(await userCount(target)).toBe(1);
+  });
+
+  it("rejects an expired registration token without creating an account or issuing a session", async () => {
+    const target = `expired-${unique}@example.test`;
+    const expiredAt = Math.floor(Date.now() / 1000) - 1;
+    const token = await new SignJWT({ email: target, displayName: "Expired User", purpose: "register" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt(expiredAt - 60)
+      .setExpirationTime(expiredAt)
+      .sign(new TextEncoder().encode(jwtSecret));
+
+    const confirmation = await post("/api/auth/register/confirm", { token, password: PASSWORD });
+
+    expect(confirmation.status).toBe(401);
+    await expect(confirmation.json()).resolves.toMatchObject({ ok: false, error: { code: "UNAUTHORIZED" } });
+    expect(confirmation.headers.has("set-cookie")).toBe(false);
+    expect(await userCount(target)).toBe(0);
   });
 
   it("allows exactly one of two concurrent confirmations to create an account and issue a session", async () => {

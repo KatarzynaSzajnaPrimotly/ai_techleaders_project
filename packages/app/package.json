@@ -14,7 +14,7 @@
     "@devmentor/ui": "*",
     "@tailwindcss/postcss": "^4.3.3",
     "awilix": "^13.0.5",
-    "next": "16.4.2",
+    "next": "16.4.5",
     "postcss": "^8.5.23",
     "react": "19.3.1",
     "react-dom": "19.3.1",
