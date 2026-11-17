@@ -13,6 +13,7 @@ export function createHarnessEnvironment({ base, databaseUrl, appUrl, fakeServer
     ...base,
     DEVMENTOR_DATABASE_URL: databaseUrl,
     NODE_ENV: "production",
+    INTEGRATION_TEST: "true",
     APP_URL: appUrl,
     JWT_SECRET: jwtSecret,
     GITHUB_CLIENT_ID: "devmentor-integration-client",
@@ -28,6 +29,8 @@ export function createHarnessEnvironment({ base, databaseUrl, appUrl, fakeServer
     PRICE_MAX_25_CENTS: "60000",
     PRICE_MIN_50_CENTS: "18000",
     PRICE_MAX_50_CENTS: "120000",
+    PAYMENT_GATEWAY: "test",
+    PAYMENT_WEBHOOK_SECRET: "integration-only-webhook-secret-at-least-32-characters",
     OPERATOR_EMAILS: `${operatorEmail},${listedMentorEmail}`,
     ALLOW_INSECURE_HTTP: "true",
   };

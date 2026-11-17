@@ -62,6 +62,13 @@ export { PlatformSettingsService, type PlatformSettings, type PriceBounds } from
 export { AvailabilityService } from "./services/availability/availability.service";
 export type { AvailabilityRepositoryPort } from "./services/availability/availability-repository.port";
 export type { Slot, MentorSlotDto, PublicMentorSlotDto, StoredMentorSlot } from "./services/availability/slot.types";
+export type { Booking, BookingStatus } from "./services/bookings/booking.types";
+export type { BookingRepositoryPort } from "./services/bookings/booking-repository.port";
+export { BookingService, BOOKING_HOLD_MINUTES, BOOKING_MIN_LEAD_MINUTES } from "./services/bookings/booking.service";
+export { bookingCreateSchema, type BookingCreateInput } from "./validators/bookings/booking-create.schema";
+export { bookingCheckoutSchema, type BookingCheckoutInput } from "./validators/bookings/booking-checkout.schema";
+export type { PaymentGatewayPort, VerifiedPaymentEvent, CheckoutSession } from "./services/bookings/payment-gateway.port";
+export { BookingPaymentService } from "./services/bookings/booking-payment.service";
 export type { User, NewUser, StoredRole, PasswordAuthAccount, LoginAccount, ExistingAccountLookup, NewPasswordAccount } from "./services/auth/user.types";
 export type { UserRepositoryPort } from "./services/auth/user-repository.port";
 export { effectiveRole, issueSession, type IssuedSession } from "./services/auth/session-issuer";

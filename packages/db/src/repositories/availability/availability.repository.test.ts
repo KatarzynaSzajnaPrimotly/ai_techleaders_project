@@ -26,7 +26,7 @@ describe("createAvailabilityRepository", () => {
   it("lists active slots for the profile belonging to a user", async () => {
     const slot = { id: "slot-1", mentorProfileId: "profile-1", startsAt, removedAt: null, createdAt: publishedAt };
     const { repository, em } = setup();
-    vi.mocked(em.find).mockResolvedValue([slot] as never);
+    vi.mocked(em.find).mockResolvedValueOnce([slot] as never).mockResolvedValueOnce([] as never);
     await expect(repository.listForMentor("owner-1")).resolves.toEqual([{ id: "slot-1", startsAt }]);
     expect(em.find).toHaveBeenCalledWith("Slot", { mentorProfileId: "profile-1", removedAt: null }, { orderBy: { startsAt: "asc" } });
   });
@@ -86,9 +86,28 @@ describe("createAvailabilityRepository", () => {
   it("returns only slots for published pages", async () => {
     const slot = { id: "slot-1", mentorProfileId: "profile-1", startsAt, removedAt: null, createdAt: publishedAt };
     const { repository, em } = setup();
-    vi.mocked(em.find).mockResolvedValue([slot] as never);
+    vi.mocked(em.find).mockResolvedValueOnce([slot] as never).mockResolvedValueOnce([] as never);
     await expect(repository.listForPublishedSlug("ada")).resolves.toEqual([slot]);
     expect(em.findOne).toHaveBeenCalledWith("MentorProfile", { slug: "ada", publishedAt: { $ne: null } });
+  });
+
+  it("hides active holds and confirmed slots from the owner and public availability", async () => {
+    const held = { id: "slot-held", mentorProfileId: "profile-1", startsAt, removedAt: null, createdAt: publishedAt };
+    const free = { ...held, id: "slot-free" };
+    const { repository, em } = setup();
+    vi.mocked(em.find).mockResolvedValueOnce([held, free] as never).mockResolvedValueOnce([{ slotId: held.id }] as never);
+    await expect(repository.listForPublishedSlug("ada")).resolves.toEqual([free]);
+    expect(em.find).toHaveBeenLastCalledWith("Booking", {
+      slotId: { $in: [held.id, free.id] },
+      $or: [{ status: "confirmed" }, { status: "pending_payment", expiresAt: { $gt: expect.any(Date) } }],
+    });
+  });
+
+  it("skips the reservation lookup when there are no published slots", async () => {
+    const { repository, em } = setup();
+    vi.mocked(em.find).mockResolvedValueOnce([] as never);
+    await expect(repository.listForPublishedSlug("ada")).resolves.toEqual([]);
+    expect(em.find).toHaveBeenCalledTimes(1);
   });
 
   it("rejects a public slot query for an unpublished or unknown slug", async () => {
