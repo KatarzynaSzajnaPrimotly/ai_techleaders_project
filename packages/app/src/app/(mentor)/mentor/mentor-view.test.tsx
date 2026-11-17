@@ -8,6 +8,9 @@ describe("MentorHomeView", () => {
     expect(screen.getByRole("heading", { name: "Welcome" })).toBeTruthy();
     expect(screen.getByText("You are signed in as a mentor.")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Sign out" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Edit your mentor page" }).getAttribute("href")).toBe("/mentor/profile");
+    expect(screen.getByRole("link", { name: "Manage availability" }).getAttribute("href")).toBe("/mentor/slots");
+    expect(screen.getByRole("link", { name: "Set session prices" }).getAttribute("href")).toBe("/mentor/prices");
     expect(screen.getByText("mentor-login")).toBeTruthy();
     expect(screen.getByText(/Publish at least one bookable session by/)).toBeTruthy();
     expect(screen.queryByText(/become a mentor/i)).toBeNull();

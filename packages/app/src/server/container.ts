@@ -4,6 +4,8 @@ import {
   InvitationService,
   logger,
   MentorService,
+  PlatformSettingsService,
+  AvailabilityService,
   PasswordAuthService,
   createLogMailerAdapter,
   createMemoryRateLimiter,
@@ -11,21 +13,27 @@ import {
   createGithubIdentityAdapter,
   selectAdapter,
   type GithubIdentityPort,
+  type MailMessage,
   type MailerPort,
   type PasswordHasherPort,
   type MentorRepositoryPort,
+  type AvailabilityRepositoryPort,
   type RateLimiterPort,
   type UserRepositoryPort,
   type InvitationRepositoryPort,
   type InvitationEventPublisherPort,
 } from "@devmentor/core";
-import { createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
+import { createAvailabilityRepository, createInvitationRepository, createMentorRepository, createOrm, createUserRepository, type Orm } from "@devmentor/db";
+import { createLocalFileMailer } from "./local-file-mailer";
 
 export interface Cradle {
   orm: Orm;
   em: Orm["em"];
   mentorRepository: MentorRepositoryPort;
   mentorService: MentorService;
+  platformSettingsService: PlatformSettingsService;
+  availabilityRepository: AvailabilityRepositoryPort;
+  availabilityService: AvailabilityService;
   userRepository: UserRepositoryPort;
   invitationRepository: InvitationRepositoryPort;
   invitationEvents: InvitationEventPublisherPort;
@@ -53,7 +61,10 @@ async function buildRootContainer(): Promise<AwilixContainer<Cradle>> {
 function createConfiguredMailer(): MailerPort {
   return {
     async send(message) {
-      const adapter = selectAdapter("MAILER_TRANSPORT", { log: createLogMailerAdapter() }, process.env.MAILER_TRANSPORT);
+      const adapter = selectAdapter("MAILER_TRANSPORT", {
+        log: createLogMailerAdapter(),
+        "local-file": { send: (message: MailMessage) => createLocalFileMailer(process.env.LOCAL_MAILBOX_DIR).send(message) },
+      }, process.env.MAILER_TRANSPORT);
       await adapter.send(message);
     },
   };
@@ -90,7 +101,10 @@ export async function createRequestScope(): Promise<AwilixContainer<Cradle>> {
   scope.register({
     em: asFunction(({ orm }: Cradle) => orm.em.fork()).scoped(),
     mentorRepository: asFunction(({ em }: Cradle) => createMentorRepository(em)).scoped(),
+    platformSettingsService: asClass(PlatformSettingsService).scoped(),
     mentorService: asClass(MentorService).scoped(),
+    availabilityRepository: asFunction(({ em }: Cradle) => createAvailabilityRepository(em)).scoped(),
+    availabilityService: asClass(AvailabilityService).scoped(),
     userRepository: asFunction(({ em }: Cradle) => createUserRepository(em)).scoped(),
     invitationRepository: asFunction(({ em }: Cradle) => createInvitationRepository(em)).scoped(),
     invitationEvents: asFunction((): InvitationEventPublisherPort => ({

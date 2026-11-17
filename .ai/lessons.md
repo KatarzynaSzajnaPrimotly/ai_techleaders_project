@@ -9,6 +9,8 @@ See `AGENTS.md` for the full `.ai/` workflow this file is part of.
 - YYYY-MM-DD — One-line summary. [details](lessons/YYYY-MM-DD-slug.md)
 -->
 
+- 2026-11-13 — If Git reports `error reading ca cert file` despite a valid CA bundle, check for an empty `GIT_SSL_CAINFO`; unset it for the Git command so repo CA configuration applies. [details](lessons/2026-11-13-empty-git-ssl-cainfo.md)
+
 - 2026-10-27 — Keep the config schema/parser independent from logger setup to avoid an ESM initialization cycle when config helpers need to log. [details](lessons/2026-10-27-config-logger-import-cycle.md)
 
 - 2026-10-20 — Read `git diff --cached --name-only` before every commit: an unrelated archive was in the index; stacked PRs need the right base. [details](lessons/2026-10-20-check-the-index-before-committing.md)

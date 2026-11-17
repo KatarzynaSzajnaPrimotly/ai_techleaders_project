@@ -66,6 +66,8 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
   let orm: Awaited<ReturnType<typeof createOrm>> | undefined;
   try {
     const command = parseInviteArgs(args);
+    // Validate link configuration before creating or rotating a single-use token.
+    if (command.action === "create" || command.action === "resend") absoluteUrl("/");
     orm = await createOrm();
     const service = new InvitationService({
       invitationRepository: createInvitationRepository(orm.em.fork()),

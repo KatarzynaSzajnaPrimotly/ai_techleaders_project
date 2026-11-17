@@ -6,6 +6,7 @@ type FieldErrors = Record<string, string[]>;
 
 export interface FormCoreField {
   name: string;
+  initialValue?: string | string[];
 }
 
 export interface UseFormCoreOptions<S extends z.ZodType> {
@@ -14,6 +15,7 @@ export interface UseFormCoreOptions<S extends z.ZodType> {
   onSubmit: (values: z.output<S>) => Promise<ApiResult<unknown>>;
   onSuccess?: (data: unknown) => void;
   onCancel?: () => void;
+  resetOnSuccess?: boolean;
 }
 
 export function useFormCore<S extends z.ZodType>({
@@ -22,14 +24,15 @@ export function useFormCore<S extends z.ZodType>({
   onSubmit,
   onSuccess,
   onCancel,
+  resetOnSuccess = true,
 }: UseFormCoreOptions<S>) {
-  const emptyValues = () => Object.fromEntries(fields.map((field) => [field.name, ""]));
-  const [values, setValues] = useState<Record<string, string>>(emptyValues);
+  const initialValues = () => Object.fromEntries(fields.map((field) => [field.name, field.initialValue ?? ""]));
+  const [values, setValues] = useState<Record<string, string | string[]>>(initialValues);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  function setValue(name: string, value: string) {
+  function setValue(name: string, value: string | string[]) {
     setValues((current) => ({ ...current, [name]: value }));
   }
 
@@ -49,7 +52,7 @@ export function useFormCore<S extends z.ZodType>({
     setSubmitting(false);
 
     if (result.ok) {
-      setValues(emptyValues());
+      if (resetOnSuccess) setValues(initialValues());
       onSuccess?.(result.data);
       return;
     }

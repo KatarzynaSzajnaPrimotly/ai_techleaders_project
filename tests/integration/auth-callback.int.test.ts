@@ -9,6 +9,11 @@ const databaseUrl = inject("databaseUrl");
 const fakeServerUrl = inject("fakeServerUrl");
 const jwtSecret = inject("jwtSecret");
 const unique = randomUUID().replaceAll("-", "");
+const githubIdBase = Number.parseInt(unique.slice(0, 6), 16) * 10;
+
+function githubId(offset: number): number {
+  return githubIdBase + offset;
+}
 
 interface Identity {
   user: { id: number; login: string; name: string; avatar_url: string };
@@ -63,7 +68,7 @@ async function callback(code: string, state: string, cookie: string): Promise<Re
 
 beforeAll(async () => {
   await clearFakeIdentity();
-  await setIdentity(identity(7001, `callback-${unique}`, `callback-${unique}@example.test`));
+  await setIdentity(identity(githubId(1), `callback-${unique}`, `callback-${unique}@example.test`));
 });
 
 afterAll(clearFakeIdentity);
@@ -138,11 +143,11 @@ describe("GitHub OAuth callback integration", () => {
   });
 
   it("issues the stored mentor role in the session", async () => {
-    const githubId = 7301;
+    const mentorGithubId = githubId(301);
     const email = `mentor-callback-${unique}@example.test`;
-    await createUser({ email, role: "mentor", githubId: String(githubId), githubLogin: `mentor-${unique}` }, databaseUrl);
+    await createUser({ email, role: "mentor", githubId: String(mentorGithubId), githubLogin: `mentor-${unique}` }, databaseUrl);
     const code = `mentor-${unique}`;
-    await setIdentity(identity(githubId, `mentor-${unique}`, email), code);
+    await setIdentity(identity(mentorGithubId, `mentor-${unique}`, email), code);
     const login = await startLogin();
     const response = await callback(code, login.state, login.cookie);
 
@@ -168,7 +173,7 @@ describe("GitHub OAuth callback integration", () => {
 
   it("maps missing verified email to its typed navigation error", async () => {
     const code = `unverified-${unique}`;
-    await setIdentity({ ...identity(7002, `unverified-${unique}`, `unverified-${unique}@example.test`), emails: [] }, code);
+    await setIdentity({ ...identity(githubId(2), `unverified-${unique}`, `unverified-${unique}@example.test`), emails: [] }, code);
     const login = await startLogin();
     const response = await callback(code, login.state, login.cookie);
     expect(response.headers.get("location")).toBe("/sign-in?error=no-verified-email");
@@ -177,8 +182,8 @@ describe("GitHub OAuth callback integration", () => {
   it("keeps conflicting existing GitHub links unavailable", async () => {
     const code = `conflict-${unique}`;
     const email = `conflict-${unique}@example.test`;
-    await createUser({ email, githubId: "799999", githubLogin: "other-github" }, databaseUrl);
-    await setIdentity(identity(7003, `conflict-${unique}`, email), code);
+    await createUser({ email, githubId: String(githubId(999)), githubLogin: "other-github" }, databaseUrl);
+    await setIdentity(identity(githubId(3), `conflict-${unique}`, email), code);
     const login = await startLogin();
     const response = await callback(code, login.state, login.cookie);
     expect(response.headers.get("location")).toBe("/sign-in?error=unavailable");
@@ -188,8 +193,9 @@ describe("GitHub OAuth callback integration", () => {
     const email = `link-race-${unique}@example.test`;
     const account = await createUser({ email }, databaseUrl);
     const codes = [`link-a-${unique}`, `link-b-${unique}`];
-    await setIdentity(identity(7101, `github-a-${unique}`, email), codes[0]);
-    await setIdentity(identity(7102, `github-b-${unique}`, email), codes[1]);
+    const githubIds = [githubId(101), githubId(102)];
+    await setIdentity(identity(githubIds[0]!, `github-a-${unique}`, email), codes[0]);
+    await setIdentity(identity(githubIds[1]!, `github-b-${unique}`, email), codes[1]);
     const logins = await Promise.all(codes.map(() => startLogin()));
 
     const responses = await runConcurrently(2, (index) => {
@@ -208,7 +214,7 @@ describe("GitHub OAuth callback integration", () => {
     try {
       const result = await client.query<{ id: string; github_id: string | null }>("SELECT id, github_id FROM users WHERE id = $1", [account.id]);
       expect(result.rows[0]).toMatchObject({ id: account.id });
-      expect(["7101", "7102"]).toContain(result.rows[0]?.github_id);
+      expect(githubIds.map(String)).toContain(result.rows[0]?.github_id);
     } finally {
       await client.end();
     }
@@ -216,7 +222,7 @@ describe("GitHub OAuth callback integration", () => {
 
   it("creates one account when first sign-in callbacks race", async () => {
     const email = `first-race-${unique}@example.test`;
-    const github = identity(7201, `first-race-${unique}`, email);
+    const github = identity(githubId(201), `first-race-${unique}`, email);
     const codes = [`first-a-${unique}`, `first-b-${unique}`];
     await Promise.all(codes.map((code) => setIdentity(github, code)));
     const logins = await Promise.all(codes.map(() => startLogin()));

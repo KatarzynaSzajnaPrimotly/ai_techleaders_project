@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const MIN_JWT_SECRET_LENGTH = 32;
 const positiveSafeIntegerSetting = z.string().regex(/^[1-9]\d*$/).transform(Number).refine(Number.isSafeInteger);
+const optionalPositiveSafeIntegerSetting = z.preprocess((value) => value === "" ? undefined : value, positiveSafeIntegerSetting.optional());
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -15,6 +16,10 @@ export const envSchema = z.object({
   TRUST_PROXY_HOPS: z.string().regex(/^(0|[1-9]\d*)$/).transform(Number).optional(),
   INVITATION_TTL_DAYS: positiveSafeIntegerSetting.prefault("14"),
   MENTOR_PUBLISH_WINDOW_DAYS: positiveSafeIntegerSetting.prefault("14"),
+  PRICE_MIN_25_CENTS: optionalPositiveSafeIntegerSetting,
+  PRICE_MAX_25_CENTS: optionalPositiveSafeIntegerSetting,
+  PRICE_MIN_50_CENTS: optionalPositiveSafeIntegerSetting,
+  PRICE_MAX_50_CENTS: optionalPositiveSafeIntegerSetting,
   MAILER_TRANSPORT: z.string().optional(),
   OPERATOR_EMAILS: z.string().default("").transform((value) =>
     value.split(",").map((email) => email.trim().toLowerCase()).filter(Boolean),

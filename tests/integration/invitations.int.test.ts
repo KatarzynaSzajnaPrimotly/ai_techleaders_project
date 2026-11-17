@@ -78,6 +78,26 @@ async function settle<T>(operation: () => Promise<T>): Promise<{ status: "fulfil
 }
 
 describe("invitation acceptance integration", () => {
+  it("rejects an expired invitation without granting the mentor role or creating a profile", async () => {
+    const email = `expired-invitation-${unique}@example.test`;
+    const account = await createUser({ email }, databaseUrl);
+    const invitation = await seedPendingInvitation({ email, expiresAt: new Date(Date.now() - 60_000) }, databaseUrl);
+    const token = await mintSessionCookie({ userId: account.id, role: "mentee", roles: ["mentee"] }, jwtSecret);
+
+    const lookup = await fetch(new URL(`/api/invitations/${invitation.token}`, baseUrl));
+    const accept = await fetch(new URL(`/api/invitations/${invitation.token}/accept`, baseUrl), {
+      method: "POST",
+      headers: { ...CSRF_HEADERS, cookie: `${SESSION_COOKIE}=${token}` },
+    });
+
+    expect(lookup.status).toBe(404);
+    expect(accept.status).toBe(404);
+    expect(accept.headers.has("set-cookie")).toBe(false);
+    const persisted = await readAccountRolesAndProfile(account.id);
+    expect(persisted.user).toMatchObject({ roles: ["mentee"], session_version: 0 });
+    expect(persisted.profile).toBeUndefined();
+  });
+
   it("accepts for the verified matching account, retains mentee, renews the session, and shows the deadline on /mentor", async () => {
     const email = `invited-${unique}@example.test`;
     const account = await createUser({ email, role: "mentee" }, databaseUrl);

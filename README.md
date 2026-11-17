@@ -111,6 +111,11 @@ the invitation is created. The first mentor publication deadline uses
 `MENTOR_PUBLISH_WINDOW_DAYS` (default `14`), snapshotted when the invitation is
 accepted; changing it affects later acceptances, not existing deadlines.
 
+Mentor pricing uses EUR cents. Configure all four `PRICE_MIN_25_CENTS`,
+`PRICE_MAX_25_CENTS`, `PRICE_MIN_50_CENTS` and `PRICE_MAX_50_CENTS` values before
+mentors can save prices. There are no default bounds: an incomplete or invalid
+configuration fails closed and prevents price updates.
+
 Operators can manage invitations from the repository root. Set `APP_URL` and
 `DEVMENTOR_DATABASE_URL`, then provide an operator label so each action can be
 copied into the shared audit note. The invitation link is printed only after a

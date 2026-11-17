@@ -4,13 +4,15 @@ import { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { cn } from "../../lib/utils";
 import type { ApiResult } from "../api/types";
-import { useFormCore } from "./useFormCore";
+import { useFormCore, type FormCoreField } from "./useFormCore";
 
-export interface CrudField {
-  name: string;
+export interface CrudField extends FormCoreField {
   label: string;
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "textarea" | "multiselect" | "datetime";
   placeholder?: string;
+  description?: string;
+  options?: readonly { label: string; value: string }[];
+  maxLength?: number;
 }
 
 export interface CrudFormProps<S extends z.ZodType> {
@@ -21,6 +23,8 @@ export interface CrudFormProps<S extends z.ZodType> {
   onCancel?: () => void;
   submitLabel?: string;
   cancelLabel?: string;
+  resetOnSuccess?: boolean;
+  serverFieldErrors?: Record<string, string[]>;
 }
 
 export function CrudForm<S extends z.ZodType>({
@@ -31,6 +35,8 @@ export function CrudForm<S extends z.ZodType>({
   onCancel,
   submitLabel = "Save",
   cancelLabel = "Cancel",
+  resetOnSuccess = true,
+  serverFieldErrors = {},
 }: CrudFormProps<S>) {
   const { values, setValue, fieldErrors, formError, submitting, handleSubmit, handleKeyDown } = useFormCore({
     schema,
@@ -38,33 +44,75 @@ export function CrudForm<S extends z.ZodType>({
     onSubmit,
     onSuccess,
     onCancel,
+    resetOnSuccess,
   });
 
   return (
     <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} noValidate className="space-y-4">
       {fields.map((field) => {
-        const errors = fieldErrors[field.name];
+        const errors = fieldErrors[field.name] ?? serverFieldErrors[field.name];
         const errorId = `${field.name}-error`;
+        const descriptionId = `${field.name}-description`;
+        const describedBy = [field.description ? descriptionId : null, errors ? errorId : null].filter(Boolean).join(" ") || undefined;
         return (
           <div key={field.name} className="space-y-1.5">
-            <label htmlFor={field.name} className="text-sm font-medium">
-              {field.label}
-            </label>
-            <input
-              id={field.name}
-              name={field.name}
-              type={field.type ?? "text"}
-              placeholder={field.placeholder}
-              value={values[field.name]}
-              onChange={(event) => setValue(field.name, event.target.value)}
-              aria-invalid={errors ? true : undefined}
-              aria-describedby={errors ? errorId : undefined}
-              className={cn(
-                "flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                errors && "border-destructive",
-              )}
-            />
+            {field.type === "multiselect" ? (
+              <span id={`${field.name}-label`} className="text-sm font-medium">{field.label}</span>
+            ) : (
+              <label htmlFor={field.name} className="text-sm font-medium">{field.label}</label>
+            )}
+            {field.type === "multiselect" ? (
+              <fieldset aria-labelledby={`${field.name}-label`} aria-describedby={describedBy}>
+                <legend className="sr-only">{field.label}</legend>
+                <div className="flex flex-wrap gap-3">
+                  {(field.options ?? []).map((option) => {
+                    const selected = Array.isArray(values[field.name]) ? values[field.name] as string[] : [];
+                    return (
+                      <label key={option.value} className="inline-flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          name={field.name}
+                          value={option.value}
+                          checked={selected.includes(option.value)}
+                          aria-invalid={errors ? true : undefined}
+                          aria-describedby={errors ? errorId : undefined}
+                          onChange={(event) => setValue(field.name, event.target.checked
+                            ? [...selected, option.value]
+                            : selected.filter((value) => value !== option.value))}
+                        />
+                        {option.label}
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            ) : field.type === "textarea" ? (
+              <textarea
+                id={field.name}
+                name={field.name}
+                placeholder={field.placeholder}
+                maxLength={field.maxLength}
+                value={typeof values[field.name] === "string" ? values[field.name] as string : ""}
+                onChange={(event) => setValue(field.name, event.target.value)}
+                aria-invalid={errors ? true : undefined}
+                aria-describedby={describedBy}
+                className={cn("min-h-28 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", errors && "border-destructive")}
+              />
+            ) : (
+              <input
+                id={field.name}
+                name={field.name}
+                type={field.type === "datetime" ? "datetime-local" : field.type ?? "text"}
+                placeholder={field.placeholder}
+                maxLength={field.maxLength}
+                value={typeof values[field.name] === "string" ? values[field.name] as string : ""}
+                onChange={(event) => setValue(field.name, event.target.value)}
+                aria-invalid={errors ? true : undefined}
+                aria-describedby={describedBy}
+                className={cn("flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", errors && "border-destructive")}
+              />
+            )}
+            {field.description ? <p id={descriptionId} className="text-xs text-muted-foreground">{field.description}</p> : null}
             {errors ? (
               <p id={errorId} role="alert" className="text-xs text-destructive">
                 {errors.join(" ")}
